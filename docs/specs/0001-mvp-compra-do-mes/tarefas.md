@@ -10,7 +10,7 @@ Um PR de portão só com documentação e cinco PRs de código, cada tarefa num 
 
 ## PR 1: fundação e spike da nota fiscal
 
-- [ ] **T01** CI no padrão dos sites (formatação, lint, tipos, cobertura de 80%, build, E2E), CodeQL, revisão de dependências, Dependabot, `.nvmrc`, TypeScript estrito e CONTRIBUTING — arquivos: `.github/`, raiz — prova: CI verde — cobre: nenhum
+- [x] **T01** CI no padrão dos sites (formatação, lint, tipos, cobertura de 80%, build, E2E), CodeQL, revisão de dependências, Dependabot, `.nvmrc`, TypeScript estrito e CONTRIBUTING — arquivos: `.github/`, raiz — prova: CI verde — cobre: nenhum
 - [ ] **T02** Esqueleto Astro + ilha React + Worker `/api`, cabeçalhos e CSP de uma fonte só, manifest do PWA, `/privacidade`, `/sobre` e ADR-0001 — arquivos: `src/`, `worker/`, `public/`, `docs/adr/` — prova: unidade dos cabeçalhos, E2E com axe — cobre: CA-37 (base)
 - [ ] **T03** Spike da consulta de NFC-e de São Paulo: validador de link por UF, busca com limites, leitor em TypeScript puro sobre fixture sintética e página de teste `/nota`; o Cleber testa na prévia com uma nota real e manda print do resultado — arquivos: `worker/nfce/`, `src/features/precos/nfce/` — prova: `npm test -- worker/nfce`, `e2e/nota.spec.ts` e print da prévia — cobre: CA-11, CA-12, CA-13 (os códigos de erro e o aviso; o botão de digitar chega na T12)
 
