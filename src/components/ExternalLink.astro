@@ -1,0 +1,16 @@
+---
+interface Props {
+  href: string;
+  class?: string;
+}
+
+const { href, class: className } = Astro.props;
+if (!href.startsWith("https://")) {
+  throw new Error(`Link externo precisa usar https: ${href}`);
+}
+---
+
+<a href={href} class={className} target="_blank" rel="noopener noreferrer">
+  <slot />
+  <span class="somente-leitor"> (abre em outra aba)</span>
+</a>

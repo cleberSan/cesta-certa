@@ -1,0 +1,59 @@
+---
+import { repositoryUrl, siteName } from "../config/site";
+import ExternalLink from "./ExternalLink.astro";
+---
+
+<footer class="rodape">
+  <div class="rodape-conteudo">
+    <p>{siteName}: projeto de código aberto, sem anúncio e sem rastreador.</p>
+    <ul>
+      <li>
+        <a href="/privacidade">Privacidade</a>
+      </li>
+      <li>
+        <a href="/sobre">Sobre</a>
+      </li>
+      <li>
+        <ExternalLink href={repositoryUrl}>Código no GitHub</ExternalLink>
+      </li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .rodape {
+    border-top: 1px solid var(--cor-borda);
+    background: var(--cor-superficie);
+    color: var(--cor-texto-suave);
+    font-size: 0.95rem;
+  }
+
+  .rodape-conteudo {
+    max-width: var(--largura-conteudo);
+    margin: 0 auto;
+    padding: var(--espaco);
+  }
+
+  p {
+    margin: 0 0 0.5rem;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  li + li {
+    margin-top: 0;
+  }
+
+  ul :global(a) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+</style>

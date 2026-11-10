@@ -1,0 +1,66 @@
+---
+import ExternalLink from "../components/ExternalLink.astro";
+import { repositoryUrl } from "../config/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Privacidade"
+  description="O que o Cesta Certa faz com os seus dados: sem cadastro, sem anúncio e sem rastreador, com a nota fiscal consultada sem guardar o link nem o consumidor."
+>
+  <h1>Privacidade</h1>
+  <p class="chamada">
+    O Cesta Certa não tem cadastro, anúncio nem rastreador. Esta página diz o que acontece com os
+    seus dados em cada parte do app, e muda junto com ele.
+  </p>
+
+  <h2>Leitura da nota fiscal</h2>
+  <ul>
+    <li>
+      Quando você cola o link do QR Code de uma nota, ele é enviado ao servidor do Cesta Certa, que
+      busca a página pública da nota na Secretaria da Fazenda de São Paulo e devolve o mercado, a
+      data e os itens com preço.
+    </li>
+    <li>
+      O CPF e o nome do consumidor, quando aparecem na nota, não entram na resposta e não são
+      guardados.
+    </li>
+    <li>
+      O servidor não guarda o link nem o conteúdo da nota. O log tem só dados técnicos: horário, se
+      a consulta deu certo ou qual foi o erro, quantos itens vieram, o tempo de resposta e um código
+      embaralhado da nota, que serve para notar repetição e não permite voltar ao número dela.
+    </li>
+    <li>O resultado aparece na sua tela e some quando você sai da página.</li>
+  </ul>
+
+  <h2>Hospedagem</h2>
+  <p>
+    O site é servido pela Cloudflare. Como em qualquer site, o provedor recebe o endereço IP e os
+    dados técnicos de cada acesso para entregar as páginas e proteger o serviço.
+  </p>
+
+  <h2>O que ainda vai chegar</h2>
+  <ul>
+    <li>
+      <strong>Lista e preços:</strong> ficarão guardados só no seu aparelho, com opção de exportar e
+      apagar.
+    </li>
+    <li>
+      <strong>Localização:</strong> o app vai pedir a sua localização, explicando o motivo antes,
+      para achar os mercados próximos. As coordenadas não sairão do aparelho.
+    </li>
+    <li>
+      <strong>Assistente:</strong> só enviará a sua pergunta com o seu aceite, e isso estará
+      descrito aqui antes de ser ligado.
+    </li>
+  </ul>
+
+  <h2>Dúvidas e problemas</h2>
+  <p>
+    Abra uma issue no{" "}
+    <ExternalLink href={`${repositoryUrl}/issues`}>repositório do projeto</ExternalLink>. Para falha
+    de segurança, use o
+    <ExternalLink href={`${repositoryUrl}/security/advisories/new`}>reporte privado</ExternalLink>.
+  </p>
+  <p>Atualizada em 10 de novembro de 2026.</p>
+</BaseLayout>

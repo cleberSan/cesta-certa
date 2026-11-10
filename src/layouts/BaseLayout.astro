@@ -1,0 +1,89 @@
+---
+import "../styles/global.css";
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import { isIndexable, publicPath, siteName, siteTagline } from "../config/site";
+
+interface Props {
+  /** Título da página; o nome do site é acrescentado, exceto na página inicial. */
+  title?: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const fullTitle = title ? `${title} | ${siteName}` : `${siteName}: ${siteTagline}`;
+
+// URLs absolutas a partir do endereço do build (src/config/site.ts).
+const site = Astro.site;
+const path = publicPath(Astro.url.pathname);
+const indexable = isIndexable(path);
+// Página fora dos buscadores (404, teste da nota) não declara endereço canônico.
+const canonical = site && indexable ? new URL(path, site).href : undefined;
+const shareImage = { path: "/compartilhamento.png", width: 1200, height: 630 };
+const shareImageUrl = site ? new URL(shareImage.path, site).href : undefined;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {!indexable && <meta name="robots" content="noindex" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta name="theme-color" content="#0f6b4f" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1511" media="(prefers-color-scheme: dark)" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/icone.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {shareImageUrl && (
+      <>
+        <meta property="og:image" content={shareImageUrl} />
+        <meta property="og:image:width" content={String(shareImage.width)} />
+        <meta property="og:image:height" content={String(shareImage.height)} />
+        <meta property="og:image:alt" content={`${siteName}: ${siteTagline}`} />
+        <meta name="twitter:card" content="summary_large_image" />
+      </>
+    )}
+  </head>
+  <body>
+    <a class="pular" href="#conteudo">
+      Pular para o conteúdo
+    </a>
+    <SiteHeader />
+    <main id="conteudo" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>
+
+<style>
+  .pular {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 10;
+    padding: 0.6rem 1rem;
+    border-radius: var(--raio-pilula);
+    background: var(--cor-marca);
+    color: var(--cor-sobre-marca);
+    font-weight: 700;
+  }
+
+  .pular:focus {
+    top: 1rem;
+  }
+
+  main:focus {
+    outline: none;
+  }
+</style>
