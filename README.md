@@ -2,7 +2,7 @@
 
 Comparador da compra do mês: você monta a lista, o app mostra em quais mercados próximos ela sai mais barata, de acordo com o seu objetivo, e abre a rota no Waze ou no Google Maps. Feito primeiro para o celular.
 
-> **Estado: em especificação.** Ainda não há código. A [spec 0001](docs/specs/0001-mvp-compra-do-mes/spec.md) descreve o MVP e aguarda aprovação.
+> **Estado: em construção.** A [spec 0001](docs/specs/0001-mvp-compra-do-mes/spec.md) foi aprovada em 10/11/2026 e o MVP entra em cinco PRs, na ordem de [tarefas.md](docs/specs/0001-mvp-compra-do-mes/tarefas.md).
 
 ## A ideia
 
