@@ -1,0 +1,169 @@
+.consulta {
+  margin: 1.5rem 0;
+}
+
+.consulta-formulario {
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  padding: var(--espaco);
+}
+
+.consulta-formulario label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.consulta-formulario textarea {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--cor-borda);
+  border-radius: 0.5rem;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-family: var(--fonte-mono);
+  font-size: 1rem;
+  line-height: 1.4;
+  resize: vertical;
+  overflow-wrap: anywhere;
+}
+
+.consulta-formulario textarea::placeholder {
+  color: var(--cor-texto-suave);
+  opacity: 1;
+}
+
+.consulta-ajuda {
+  margin: 0.4rem 0 1rem;
+  color: var(--cor-texto-suave);
+  font-size: 0.95rem;
+}
+
+.consulta-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.consulta-falha,
+.consulta-nota {
+  margin-top: 1rem;
+  padding: var(--espaco);
+  border-radius: var(--raio);
+  border: 1px solid var(--cor-borda);
+  background: var(--cor-superficie);
+}
+
+.consulta-falha {
+  border-color: var(--cor-erro);
+  background: var(--cor-erro-fundo);
+}
+
+.consulta-falha h2,
+.consulta-nota h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+}
+
+.consulta-falha h2 {
+  color: var(--cor-erro);
+}
+
+.consulta-codigo {
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.consulta-falha summary {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.consulta-falha pre {
+  margin: 0.5rem 0 0;
+  padding: 0.75rem;
+  max-height: 24rem;
+  overflow: auto;
+  border-radius: 0.5rem;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-family: var(--fonte-mono);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.consulta-nota dl {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+.consulta-nota dl > div {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  gap: 0.75rem;
+}
+
+.consulta-nota dt {
+  color: var(--cor-texto-suave);
+}
+
+.consulta-nota dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.consulta-aviso {
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.5rem;
+  background: var(--cor-aviso-fundo);
+}
+
+.consulta-tabela {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+}
+
+.consulta-tabela table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.consulta-tabela th,
+.consulta-tabela td {
+  padding: 0.55rem 0.6rem;
+  border-bottom: 1px solid var(--cor-borda);
+  text-align: left;
+  vertical-align: top;
+}
+
+.consulta-tabela thead th {
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.consulta-tabela tbody th {
+  font-weight: 600;
+  min-width: 11rem;
+}
+
+.consulta-tabela .numero {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.consulta-codigo-do-item {
+  display: block;
+  color: var(--cor-texto-suave);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
