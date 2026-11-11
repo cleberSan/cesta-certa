@@ -152,7 +152,7 @@
 
 .consulta-tabela tbody th {
   font-weight: 600;
-  min-width: 11rem;
+  overflow-wrap: anywhere;
 }
 
 .consulta-tabela .numero {
@@ -166,4 +166,31 @@
   color: var(--cor-texto-suave);
   font-size: 0.8rem;
   font-weight: 400;
+}
+
+.consulta-conta-do-item {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * No celular a tabela não rola para o lado: quantidade, unidade e preço unitário saem das
+ * colunas e viram uma linha embaixo do nome do produto. Em tela larga é o contrário.
+ */
+@media (max-width: 39.99rem) {
+  .consulta-tabela .so-tela-larga {
+    display: none;
+  }
+}
+
+@media (min-width: 40rem) {
+  .consulta-conta-do-item {
+    display: none;
+  }
+
+  .consulta-tabela tbody th {
+    min-width: 11rem;
+  }
 }

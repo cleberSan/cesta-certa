@@ -79,7 +79,11 @@ function problema(status: number, code: string, extras: Record<string, unknown> 
 }
 
 test.describe("nota lida", () => {
-  test("mostra o mercado, a data e os itens com preço", async ({ page, consoleErrors }) => {
+  test("mostra o mercado, a data e os itens com preço", async ({
+    page,
+    consoleErrors,
+    isMobile,
+  }) => {
     const enviados: unknown[] = [];
     await responder(page, async (route) => {
       enviados.push(route.request().postDataJSON());
@@ -98,10 +102,19 @@ test.describe("nota lida", () => {
     const itens = page.getByRole("region", { name: "Itens da nota" });
     await expect(itens.getByRole("row")).toHaveCount(3);
     const queijo = itens.getByRole("row", { name: /QUEIJO MUCARELA KG/ });
-    await expect(queijo.getByRole("cell").nth(0)).toHaveText("0,345");
-    await expect(queijo.getByRole("cell").nth(1)).toHaveText("KG");
-    await expect(queijo.getByRole("cell").nth(2)).toHaveText(reais("38,90"));
-    await expect(queijo.getByRole("cell").nth(3)).toHaveText(reais("13,42"));
+    const conta = queijo.locator(".consulta-conta-do-item");
+    if (isMobile) {
+      // No celular a conta do item fica embaixo do nome e só o total tem coluna.
+      await expect(conta).toHaveText(/^0,345 KG × R\$\s38,90$/);
+      await expect(queijo.getByRole("cell")).toHaveCount(1);
+      await expect(queijo.getByRole("cell")).toHaveText(reais("13,42"));
+    } else {
+      await expect(conta).toBeHidden();
+      await expect(queijo.getByRole("cell").nth(0)).toHaveText("0,345");
+      await expect(queijo.getByRole("cell").nth(1)).toHaveText("KG");
+      await expect(queijo.getByRole("cell").nth(2)).toHaveText(reais("38,90"));
+      await expect(queijo.getByRole("cell").nth(3)).toHaveText(reais("13,42"));
+    }
 
     // O app manda só o link, sem espaço em volta.
     expect(enviados).toEqual([{ url: linkSintetico }]);
@@ -111,10 +124,24 @@ test.describe("nota lida", () => {
   test("a tela com a nota não tem violações de acessibilidade nem rolagem horizontal", async ({
     page,
   }) => {
-    await responder(page, (route) => comJson(route, 200, nota));
+    // Item de valor alto e nome comprido: o caso que mais aperta a tabela no celular.
+    const caro = {
+      descricao: "LEITE INTEGRAL LONGA VIDA CAIXA COM 12 UNIDADES DE 1 LITRO",
+      codigo: "7890000000024",
+      quantidade: "12.5",
+      unidade: "CX",
+      precoUnitarioCentavos: 1_059_90,
+      totalCentavos: 13_248_75,
+    };
+    await responder(page, (route) =>
+      comJson(route, 200, { ...nota, itens: [...nota.itens, caro] }),
+    );
     await abrir(page);
     await consultar(page, linkSintetico);
-    await expect(page.getByRole("region", { name: "Itens da nota" })).toBeVisible();
+    const itens = page.getByRole("region", { name: "Itens da nota" });
+    await expect(itens.getByRole("row", { name: /LEITE INTEGRAL/ })).toContainText(
+      reais("13.248,75"),
+    );
 
     const results = await new AxeBuilder({ page }).withTags(wcag).analyze();
     expect(results.violations).toEqual([]);
@@ -122,6 +149,9 @@ test.describe("nota lida", () => {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
     expect(sobra).toBeLessThanOrEqual(0);
+    // Os preços aparecem inteiros: a tabela cabe na largura, sem rolar para o lado.
+    const sobraDaTabela = await itens.evaluate((area) => area.scrollWidth - area.clientWidth);
+    expect(sobraDaTabela).toBeLessThanOrEqual(0);
   });
 
   test("mostra como texto a descrição que traz marcação, sem executar nada", async ({

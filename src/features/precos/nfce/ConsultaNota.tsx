@@ -180,11 +180,13 @@ function Nota({ nota }: { nota: NotaConsultada }) {
           <thead>
             <tr>
               <th scope="col">Produto</th>
-              <th scope="col" className="numero">
+              <th scope="col" className="numero so-tela-larga">
                 Qtde.
               </th>
-              <th scope="col">Un.</th>
-              <th scope="col" className="numero">
+              <th scope="col" className="so-tela-larga">
+                Un.
+              </th>
+              <th scope="col" className="numero so-tela-larga">
                 Preço unit.
               </th>
               <th scope="col" className="numero">
@@ -198,10 +200,17 @@ function Nota({ nota }: { nota: NotaConsultada }) {
                 <th scope="row">
                   {item.descricao}
                   <span className="consulta-codigo-do-item">Código {item.codigo}</span>
+                  {/* No celular a conta do item fica aqui, no lugar das três colunas do meio. */}
+                  <span className="consulta-conta-do-item">
+                    {formatarQuantidade(item.quantidade)} {item.unidade} ×{" "}
+                    {formatarCentavos(item.precoUnitarioCentavos)}
+                  </span>
                 </th>
-                <td className="numero">{formatarQuantidade(item.quantidade)}</td>
-                <td>{item.unidade}</td>
-                <td className="numero">{formatarCentavos(item.precoUnitarioCentavos)}</td>
+                <td className="numero so-tela-larga">{formatarQuantidade(item.quantidade)}</td>
+                <td className="so-tela-larga">{item.unidade}</td>
+                <td className="numero so-tela-larga">
+                  {formatarCentavos(item.precoUnitarioCentavos)}
+                </td>
                 <td className="numero">{formatarCentavos(item.totalCentavos)}</td>
               </tr>
             ))}
