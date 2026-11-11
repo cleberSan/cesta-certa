@@ -1,0 +1,54 @@
+---
+import ExternalLink from "../components/ExternalLink.astro";
+import { repositoryUrl } from "../config/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Sobre"
+  description="O Cesta Certa é um projeto de código aberto para comparar a compra do mês entre mercados próximos, com preços das próprias notas fiscais de quem usa."
+>
+  <h1>Sobre o Cesta Certa</h1>
+  <p class="chamada">
+    Um comparador da compra do mês, feito primeiro para o celular: a lista é sua, os preços vêm das
+    suas notas fiscais e do que você anota no mercado.
+  </p>
+
+  <h2>Por que os preços vêm das suas notas</h2>
+  <p>
+    Não existe uma fonte pública e gratuita com o preço de hoje de todos os mercados, e copiar preço
+    de site de mercado vai contra os termos de uso deles. Por isso o Cesta Certa mostra, em cada
+    preço, de onde ele veio e de quando é.
+  </p>
+
+  <h2>Andamento</h2>
+  <ul>
+    <li>
+      <strong>No ar:</strong> teste da leitura da nota fiscal de São Paulo.
+    </li>
+    <li>
+      <strong>Em construção:</strong> lista do mês, mercados próximos no mapa, rota, comparação pelo
+      seu objetivo e assistente.
+    </li>
+  </ul>
+
+  <h2>Código aberto</h2>
+  <p>
+    O código é público, sob licença MIT, no <ExternalLink href={repositoryUrl}>GitHub</ExternalLink>
+    . A especificação, as decisões de arquitetura e os testes ficam no mesmo repositório.
+  </p>
+
+  <h2>Avisos</h2>
+  <ul>
+    <li>
+      O Cesta Certa não é um serviço da Secretaria da Fazenda nem de nenhuma rede de mercado, e não
+      tem vínculo com elas.
+    </li>
+    <li>
+      Waze e Google Maps são marcas dos seus donos, citadas só para indicar para onde a rota abre.
+    </li>
+    <li>
+      Os preços mostrados são os que constam nas notas e anotações de quem usa, na data indicada.
+    </li>
+  </ul>
+</BaseLayout>

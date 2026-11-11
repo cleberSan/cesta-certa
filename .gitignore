@@ -1,0 +1,24 @@
+# dependências
+node_modules/
+
+# build e gerados pelo Astro
+dist/
+.astro/
+
+# testes
+coverage/
+test-results/
+playwright-report/
+blob-report/
+
+# Cloudflare (wrangler dev)
+.wrangler/
+.dev.vars*
+
+# ambiente
+.env*
+!.env.example
+
+# sistema
+.DS_Store
+*.log

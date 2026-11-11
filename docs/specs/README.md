@@ -4,11 +4,11 @@ Especificações das mudanças do cesta-certa (Spec-Driven Development): o que c
 
 ## Quando
 
-| Nível | Quando | Artefatos |
-|---|---|---|
-| Direto | Atualização de dependência, texto, documentação, refatoração sem mudança de comportamento, bug com causa clara (o teste de regressão é a spec) | Só o PR |
-| Leve | Comportamento novo ou alterado, pequeno, sem nenhum gatilho do completo | `spec.md` com plano e tarefas curtos |
-| Completo | Contrato público (rota, evento, schema, URL), dado pessoal ou segurança, mais de um repositório ou PR, dependência ou serviço novo | `spec.md`, `plano.md`, `tarefas.md`; implementação só depois de a spec ser aprovada |
+| Nível    | Quando                                                                                                                                         | Artefatos                                                                           |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Direto   | Atualização de dependência, texto, documentação, refatoração sem mudança de comportamento, bug com causa clara (o teste de regressão é a spec) | Só o PR                                                                             |
+| Leve     | Comportamento novo ou alterado, pequeno, sem nenhum gatilho do completo                                                                        | `spec.md` com plano e tarefas curtos                                                |
+| Completo | Contrato público (rota, evento, schema, URL), dado pessoal ou segurança, mais de um repositório ou PR, dependência ou serviço novo             | `spec.md`, `plano.md`, `tarefas.md`; implementação só depois de a spec ser aprovada |
 
 ## Como
 

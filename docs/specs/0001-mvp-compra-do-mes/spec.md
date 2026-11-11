@@ -1,9 +1,9 @@
 # Spec 0001: MVP do comparador da compra do mês
 
-- Status: rascunho
+- Status: aprovada (OK do Cleber em 2026-11-10)
 - Data: 2026-11-10
 - Nível: completo (projeto novo, rotas públicas, localização, dependências novas, mais de um PR)
-- PRs: cesta-certa#1 (spec e plano, portão do OK)
+- PRs: cesta-certa#1 (spec e plano, portão do OK); os PRs de código seguem a ordem de [tarefas.md](tarefas.md)
 - Relacionados: [ADR-0000](../../adr/0000-registrar-decisoes-com-adr.md); processo em [docs/specs](../README.md)
 
 ## Problema

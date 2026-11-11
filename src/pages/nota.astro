@@ -1,0 +1,51 @@
+---
+import ConsultaNota from "../features/precos/nfce/ConsultaNota";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Testar a leitura da nota fiscal"
+  description="Cole o link do QR Code de uma nota fiscal de consumidor (NFC-e) de São Paulo e veja o mercado, a data e os itens com preço."
+>
+  <p>
+    <span class="etiqueta">Teste</span>
+  </p>
+  <h1>Testar a leitura da nota fiscal</h1>
+  <p class="chamada">
+    Cole o link do QR Code de um cupom fiscal (NFC-e) emitido em São Paulo. O Cesta Certa consulta a
+    página pública da Secretaria da Fazenda e mostra o mercado, a data e os itens com preço.
+  </p>
+
+  <ConsultaNota client:load />
+  <noscript>
+    <p class="cartao">Esta página precisa de JavaScript para consultar a nota.</p>
+  </noscript>
+
+  <h2>Como pegar o link</h2>
+  <ol>
+    <li>Aponte a câmera do celular para o QR Code do cupom.</li>
+    <li>
+      Abra o endereço que aparecer. Ele começa com <code>www.nfce.fazenda.sp.gov.br</code>.
+    </li>
+    <li>Copie o endereço inteiro da barra do navegador e cole no campo acima.</li>
+  </ol>
+
+  <h2>O que acontece com a nota</h2>
+  <ul>
+    <li>
+      O link vai ao servidor do Cesta Certa só para buscar a página da nota. Ele não é guardado nem
+      registrado em log.
+    </li>
+    <li>
+      O CPF e o nome do consumidor, quando aparecem na nota, ficam de fora: a resposta leva só o
+      mercado, a data e os itens.
+    </li>
+    <li>
+      Só os endereços oficiais da consulta de NFC-e de São Paulo são aceitos. Notas de outros
+      estados ainda não têm leitor.
+    </li>
+  </ul>
+  <p>
+    Mais detalhes em <a href="/privacidade">Privacidade</a>.
+  </p>
+</BaseLayout>

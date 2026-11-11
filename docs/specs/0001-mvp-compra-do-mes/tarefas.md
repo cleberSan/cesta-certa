@@ -10,9 +10,9 @@ Um PR de portão só com documentação e cinco PRs de código, cada tarefa num 
 
 ## PR 1: fundação e spike da nota fiscal
 
-- [ ] **T01** CI no padrão dos sites (formatação, lint, tipos, cobertura de 80%, build, E2E), CodeQL, revisão de dependências, Dependabot, `.nvmrc`, TypeScript estrito e CONTRIBUTING — arquivos: `.github/`, raiz — prova: CI verde — cobre: nenhum
-- [ ] **T02** Esqueleto Astro + ilha React + Worker `/api`, cabeçalhos e CSP de uma fonte só, manifest do PWA, `/privacidade` e `/sobre` — arquivos: `src/`, `worker/`, `public/` — prova: unidade dos cabeçalhos, E2E com axe — cobre: CA-37 (base)
-- [ ] **T03** Spike da consulta de NFC-e de São Paulo: validador de link por UF, busca com limites, leitor com `HTMLRewriter` sobre fixture sintética; o Cleber testa na prévia com uma nota real e manda print do resultado — arquivos: `worker/nfce/` — prova: `npm test -- worker/nfce` e print da prévia — cobre: CA-11, CA-12, CA-13
+- [x] **T01** CI no padrão dos sites (formatação, lint, tipos, cobertura de 80%, build, E2E), CodeQL, revisão de dependências, Dependabot, `.nvmrc`, TypeScript estrito e CONTRIBUTING — arquivos: `.github/`, raiz — prova: CI verde — cobre: nenhum
+- [x] **T02** Esqueleto Astro + ilha React + Worker `/api`, cabeçalhos e CSP de uma fonte só, manifest do PWA, `/privacidade`, `/sobre` e ADR-0001 — arquivos: `src/`, `worker/`, `public/`, `docs/adr/` — prova: unidade dos cabeçalhos, E2E com axe — cobre: CA-37 (base)
+- [ ] **T03** Spike da consulta de NFC-e de São Paulo: validador de link por UF, busca com limites, leitor em TypeScript puro sobre fixture sintética e página de teste `/nota`; o Cleber testa na prévia com uma nota real e manda print do resultado — arquivos: `worker/nfce/`, `src/features/precos/nfce/` — prova: `npm test -- worker/nfce`, `e2e/nota.spec.ts` e print da prévia — cobre: CA-11, CA-12, CA-13 (os códigos de erro e o aviso; o botão de digitar chega na T12) — andamento: código e testes entregues; falta o print da prévia com uma nota real para marcar como concluída
 
 ## PR 2: lista e dados no aparelho
 
@@ -39,5 +39,5 @@ Um PR de portão só com documentação e cinco PRs de código, cada tarefa num 
 - [ ] **T15** Servidor do assistente: código de acesso, validação de tamanho, limite atômico no D1, provedores `fake`, `gravado` e `anthropic` com tempo limite e tratamento de recusa — arquivos: `worker/assistente/`, `migrations/0001_uso_assistente.sql` — prova: `npm test -- worker/assistente` — cobre: CA-29, CA-30, CA-31, CA-32, CA-34
 - [ ] **T16** Tela do assistente: aceite, montador de contexto, conferência de valores e respostas gravadas na demonstração; o Cleber cria os segredos no Cloudflare e testa na prévia, mandando print — arquivos: `src/features/assistente/` — prova: unidade, `e2e/assistente.spec.ts` e print — cobre: CA-26, CA-27, CA-28, CA-33, CA-35
 - [ ] **T17** Demonstração com dados fictícios separados, primeiro uso sem preços e uso offline — arquivos: `src/features/demo/`, `public/sw.js` — prova: unidade do `demo.json`, `e2e/demo.spec.ts`, `e2e/offline.spec.ts` — cobre: CA-36, CA-38, CA-40
-- [ ] **T18** Documentação: README, ADR-0001 a ADR-0005, página Sobre com atribuições (OSM, OpenFreeMap) — prova: revisão do PR — cobre: nenhum
+- [ ] **T18** Documentação: README, os ADRs de 0002 a 0005 que ainda faltarem, página Sobre com atribuições (OSM, OpenFreeMap) — prova: revisão do PR — cobre: nenhum
 - [ ] **T19** Fechar: todo critério com teste (`grep -rn "spec 0001 CA-"`), CI verde, conferência de produção ligada, spec com status `implementada` — cobre: todos

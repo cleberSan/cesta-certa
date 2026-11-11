@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ASTRO_TELEMETRY_DISABLED: 1
+  WRANGLER_SEND_METRICS: false
+
+jobs:
+  quality:
+    name: Lint, tipos, testes e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Auditar dependências de produção
+        run: npm audit --omit=dev --audit-level=moderate
+
+      - name: Formatação
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tipos
+        run: npm run typecheck
+
+      - name: Testes com cobertura (mínimo 80%)
+        run: npm run test:coverage
+
+      - name: Build
+        run: npm run build
+        env:
+          # Endereço do `wrangler dev` dos testes E2E; a Cloudflare usa o de produção (src/config/site.ts).
+          SITE_URL: http://127.0.0.1:8787
+
+      - name: Instalar Chromium para os testes E2E
+        run: npx playwright install --with-deps chromium
+
+      - name: Testes E2E, acessibilidade (axe) e cabeçalhos HTTP
+        run: npm run test:e2e
+
+      - name: Publicar relatório E2E
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Publicar cobertura
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 14
+          if-no-files-found: ignore
+
+  dependency-review:
+    name: Revisão de dependências
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: moderate
+          # Ferramentas de desenvolvimento não chegam ao site publicado (ADR-0001).
+          fail-on-scopes: runtime
+          deny-licenses: GPL-3.0, AGPL-3.0
