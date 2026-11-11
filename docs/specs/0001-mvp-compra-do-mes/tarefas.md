@@ -16,7 +16,7 @@ Um PR de portão só com documentação e cinco PRs de código, cada tarefa num 
 
 ## PR 2: lista e dados no aparelho
 
-- [ ] **T04** Domínio da lista (criar, editar, duplicar, duplicidade) e armazenamento no IndexedDB com migração versionada — arquivos: `src/features/lista/`, `src/shared/armazenamento/` — prova: unidade e `e2e/lista.spec.ts` — cobre: CA-01, CA-02, CA-03
+- [x] **T04** Domínio da lista (criar, editar, duplicar, duplicidade), tela `/lista` e armazenamento no IndexedDB com migração versionada (versão 1: `listas` e `itens`) e ADR-0002 — arquivos: `src/features/lista/`, `src/shared/armazenamento/`, `src/pages/lista.astro`, `docs/adr/` — prova: unidade e `e2e/lista.spec.ts` — cobre: CA-01, CA-02, CA-03
 - [ ] **T05** Exportar e importar JSON com validação e limite — arquivos: `src/shared/armazenamento/` — prova: unidade — cobre: CA-04
 
 ## PR 3: mercados, mapa e rota

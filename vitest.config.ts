@@ -11,7 +11,15 @@ export default defineConfig({
       // são cobertas pelos testes E2E, que rodam sobre o build (ADR-0001): toda regra que
       // uma ilha usa fica num arquivo .ts ao lado dela, com teste unitário.
       include: ["src/**/*.ts", "worker/**/*.ts"],
-      exclude: ["**/*.test.ts", "**/*.d.ts", "**/fixtures/**"],
+      // indexeddb.ts é só a ponte com a API do navegador, que não existe no Node: é provado
+      // pelo E2E no IndexedDB de verdade (e2e/lista.spec.ts). As regras dele ficam em
+      // migracoes.ts, memoria.ts e nas fatias, com teste de unidade.
+      exclude: [
+        "**/*.test.ts",
+        "**/*.d.ts",
+        "**/fixtures/**",
+        "src/shared/armazenamento/indexeddb.ts",
+      ],
       reporter: ["text", "lcov", "cobertura"],
       thresholds: { lines: 80, branches: 80, functions: 80, statements: 80 },
     },
