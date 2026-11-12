@@ -199,6 +199,99 @@ code {
   color: var(--cor-marca-forte);
 }
 
+.botao-pequeno {
+  padding: 0.35rem 0.9rem;
+  font-size: 0.95rem;
+}
+
+/* Ação que apaga ou substitui dados. */
+.botao-perigo {
+  border-color: var(--cor-erro);
+  background: var(--cor-erro);
+  color: var(--cor-superficie);
+}
+
+.botao-perigo:hover {
+  border-color: var(--cor-erro);
+  background: var(--cor-erro);
+  color: var(--cor-superficie);
+  filter: brightness(0.9);
+}
+
+/* Peças de formulário usadas pelas ilhas (lista, seus dados). */
+.campo {
+  min-width: 0;
+}
+
+.campo label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 700;
+}
+
+.campo input,
+.campo select {
+  display: block;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--cor-borda);
+  border-radius: 0.5rem;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font: inherit;
+}
+
+.campo input::placeholder {
+  color: var(--cor-texto-suave);
+  opacity: 1;
+}
+
+.campo input[aria-invalid="true"] {
+  border-color: var(--cor-erro);
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.alerta,
+.confirmacao {
+  padding: 0.75rem var(--espaco);
+  border: 1px solid var(--cor-destaque);
+  border-radius: var(--raio);
+  background: var(--cor-aviso-fundo);
+}
+
+.alerta {
+  margin: 0 0 1rem;
+}
+
+.alerta > :last-child {
+  margin-bottom: 0;
+}
+
+.confirmacao {
+  margin-top: 1rem;
+}
+
+.confirmacao p {
+  margin: 0 0 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.mensagem-erro {
+  margin: 0.75rem 0 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--cor-erro);
+  border-radius: 0.5rem;
+  background: var(--cor-erro-fundo);
+  color: var(--cor-erro);
+  font-weight: 600;
+}
+
 .passos {
   list-style: none;
   padding: 0;

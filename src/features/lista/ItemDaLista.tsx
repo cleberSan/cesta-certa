@@ -35,7 +35,7 @@ export function ItemDaLista({
         {detalhesDoItem(item)}
         {comprado && " · comprado"}
       </p>
-      <div className="lista-acoes lista-item-acoes">
+      <div className="acoes lista-item-acoes">
         <button
           id={idDoBotaoEditar}
           type="button"

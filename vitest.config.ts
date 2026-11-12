@@ -12,8 +12,8 @@ export default defineConfig({
       // uma ilha usa fica num arquivo .ts ao lado dela, com teste unitário.
       include: ["src/**/*.ts", "worker/**/*.ts"],
       // indexeddb.ts é só a ponte com a API do navegador, que não existe no Node: é provado
-      // pelo E2E no IndexedDB de verdade (e2e/lista.spec.ts). As regras dele ficam em
-      // migracoes.ts, memoria.ts e nas fatias, com teste de unidade.
+      // pelo E2E no IndexedDB de verdade (e2e/lista.spec.ts e e2e/dados.spec.ts). As regras
+      // dele ficam em migracoes.ts, arquivo.ts e nas fatias, com teste de unidade.
       exclude: [
         "**/*.test.ts",
         "**/*.d.ts",

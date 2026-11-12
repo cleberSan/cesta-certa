@@ -38,7 +38,7 @@ export function CamposDoItem({
   return (
     <>
       <div className="lista-campos">
-        <div className="lista-campo">
+        <div className="campo">
           <label htmlFor={`${prefixo}-nome`}>Nome do item</label>
           <input
             id={`${prefixo}-nome`}
@@ -51,7 +51,7 @@ export function CamposDoItem({
             {...marcar("nome")}
           />
         </div>
-        <div className="lista-campo lista-campo-curto">
+        <div className="campo lista-campo-curto">
           <label htmlFor={`${prefixo}-quantidade`}>Quantidade</label>
           <input
             id={`${prefixo}-quantidade`}
@@ -74,7 +74,7 @@ export function CamposDoItem({
       >
         <summary>Marca, tamanho e preferência</summary>
         <div className="lista-campos">
-          <div className="lista-campo">
+          <div className="campo">
             <label htmlFor={`${prefixo}-marca`}>Marca preferida</label>
             <input
               id={`${prefixo}-marca`}
@@ -86,7 +86,7 @@ export function CamposDoItem({
               {...marcar("marca")}
             />
           </div>
-          <div className="lista-campo lista-campo-curto">
+          <div className="campo lista-campo-curto">
             <label htmlFor={`${prefixo}-tamanho`}>Tamanho</label>
             <input
               id={`${prefixo}-tamanho`}
@@ -129,7 +129,7 @@ export function CamposDoItem({
 export function Erro({ id, erro }: { id: string; erro: ErroDaSessao | null }): ReactNode {
   if (erro === null) return null;
   return (
-    <p id={id} className="lista-erro" role="alert">
+    <p id={id} className="mensagem-erro" role="alert">
       {mensagemDoErro(erro)}
     </p>
   );

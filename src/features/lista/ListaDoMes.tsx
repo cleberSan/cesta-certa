@@ -1,5 +1,7 @@
 import { useEffect, useId, useState, useSyncExternalStore, type SubmitEvent } from "react";
 import type { ErroDoBanco } from "../../shared/armazenamento/banco";
+import { mensagemDoBanco } from "../../shared/armazenamento/textos";
+import { recarregarAoVoltar } from "../../shared/recarregarAoVoltar";
 import { abrirLista } from "./abertura";
 import { CamposDoItem, Erro } from "./CamposDoItem";
 import { ItemDaLista } from "./ItemDaLista";
@@ -24,7 +26,7 @@ import {
 } from "./lista";
 import { OpcoesDaLista } from "./OpcoesDaLista";
 import type { ErroDaSessao, Operacao, Sessao } from "./sessao";
-import { campoDoErro, contarItens, mensagemDoBanco, resumoDosItens } from "./textos";
+import { campoDoErro, contarItens, resumoDosItens } from "./textos";
 import "./lista.css";
 
 type Carga =
@@ -53,6 +55,8 @@ const formularioVazio: { entrada: EntradaDoItem; detalhes: boolean } = {
 export default function ListaDoMes() {
   const [carga, setCarga] = useState<Carga>({ fase: "abrindo" });
 
+  useEffect(() => recarregarAoVoltar(globalThis), []);
+
   useEffect(() => {
     let ativa = true;
     void abrirLista(globalThis.indexedDB).then((aberta) => {
@@ -77,7 +81,7 @@ export default function ListaDoMes() {
   }
   if (carga.fase === "falhou") {
     return (
-      <div className="lista-alerta" role="alert">
+      <div className="alerta" role="alert">
         <p>
           <strong>A lista não abriu.</strong> {mensagemDoBanco(carga.motivo)}
         </p>
@@ -304,13 +308,13 @@ function Painel({ sessao }: { sessao: Sessao }) {
   return (
     <section className="lista" aria-label="Lista de compras">
       {!sessao.persistente && (
-        <p className="lista-alerta" role="alert">
+        <p className="alerta" role="alert">
           <strong>Esta lista não está sendo guardada.</strong> O navegador não deixou guardar dados
           neste aparelho. Ela funciona, mas some quando você fechar a página.
         </p>
       )}
       {sessao.recusados > 0 && (
-        <p className="lista-alerta">
+        <p className="alerta">
           {sessao.recusados === 1
             ? "1 registro guardado neste aparelho não pôde ser lido e ficou de fora."
             : `${sessao.recusados} registros guardados neste aparelho não puderam ser lidos e ficaram de fora.`}
@@ -374,19 +378,19 @@ function Painel({ sessao }: { sessao: Sessao }) {
             setRepetido(null);
           }}
         />
-        <div className="lista-acoes">
+        <div className="acoes">
           <button type="submit" className="botao" disabled={repetido !== null}>
             Adicionar
           </button>
         </div>
 
         {repetido !== null && (
-          <div className="lista-confirmacao" role="group" aria-labelledby={id("titulo-repetido")}>
+          <div className="confirmacao" role="group" aria-labelledby={id("titulo-repetido")}>
             <p id={id("titulo-repetido")}>
               <strong>{repetido.existente.nome}</strong> já está na lista, com quantidade{" "}
               {repetido.existente.quantidade}. Somar mais {Number(repetido.entrada.quantidade)}?
             </p>
-            <div className="lista-acoes">
+            <div className="acoes">
               <button id={id("somar")} type="button" className="botao" onClick={() => somar()}>
                 Somar as quantidades
               </button>
@@ -456,7 +460,7 @@ function Painel({ sessao }: { sessao: Sessao }) {
                       aoAbrirDetalhes={setDetalhesDaEdicao}
                       aoMudar={(entrada) => setEdicao({ itemId: item.id, entrada })}
                     />
-                    <div className="lista-acoes">
+                    <div className="acoes">
                       <button type="submit" className="botao">
                         Salvar
                       </button>

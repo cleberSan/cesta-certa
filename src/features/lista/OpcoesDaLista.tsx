@@ -49,7 +49,7 @@ export function OpcoesDaLista({
 
   return (
     <div className="lista-cartao">
-      <div className="lista-campo">
+      <div className="campo">
         <label htmlFor={id("lista")}>Lista</label>
         <select
           id={id("lista")}
@@ -69,7 +69,7 @@ export function OpcoesDaLista({
 
       <details className="lista-opcoes">
         <summary>Opções da lista</summary>
-        <div className="lista-acoes">
+        <div className="acoes">
           <button
             type="button"
             className="botao botao-secundario"
@@ -112,14 +112,14 @@ export function OpcoesDaLista({
 
         {acao?.tipo === "renomear" && (
           <form
-            className="lista-confirmacao"
+            className="confirmacao"
             noValidate
             onSubmit={(evento: SubmitEvent<HTMLFormElement>) => {
               evento.preventDefault();
               concluir(aoRenomear(acao.nome));
             }}
           >
-            <div className="lista-campo">
+            <div className="campo">
               <label htmlFor={id("nome-da-lista")}>Novo nome da lista</label>
               <input
                 id={id("nome-da-lista")}
@@ -132,7 +132,7 @@ export function OpcoesDaLista({
                 onChange={(evento) => setAcao({ tipo: "renomear", nome: evento.target.value })}
               />
             </div>
-            <div className="lista-acoes">
+            <div className="acoes">
               <button type="submit" className="botao">
                 Salvar nome
               </button>
@@ -151,12 +151,12 @@ export function OpcoesDaLista({
         )}
 
         {acao?.tipo === "excluir" && (
-          <div className="lista-confirmacao" role="group" aria-labelledby={id("pergunta")}>
+          <div className="confirmacao" role="group" aria-labelledby={id("pergunta")}>
             <p id={id("pergunta")}>
               Excluir a lista <strong>{ativa.nome}</strong>
               {quantosItens > 0 && ` e ${contarItens(quantosItens)}`}? Não dá para desfazer.
             </p>
-            <div className="lista-acoes">
+            <div className="acoes">
               <button
                 id={id("confirmar-exclusao")}
                 type="button"

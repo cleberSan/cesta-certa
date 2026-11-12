@@ -32,7 +32,7 @@ export type ErroDoBanco =
   | "indisponivel"
   /** O aparelho tem dados gravados por uma versão mais nova do app. */
   | "versao-mais-nova"
-  /** A conexão foi fechada porque outra aba atualizou o app. */
+  /** A conexão deixou de valer: outra aba atualizou o app ou substituiu os dados (importação). */
   | "fechado"
   /** O aparelho não tem espaço para guardar. */
   | "sem-espaco"

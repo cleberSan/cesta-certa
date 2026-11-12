@@ -1,4 +1,4 @@
-import type { ErroDoBanco } from "../../shared/armazenamento/banco";
+import { mensagemDoBanco } from "../../shared/armazenamento/textos";
 import { limites, type Item, type Preferencia, type TipoDeErro } from "./lista";
 import type { ErroDaSessao } from "./sessao";
 
@@ -54,21 +54,6 @@ export function campoDoErro(erro: ErroDaSessao): CampoDoItem | null {
   return erro.tipo === "armazenamento" || erro.tipo === "item.duplicado"
     ? null
     : (campos[erro.tipo] ?? null);
-}
-
-export function mensagemDoBanco(motivo: ErroDoBanco): string {
-  switch (motivo) {
-    case "sem-espaco":
-      return "O aparelho está sem espaço para guardar. Nada foi alterado.";
-    case "fechado":
-      return "O app foi atualizado em outra aba. Recarregue esta página para continuar.";
-    case "versao-mais-nova":
-      return "Este aparelho tem dados de uma versão mais nova do app. Recarregue a página para atualizar.";
-    case "indisponivel":
-      return "O navegador não deixou guardar dados neste aparelho.";
-    case "falhou":
-      return "Não foi possível guardar no aparelho. Nada foi alterado; tente de novo.";
-  }
 }
 
 /** "2 × 5 kg · Tio João · só esta marca", "1 unidade", "3 unidades · marca boa". */

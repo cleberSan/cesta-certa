@@ -1,86 +1,23 @@
 import AxeBuilder from "@axe-core/playwright";
-import type { Locator, Page } from "@playwright/test";
+import { guardado, nomeDoBanco } from "./aparelho";
 import { expect, test } from "./fixtures";
+import {
+  abrir,
+  abrirOpcoes,
+  adicionar,
+  adicionarEEsperar,
+  aviso,
+  formulario,
+  itens,
+  preencher,
+  seletor,
+} from "./tela-da-lista";
 
 /**
  * A lista do mês (/lista) no navegador de verdade, com o IndexedDB de verdade. Cada teste
  * começa com o armazenamento vazio (contexto novo do Playwright).
  */
 const wcag = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
-const nomeDoBanco = "cesta-certa";
-
-const formulario = (page: Page) => page.getByRole("form", { name: "Adicionar item" });
-const itens = (page: Page) => page.getByRole("list", { name: "Itens" }).getByRole("listitem");
-const aviso = (page: Page) => page.getByRole("status");
-const seletor = (page: Page) => page.getByLabel("Lista", { exact: true });
-
-async function abrir(page: Page) {
-  await page.goto("/lista");
-  // O formulário aparece quando a lista termina de abrir do aparelho.
-  await expect(formulario(page).getByLabel("Nome do item")).toBeVisible();
-}
-
-interface Detalhes {
-  quantidade?: string;
-  marca?: string;
-  tamanho?: string;
-  preferencia?: RegExp;
-}
-
-async function preencher(campos: Locator, nome: string, detalhes: Detalhes = {}) {
-  await campos.getByLabel("Nome do item").fill(nome);
-  if (detalhes.quantidade !== undefined) {
-    await campos.getByLabel("Quantidade").fill(detalhes.quantidade);
-  }
-  if (detalhes.marca !== undefined || detalhes.tamanho !== undefined || detalhes.preferencia) {
-    const marca = campos.getByLabel("Marca preferida");
-    if (!(await marca.isVisible())) await campos.getByText("Marca, tamanho e preferência").click();
-    if (detalhes.marca !== undefined) await marca.fill(detalhes.marca);
-    if (detalhes.tamanho !== undefined) await campos.getByLabel("Tamanho").fill(detalhes.tamanho);
-    if (detalhes.preferencia) await campos.getByLabel(detalhes.preferencia).check();
-  }
-}
-
-async function adicionar(page: Page, nome: string, detalhes: Detalhes = {}) {
-  await preencher(formulario(page), nome, detalhes);
-  await formulario(page).getByRole("button", { name: "Adicionar", exact: true }).click();
-}
-
-async function adicionarEEsperar(page: Page, nome: string, detalhes: Detalhes = {}) {
-  await adicionar(page, nome, detalhes);
-  await expect(aviso(page)).toHaveText(`${nome} entrou na lista.`);
-}
-
-async function abrirOpcoes(page: Page) {
-  const opcoes = page.locator("details", { hasText: "Opções da lista" });
-  if ((await opcoes.getAttribute("open")) === null) await page.getByText("Opções da lista").click();
-}
-
-/** Lê tudo o que está guardado no aparelho, direto do IndexedDB. */
-function guardado(page: Page) {
-  return page.evaluate(
-    (nome) =>
-      new Promise<{ versao: number; listas: unknown[]; itens: unknown[] }>((resolver, rejeitar) => {
-        const pedido = indexedDB.open(nome);
-        pedido.onerror = () => rejeitar(pedido.error);
-        pedido.onsuccess = () => {
-          const banco = pedido.result;
-          const transacao = banco.transaction(["listas", "itens"], "readonly");
-          const listas = transacao.objectStore("listas").getAll();
-          const itensGuardados = transacao.objectStore("itens").getAll();
-          transacao.oncomplete = () => {
-            banco.close();
-            resolver({
-              versao: banco.version,
-              listas: listas.result,
-              itens: itensGuardados.result,
-            });
-          };
-        };
-      }),
-    nomeDoBanco,
-  );
-}
 
 test.describe("lista do mês", () => {
   test("no primeiro uso abre uma lista vazia com o nome do mês atual", async ({
@@ -765,7 +702,7 @@ test.describe("armazenamento do aparelho", () => {
     await adicionar(page, "Feijão");
 
     await expect(page.getByRole("alert")).toHaveText(
-      "O app foi atualizado em outra aba. Recarregue esta página para continuar.",
+      "Os dados deste aparelho mudaram em outra aba. Recarregue esta página para continuar.",
     );
     await expect(itens(page)).toHaveText([/Arroz/]);
     await expect(formulario(page).getByLabel("Nome do item")).toHaveValue("Feijão");

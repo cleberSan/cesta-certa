@@ -112,9 +112,9 @@ describe("publicPath", () => {
 
 describe("isIndexable", () => {
   it("deixa o 404 e as páginas de ferramenta fora dos buscadores", () => {
-    expect(noindexPaths).toEqual(["/404", "/lista", "/nota"]);
+    expect(noindexPaths).toEqual(["/404", "/dados", "/lista", "/nota"]);
     expect(isIndexable("/404.html")).toBe(false);
-    for (const path of ["nota", "lista", "/lista.html"]) {
+    for (const path of ["nota", "lista", "/lista.html", "/dados", "dados.html"]) {
       expect(isIndexable(path)).toBe(false);
     }
   });

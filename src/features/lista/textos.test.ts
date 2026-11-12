@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { ErroDoBanco } from "../../shared/armazenamento/banco";
+import { mensagemDoBanco } from "../../shared/armazenamento/textos";
 import { preferencias, tiposDeErro, type Item } from "./lista";
 import {
   ajudaDaPreferencia,
   campoDoErro,
   contarItens,
   detalhesDoItem,
-  mensagemDoBanco,
   mensagemDoErro,
   resumoDosItens,
   rotulosDaPreferencia,
@@ -49,11 +49,6 @@ describe("mensagens de erro", () => {
       expect(campoDoErro({ tipo: "armazenamento", motivo })).toBeNull();
     },
   );
-
-  it("diz que nada foi alterado quando a gravação falha", () => {
-    expect(mensagemDoBanco("sem-espaco")).toContain("Nada foi alterado");
-    expect(mensagemDoBanco("falhou")).toContain("Nada foi alterado");
-  });
 
   it.each([
     ["item.nome-vazio", "nome"],

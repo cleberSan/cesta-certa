@@ -1,0 +1,35 @@
+---
+import SeusDados from "../features/dados/SeusDados";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Seus dados"
+  description="Gere uma cópia em arquivo das suas listas, para guardar ou levar para outro aparelho, e traga uma cópia de volta. Tudo acontece no seu aparelho."
+>
+  <h1>Seus dados</h1>
+  <p class="chamada">
+    As suas listas ficam só neste aparelho. Aqui você gera uma cópia em arquivo, para guardar ou
+    levar para outro aparelho, e traz uma cópia de volta.
+  </p>
+
+  <SeusDados client:load />
+  <noscript>
+    <p class="cartao">Esta página precisa de JavaScript para ler os dados guardados no aparelho.</p>
+  </noscript>
+
+  <h2>Bom saber</h2>
+  <ul>
+    <li>
+      A cópia é gerada e lida no próprio aparelho. O arquivo não passa pelo servidor do Cesta Certa.
+    </li>
+    <li>O arquivo não tem senha e traz as suas listas como texto. Guarde onde só você alcança.</li>
+    <li>
+      Faça uma cópia de tempos em tempos: limpar os dados do navegador apaga as listas, e alguns
+      navegadores apagam os dados de sites que ficam muito tempo sem uso.
+    </li>
+    <li>
+      Para apagar tudo deste aparelho, limpe os dados deste site nas configurações do navegador.
+    </li>
+  </ul>
+</BaseLayout>

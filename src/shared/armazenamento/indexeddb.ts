@@ -40,6 +40,15 @@ export async function abrirIndexedDb(
   conexao.onclose = () => {
     fechada = true;
   };
+  // Outra aba substituiu tudo (importação): o que esta aba tem em memória deixou de valer.
+  // Daqui em diante ela recusa gravar, para não misturar o estado antigo com os dados novos.
+  const canal = abrirCanal(nome);
+  if (canal !== null) {
+    canal.onmessage = () => {
+      fechada = true;
+      conexao.close();
+    };
+  }
 
   function transacao<T>(
     modo: IDBTransactionMode,
@@ -92,8 +101,8 @@ export async function abrirIndexedDb(
         return () => undefined;
       });
     },
-    substituirTudo(registros: Registros) {
-      return transacao<void>("readwrite", (aberta) => {
+    async substituirTudo(registros: Registros) {
+      const substituido = await transacao<void>("readwrite", (aberta) => {
         for (const nome of armazens) {
           const armazem = aberta.objectStore(nome);
           armazem.clear();
@@ -101,6 +110,9 @@ export async function abrirIndexedDb(
         }
         return () => undefined;
       });
+      // O aviso chega às outras abas, nunca a esta: quem substituiu já tem o estado novo.
+      if (substituido.ok) canal?.postMessage("substituido");
+      return substituido;
     },
   });
 }
@@ -115,6 +127,11 @@ function abrir(fabrica: IDBFactory, nome: string): Promise<IDBDatabase> {
     pedido.onsuccess = () => resolver(pedido.result);
     pedido.onerror = () => rejeitar(pedido.error);
   });
+}
+
+/** Canal entre as abas do site. Navegador sem BroadcastChannel segue sem o aviso. */
+function abrirCanal(nome: string): BroadcastChannel | null {
+  return typeof BroadcastChannel === "function" ? new BroadcastChannel(`${nome}:dados`) : null;
 }
 
 function nomeDoErro(erro: unknown): string {
