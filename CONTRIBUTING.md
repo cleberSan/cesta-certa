@@ -45,6 +45,16 @@ Antes do primeiro `test:e2e`, instale o navegador com `npx playwright install ch
 - Log sem conteúdo: nada de link de nota, HTML, CPF ou texto digitado pela pessoa.
 - Segredo só no cofre do provedor (Cloudflare) ou nos secrets do GitHub, nunca no repositório.
 
+## Base de mercados
+
+Os mercados vêm do OpenStreetMap (ODbL) e ficam em `public/data`, gerados uma vez por mês pelo workflow **Base de mercados** ([ADR-0005](docs/adr/0005-mercados-localizacao-e-mapa.md)):
+
+- O gerador é `scripts/mercados.ts`, com as regras em `scripts/mercados/` e o formato em `src/shared/contratos/mercados.ts`. Roda no Node 24 sem instalar nada: `node scripts/mercados.ts --saida /tmp/base --ufs SP`.
+- O workflow abre ou atualiza o PR da branch `dados/mercados` com o relatório de tamanho. PR aberto pelo `GITHUB_TOKEN` não dispara os checks: **feche e reabra o PR** antes do merge.
+- Abrir PR pelo workflow exige, uma vez, **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**.
+- Para gerar fora do mês, use **Actions → Base de mercados → Run workflow**. Se alguma UF falhar, nada muda e a base anterior continua.
+- Num PR que muda o gerador, o workflow mede só SP e RJ e deixa o relatório no resumo, sem publicar.
+
 ## Publicação
 
 O site é publicado na Cloudflare como um Worker com arquivos estáticos, pela integração da própria Cloudflare com o GitHub ([ADR-0001](docs/adr/0001-pilha-e-hospedagem.md)):

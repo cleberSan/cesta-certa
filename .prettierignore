@@ -6,3 +6,6 @@ playwright-report
 blob-report
 .wrangler
 package-lock.json
+
+# base de mercados gerada pelo workflow mensal (JSON compacto de propósito)
+public/data
