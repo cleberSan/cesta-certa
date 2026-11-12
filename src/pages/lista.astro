@@ -1,0 +1,35 @@
+---
+import ListaDoMes from "../features/lista/ListaDoMes";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Lista do mês"
+  description="Monte a lista da compra do mês com itens, quantidade, marca preferida e tamanho. Ela fica guardada só no seu aparelho."
+>
+  <h1>Lista do mês</h1>
+  <p class="chamada">
+    Escreva o que comprar, marque o que já foi para o carrinho e duplique a lista no mês seguinte.
+    Tudo fica guardado só neste aparelho.
+  </p>
+
+  <ListaDoMes client:load />
+  <noscript>
+    <p class="cartao">Esta página precisa de JavaScript para guardar a lista no aparelho.</p>
+  </noscript>
+
+  <h2>Onde a lista fica</h2>
+  <ul>
+    <li>
+      No armazenamento deste navegador, neste aparelho. Ela não vai para nenhum servidor e não
+      aparece em outro aparelho.
+    </li>
+    <li>
+      Limpar os dados do navegador apaga a lista. Alguns navegadores também apagam os dados de sites
+      que ficam muito tempo sem uso.
+    </li>
+    <li>
+      Para ter uma cópia, ou levar a lista para outro aparelho, use <a href="/dados">Seus dados</a>.
+    </li>
+  </ul>
+</BaseLayout>

@@ -1,0 +1,43 @@
+.dados {
+  margin: 1.5rem 0;
+}
+
+.dados h2:first-child {
+  margin-top: 0;
+}
+
+.dados-abrindo,
+.dados-ajuda {
+  color: var(--cor-texto-suave);
+}
+
+.dados-ajuda {
+  margin: 0.5rem 0 0;
+  font-size: 0.95rem;
+}
+
+.dados-aviso {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+}
+
+.dados-aviso p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* O botão de escolher arquivo, dentro do campo, segue as cores do tema. */
+.dados input[type="file"]::file-selector-button {
+  margin-right: 0.75rem;
+  padding: 0.35rem 0.9rem;
+  border: 2px solid var(--cor-marca);
+  border-radius: var(--raio-pilula);
+  background: transparent;
+  color: var(--cor-marca);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}

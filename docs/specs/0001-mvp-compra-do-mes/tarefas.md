@@ -16,21 +16,21 @@ Um PR de portão só com documentação e cinco PRs de código, cada tarefa num 
 
 ## PR 2: lista e dados no aparelho
 
-- [ ] **T04** Domínio da lista (criar, editar, duplicar, duplicidade) e armazenamento no IndexedDB com migração versionada — arquivos: `src/features/lista/`, `src/shared/armazenamento/` — prova: unidade e `e2e/lista.spec.ts` — cobre: CA-01, CA-02, CA-03
-- [ ] **T05** Exportar e importar JSON com validação e limite — arquivos: `src/shared/armazenamento/` — prova: unidade — cobre: CA-04
+- [x] **T04** Domínio da lista (criar, editar, duplicar, duplicidade), tela `/lista` e armazenamento no IndexedDB com migração versionada (versão 1: `listas` e `itens`) e ADR-0002 — arquivos: `src/features/lista/`, `src/shared/armazenamento/`, `src/pages/lista.astro`, `docs/adr/` — prova: unidade e `e2e/lista.spec.ts` — cobre: CA-01, CA-02, CA-03
+- [x] **T05** Exportar e importar JSON com validação e limite, tela `/dados` e aviso entre abas quando a importação substitui tudo — arquivos: `src/shared/armazenamento/`, `src/features/dados/`, `src/pages/dados.astro` — prova: unidade e `e2e/dados.spec.ts` — cobre: CA-04 (listas e itens; mercados próprios, associações e preços entram no arquivo nas tarefas T08, T11 e T12)
 
 ## PR 3: mercados, mapa e rota
 
 - [ ] **T06** Base nacional de mercados: script Overpass por UF, divisão em células de 1 grau, `cidades.json`, medição de tamanho e workflow mensal que abre PR — arquivos: `scripts/mercados.ts`, `.github/workflows/mercados.yml`, `public/data/` — prova: unidade do conversor e da divisão com fixture; relatório de tamanho no PR — cobre: CA-07
 - [ ] **T07** Primeiro acesso: tela de explicação, localização só depois do toque, "Escolher cidade", ponto no mapa, células que o raio toca, raio e distância no aparelho — arquivos: `src/features/mercados/` — prova: unidade, `e2e/localizacao.spec.ts`, `e2e/privacidade.spec.ts` — cobre: CA-05, CA-06, CA-07
-- [ ] **T08** Mercado próprio, "Saber mais" e aviso de ponto sem mercados ou fora do Brasil — arquivos: `src/features/mercados/` — prova: `e2e/mercados.spec.ts` — cobre: CA-08, CA-09, CA-39
+- [ ] **T08** Mercado próprio, "Saber mais" e aviso de ponto sem mercados ou fora do Brasil — arquivos: `src/features/mercados/` — prova: `e2e/mercados.spec.ts` — cobre: CA-08, CA-09, CA-39, CA-04 (migração do banco e versão nova do arquivo de cópia com este armazém)
 - [ ] **T09** Links de rota para Waze e Google Maps, com paradas — arquivos: `src/features/rota/` — prova: unidade e E2E do `href` — cobre: CA-24, CA-25
 - [ ] **T10** Mapa com MapLibre carregado sob demanda, pessoinha, pinos e folha inferior, com visão em lista equivalente — arquivos: `src/features/mapa/` — prova: E2E com axe e teclado — cobre: CA-37
 
 ## PR 4: preços
 
-- [ ] **T11** Importar NFC-e no app (QR pela câmera e link colado) e associar produtos — arquivos: `src/features/precos/nfce/` — prova: unidade e `e2e/nota.spec.ts` com Worker simulado — cobre: CA-10, CA-14
-- [ ] **T12** Preço digitado, fonte, data e marca de antigo — arquivos: `src/features/precos/manual/` — prova: unidade com relógio controlado — cobre: CA-15, CA-16
+- [ ] **T11** Importar NFC-e no app (QR pela câmera e link colado) e associar produtos — arquivos: `src/features/precos/nfce/` — prova: unidade e `e2e/nota.spec.ts` com Worker simulado — cobre: CA-10, CA-14, CA-04 (migração do banco e versão nova do arquivo de cópia com este armazém)
+- [ ] **T12** Preço digitado, fonte, data e marca de antigo — arquivos: `src/features/precos/manual/` — prova: unidade com relógio controlado — cobre: CA-15, CA-16, CA-04 (migração do banco e versão nova do arquivo de cópia com este armazém)
 - [ ] **T13** Leitor de embalagem, preço por unidade e faixa de atacado — arquivos: `src/features/precos/unidades.ts` — prova: unidade com valores-limite — cobre: CA-17, CA-18
 
 ## PR 5: comparar, assistente e demonstração

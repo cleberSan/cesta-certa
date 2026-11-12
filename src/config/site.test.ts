@@ -111,10 +111,12 @@ describe("publicPath", () => {
 });
 
 describe("isIndexable", () => {
-  it("deixa o 404 e a página de teste da nota fora dos buscadores", () => {
-    expect(noindexPaths).toEqual(["/404", "/nota"]);
+  it("deixa o 404 e as páginas de ferramenta fora dos buscadores", () => {
+    expect(noindexPaths).toEqual(["/404", "/dados", "/lista", "/nota"]);
     expect(isIndexable("/404.html")).toBe(false);
-    expect(isIndexable("nota")).toBe(false);
+    for (const path of ["nota", "lista", "/lista.html", "/dados", "dados.html"]) {
+      expect(isIndexable(path)).toBe(false);
+    }
   });
 
   it("indexa as páginas de conteúdo", () => {
