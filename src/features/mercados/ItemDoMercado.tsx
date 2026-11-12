@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import type { MercadoDaBase } from "../../shared/contratos/mercados";
 import { linkDoLocalNoGoogleMaps } from "../rota/links";
+import { OpcoesDeRota } from "../rota/OpcoesDeRota";
 import { siteParaMostrar } from "./detalhes";
 import { formatarDistancia } from "./geo";
 import type { MercadoProprio } from "./proprios";
@@ -97,6 +98,7 @@ export function ItemDoMercado({
               </>
             )}
           </dl>
+          <OpcoesDeRota paradas={[mercado]} titulo={`Ir até ${mercado.nome}`} />
           <div className="acoes">
             <a
               className="botao botao-secundario botao-pequeno"
@@ -104,7 +106,7 @@ export function ItemDoMercado({
               target="_blank"
               rel="noopener noreferrer"
             >
-              Abrir no Google Maps
+              Ver o lugar no Google Maps
               <span className="somente-leitor"> (abre em outra aba)</span>
             </a>
             {proprio && !confirmando && (

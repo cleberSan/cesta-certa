@@ -1,0 +1,40 @@
+.rota {
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+}
+
+.rota-titulo {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.rota-modo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  border: 0;
+}
+
+.rota-modo legend {
+  width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+.rota-modo label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  font-weight: normal;
+}
+
+.rota-avisos {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+}

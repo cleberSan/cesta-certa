@@ -212,7 +212,7 @@ test.describe("saber mais", () => {
     await expect(site).toHaveAttribute("href", "https://www.supermercado.example/loja/centro");
     await expect(site).toHaveAttribute("target", "_blank");
     await expect(site).toHaveAttribute("rel", "noopener noreferrer");
-    const mapa = supermercado.getByRole("link", { name: /Abrir no Google Maps/ });
+    const mapa = supermercado.getByRole("link", { name: /Ver o lugar no Google Maps/ });
     const destino = new URL((await mapa.getAttribute("href"))!);
     expect(destino.origin + destino.pathname).toBe("https://www.google.com/maps/search/");
     expect(destino.searchParams.get("query")).toBe(
@@ -220,6 +220,39 @@ test.describe("saber mais", () => {
     );
     await expect(mapa).toHaveAttribute("rel", "noopener noreferrer");
     expect(consoleErrors).toEqual([]);
+  });
+
+  // spec 0001 CA-24
+  test("abre a rota até o mercado no Google Maps e no Waze, com o modo escolhido", async ({
+    page,
+  }) => {
+    await servirBase(page);
+    await abrirNoCentro(page);
+    const supermercado = item(page, "Supermercado Exemplo");
+    await supermercado.getByRole("button", { name: /^Saber mais/ }).click();
+    const rota = supermercado.getByRole("group", { name: "Ir até Supermercado Exemplo" });
+    const destino = `${mercadosDeExemplo.find((m) => m.id === "n102")!.lat},${centro.longitude}`;
+    const google = rota.getByRole("link", { name: /Abrir no Google Maps/ });
+    const waze = rota.getByRole("link", { name: /Abrir no Waze/ });
+
+    await expect(rota.getByLabel("De carro")).toBeChecked();
+    let link = new URL((await google.getAttribute("href"))!);
+    expect(link.origin + link.pathname).toBe("https://www.google.com/maps/dir/");
+    expect(Object.fromEntries(link.searchParams)).toEqual({
+      api: "1",
+      destination: destino,
+      travelmode: "driving",
+    });
+    expect(new URL((await waze.getAttribute("href"))!).searchParams.get("ll")).toBe(destino);
+    await expect(waze).toHaveAttribute("target", "_blank");
+    await expect(waze).toHaveAttribute("rel", "noopener noreferrer");
+    await expect(rota.getByRole("listitem")).toHaveCount(0);
+
+    await rota.getByLabel("A pé").check();
+
+    link = new URL((await google.getAttribute("href"))!);
+    expect(link.searchParams.get("travelmode")).toBe("walking");
+    await expect(rota.getByRole("listitem")).toHaveText(["O Waze calcula a rota de carro."]);
   });
 
   test("mostra site sem https só como texto e esconde o que a base não tem", async ({ page }) => {
