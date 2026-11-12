@@ -45,6 +45,7 @@ Fatos que pesam, conferidos em 2026-11-10 (fontes no [plano](../specs/0001-mvp-c
 - A base tem até um mês de atraso e a qualidade do OSM varia por região. Mercado que falta entra como mercado próprio (CA-08), e quem quiser pode corrigi-lo no próprio OpenStreetMap.
 - Até o primeiro PR de dados ser mesclado, o site não tem base: a tela diz que a base ainda não foi publicada e oferece cadastrar um mercado.
 - Todo mês o dono revisa um PR de dados, fecha e reabre para os checks rodarem e mescla. Se a Overpass estiver fora do ar, o workflow falha, a base anterior fica e dá para rodar de novo pelo **Run workflow**.
+- Medição no PR #6 (12/11/2026, só SP e RJ): 7.717 mercados em 40 células, 190,6 KB comprimidos no total; a maior célula (a da capital paulista) tem 2.809 mercados e 60,4 KB comprimidos, um quinto da meta, então a divisão de células fica de fora. A Overpass respondeu 502 na primeira tentativa das duas UFs e a retentativa resolveu, o que confirma a espera entre tentativas.
 - O repositório cresce a cada mês com o diff da base. O relatório do PR mostra o tamanho; se pesar, a base pode sair do repositório para um armazenamento gratuito da Cloudflare, por ADR novo.
 - As coordenadas da pessoa nunca saem do aparelho. O site vê a célula pedida; o provedor do mapa vê a região na tela só quando o mapa é aberto.
 - Safari e Firefox seguem fora do CI; geolocalização e mapa são exercitados no Chromium com localização simulada e tiles interceptados.
