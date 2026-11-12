@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { ehIdDeCelula } from "../../shared/contratos/mercados";
-import { celulasDoRaio, dentroDoBrasil, distanciaKm, ehPonto, formatarDistancia } from "./geo";
+import {
+  caixaDoRaio,
+  celulasDoRaio,
+  dentroDoBrasil,
+  distanciaKm,
+  ehPonto,
+  formatarDistancia,
+  pontoNoRumo,
+} from "./geo";
 
 // spec 0001 CA-07
 describe("distanciaKm", () => {
@@ -134,5 +142,36 @@ describe("formatarDistancia", () => {
     [29.6, "30 km"],
   ])("%f km vira %s", (km, texto) => {
     expect(formatarDistancia(km)).toBe(texto);
+  });
+});
+
+describe("caixaDoRaio", () => {
+  it("cobre o raio para os quatro lados", () => {
+    const centro = { lat: -23.55, lon: -46.63 };
+    const caixa = caixaDoRaio(centro, 5);
+    expect(distanciaKm(centro, { lat: caixa.norte, lon: centro.lon })).toBeCloseTo(5, 1);
+    expect(distanciaKm(centro, { lat: caixa.sul, lon: centro.lon })).toBeCloseTo(5, 1);
+    expect(distanciaKm(centro, { lat: centro.lat, lon: caixa.leste })).toBeCloseTo(5, 1);
+    expect(distanciaKm(centro, { lat: centro.lat, lon: caixa.oeste })).toBeCloseTo(5, 1);
+  });
+
+  it("não explode perto do polo", () => {
+    const caixa = caixaDoRaio({ lat: 90, lon: 0 }, 10);
+    expect(Number.isFinite(caixa.leste)).toBe(true);
+  });
+});
+
+describe("pontoNoRumo", () => {
+  it("anda a distância pedida em qualquer rumo", () => {
+    const centro = { lat: -23.55, lon: -46.63 };
+    for (const rumo of [0, 45, 90, 180, 270]) {
+      expect(distanciaKm(centro, pontoNoRumo(centro, 7, rumo))).toBeCloseTo(7, 6);
+    }
+  });
+
+  it("vai para o norte com rumo 0 e para o leste com rumo 90", () => {
+    const centro = { lat: 0, lon: 0 };
+    expect(pontoNoRumo(centro, 10, 0).lat).toBeGreaterThan(0);
+    expect(pontoNoRumo(centro, 10, 90).lon).toBeGreaterThan(0);
   });
 });

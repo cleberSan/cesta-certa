@@ -60,7 +60,7 @@ test.describe("primeiro acesso aos mercados", () => {
     await usarLocalizacao(page).click();
 
     await expect(page.getByRole("alert")).toHaveText(
-      "O navegador não deu permissão para usar a localização. Escolha a cidade.",
+      "O navegador não deu permissão para usar a localização. Escolha a cidade ou marque o ponto no mapa.",
     );
     await expect(escolherCidade(page)).toBeEnabled();
     await expect(usarLocalizacao(page)).toBeEnabled();
@@ -86,7 +86,7 @@ test.describe("primeiro acesso aos mercados", () => {
     await page.clock.runFor(1_000);
 
     await expect(page.getByRole("alert")).toHaveText(
-      "A localização não chegou em 10 segundos. Escolha a cidade ou tente de novo.",
+      "A localização não chegou em 10 segundos. Tente de novo, escolha a cidade ou marque o ponto no mapa.",
     );
     await expect(usarLocalizacao(page)).toBeEnabled();
   });
@@ -101,7 +101,7 @@ test.describe("primeiro acesso aos mercados", () => {
     await usarLocalizacao(page).click();
 
     await expect(page.getByRole("alert")).toHaveText(
-      "Este aparelho não informou a localização. Escolha a cidade.",
+      "Este aparelho não informou a localização. Escolha a cidade ou marque o ponto no mapa.",
     );
   });
 

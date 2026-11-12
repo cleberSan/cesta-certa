@@ -1,12 +1,15 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { celulaDe, type IndiceLido, type MercadoDaBase } from "../../shared/contratos/mercados";
+import type { Pino } from "../mapa/geojson";
+import { MapaDosMercadosSobDemanda } from "../mapa/SobDemanda";
 import { ehRaio, raios, type PontoEscolhido, type Raio } from "./ajustes";
 import { CadastrarMercado } from "./CadastrarMercado";
 import { buscarNoSite, carregarIndice, carregarMercados, type ErroDaCarga } from "./carga";
 import { celulasDoRaio, distanciaKm } from "./geo";
-import { ItemDoMercado, type MercadoNaTela } from "./ItemDoMercado";
+import { DetalhesDoMercado } from "./DetalhesDoMercado";
+import { ItemDoMercado, ResumoDoMercado, type MercadoNaTela } from "./ItemDoMercado";
 import type { MercadoProprio } from "./proprios";
-import { mercadosNoRaio, situacaoDoPonto } from "./proximos";
+import { mercadosNoRaio, situacaoDoPonto, type Proximo } from "./proximos";
 import { avisoDoCadastro, mensagemDaCarga, mesDaBase, resumoDoRaio } from "./textos";
 
 const porPagina = 50;
@@ -21,6 +24,7 @@ const abrindo: CargaDosMercados = { fase: "abrindo" };
 /**
  * Mercados perto do ponto (spec 0001, CA-07, CA-08, CA-09 e CA-39): os da base, baixados por
  * célula, e os que a pessoa cadastrou, juntos e em ordem de distância calculada no aparelho.
+ * A lista é a visão padrão; o mapa abre sob demanda e mostra os mesmos mercados (CA-37).
  */
 export function MercadosPerto({
   ponto,
@@ -44,7 +48,10 @@ export function MercadosPerto({
   const [mostrar, setMostrar] = useState(porPagina);
   const [cadastrando, setCadastrando] = useState(false);
   const [aviso, setAviso] = useState("");
+  const [mapaAberto, setMapaAberto] = useState(false);
+  const [escolhido, setEscolhido] = useState<string | null>(null);
   const botaoCadastrar = useRef<HTMLButtonElement>(null);
+  const botaoDoMapa = useRef<HTMLButtonElement>(null);
   // A resposta vale para o ponto, o raio e a tentativa em que foi pedida; enquanto a do
   // pedido atual não chega, a tela mostra "baixando".
   const chave = `${ponto.lat} ${ponto.lon} ${raioKm} ${tentativa}`;
@@ -99,6 +106,19 @@ export function MercadosPerto({
     return mercadosNoRaio(todos, ponto, raioKm);
   }, [carga, proprios, ponto, raioKm]);
   const proximoRaio = raios.find((km) => km > raioKm);
+  const pinos = useMemo(
+    (): Pino[] =>
+      proximos.map(({ id, lat, lon, origem }) => ({ id, lat, lon, proprio: origem === "proprio" })),
+    [proximos],
+  );
+  const mercadoEscolhido = mapaAberto
+    ? proximos.find((mercado) => mercado.id === escolhido)
+    : undefined;
+
+  const voltarAoMapa = () => {
+    setEscolhido(null);
+    queueMicrotask(() => botaoDoMapa.current?.focus());
+  };
 
   const cadastrar = (mercado: MercadoProprio) => {
     setCadastrando(false);
@@ -167,6 +187,50 @@ export function MercadosPerto({
           )}
         </div>
       )}
+      <div className="mercados-mapa">
+        <div className="mercados-mapa-alternar">
+          <button
+            ref={botaoDoMapa}
+            type="button"
+            className="botao botao-secundario"
+            aria-expanded={mapaAberto}
+            aria-controls={`${base}-mapa`}
+            onClick={() => {
+              setMapaAberto((aberto) => !aberto);
+              setEscolhido(null);
+            }}
+          >
+            {mapaAberto ? "Esconder o mapa" : "Mostrar no mapa"}
+          </button>
+          <p className="mercados-nota">
+            O mapa baixa do OpenFreeMap as imagens da área na tela. A lista tem as mesmas
+            informações.
+          </p>
+        </div>
+        {mapaAberto && (
+          <div id={`${base}-mapa`}>
+            <MapaDosMercadosSobDemanda
+              ponto={ponto}
+              raioKm={raioKm}
+              pinos={pinos}
+              escolhido={escolhido}
+              onEscolher={setEscolhido}
+              alternativa="A lista abaixo tem as mesmas informações."
+            />
+            {mercadoEscolhido !== undefined && (
+              <FolhaDoMercado
+                key={mercadoEscolhido.id}
+                mercado={mercadoEscolhido}
+                onFechar={voltarAoMapa}
+                onExcluir={(id) => {
+                  voltarAoMapa();
+                  onExcluir(id);
+                }}
+              />
+            )}
+          </div>
+        )}
+      </div>
       {carga.fase === "pronta" && proximos.length === 0 && (
         <div className="cartao">
           <p>
@@ -245,6 +309,40 @@ export function MercadosPerto({
           .
         </p>
       )}
+    </section>
+  );
+}
+
+/**
+ * Folha logo abaixo do mapa com o mercado tocado (T10): o mesmo "Saber mais" da lista. O foco
+ * vai para ela, para quem segue pelo teclado ou leitor de tela chegar à rota.
+ */
+function FolhaDoMercado({
+  mercado,
+  onFechar,
+  onExcluir,
+}: {
+  mercado: Proximo<MercadoNaTela>;
+  onFechar: () => void;
+  onExcluir: (id: string) => void;
+}) {
+  const titulo = useId();
+  const folha = useRef<HTMLElement>(null);
+
+  useEffect(() => folha.current?.focus(), []);
+
+  return (
+    <section ref={folha} tabIndex={-1} className="mercados-folha" aria-labelledby={titulo}>
+      <div className="mercados-folha-topo">
+        <h3 id={titulo}>{mercado.nome}</h3>
+        <button type="button" className="botao botao-secundario botao-pequeno" onClick={onFechar}>
+          Fechar<span className="somente-leitor"> os detalhes de {mercado.nome}</span>
+        </button>
+      </div>
+      <ResumoDoMercado mercado={mercado} />
+      <div className="mercados-detalhes">
+        <DetalhesDoMercado mercado={mercado} onExcluir={onExcluir} />
+      </div>
     </section>
   );
 }

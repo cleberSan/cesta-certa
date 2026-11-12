@@ -19,6 +19,9 @@ export default defineConfig({
         "**/*.d.ts",
         "**/fixtures/**",
         "src/shared/armazenamento/indexeddb.ts",
+        // Ponte com o MapLibre, que precisa de WebGL: provada por e2e/mapa.spec.ts. As contas
+        // e os dados do mapa ficam em src/features/mapa/geojson.ts e estilo.ts, com teste.
+        "src/features/mapa/motor.ts",
         // Só liga o gerador à rede e ao disco; as regras dele ficam em scripts/mercados/,
         // com teste, e a geração de verdade roda no workflow mensal (ADR-0005).
         "scripts/mercados.ts",

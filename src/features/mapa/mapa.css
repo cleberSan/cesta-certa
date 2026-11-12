@@ -1,0 +1,107 @@
+/* Quadro, mira e legenda do mapa (spec 0001, T10). O CSS do próprio MapLibre só chega quando um mapa abre (motor.ts). */
+
+.mapa-quadro {
+  position: relative;
+  isolation: isolate;
+  height: min(60vh, 28rem);
+  min-height: 18rem;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: #e8e4d8;
+}
+
+.mapa-quadro[hidden],
+.mapa-legenda[hidden] {
+  display: none;
+}
+
+/* O CSS do MapLibre, que chega depois, põe a tela em position: relative; a altura vem do quadro. */
+.mapa-tela {
+  width: 100%;
+  height: 100%;
+}
+
+.mapa-tela .maplibregl-canvas:focus-visible {
+  outline: 3px solid var(--cor-foco);
+  outline-offset: -3px;
+}
+
+/* Os botões do MapLibre ficam com o alvo de toque de 44 px (WCAG 2.2). */
+.mapa-tela .maplibregl-ctrl-group button {
+  width: 44px;
+  height: 44px;
+}
+
+.mapa-abrindo {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 3;
+  margin: 0;
+  padding: 0.5rem var(--espaco);
+  background: var(--cor-superficie);
+  color: var(--cor-texto-suave);
+}
+
+/* Mira fixa no meio do mapa: um círculo com uma cruz, legível em qualquer fundo. */
+.mapa-mira {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border: 3px solid #16211b;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 2px #ffffff,
+    inset 0 0 0 2px #ffffff;
+  pointer-events: none;
+}
+
+.mapa-mira::before,
+.mapa-mira::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: #16211b;
+  content: "";
+}
+
+.mapa-mira::before {
+  width: 2px;
+  height: 14px;
+  margin: -7px 0 0 -1px;
+}
+
+.mapa-mira::after {
+  width: 14px;
+  height: 2px;
+  margin: -1px 0 0 -7px;
+}
+
+.mapa-legenda {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+}
+
+.mapa-amostra {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--cor-borda);
+  vertical-align: -3px;
+}
+
+.mapa-amostra-base {
+  background: #0f6b4f;
+}
+
+.mapa-amostra-proprio {
+  background: radial-gradient(circle, #ffffff 0 3px, #a8410b 3.5px);
+}

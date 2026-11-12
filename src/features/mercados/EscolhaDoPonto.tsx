@@ -1,18 +1,21 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import type { Cidade } from "../../shared/contratos/mercados";
+import { centroDoBrasil, zoomDoBrasil } from "../mapa/geojson";
+import { MiraNoMapaSobDemanda } from "../mapa/SobDemanda";
 import type { PontoEscolhido } from "./ajustes";
 import { buscarNoSite, carregarCidades, type ErroDaCarga } from "./carga";
 import { buscarCidades, rotuloDaCidade } from "./cidades";
+import type { Ponto } from "./geo";
 import { pedirLocalizacao, type ErroDaLocalizacao } from "./localizacao";
 import { mensagemDaCarga, mensagemDaLocalizacao } from "./textos";
 
 /**
  * Primeiro acesso (spec 0001, CA-05): explica para que serve o ponto e só pede a localização
- * depois do toque; a cidade é sempre o outro caminho.
+ * depois do toque; a cidade e o ponto marcado no mapa são os outros caminhos.
  */
 export function EscolhaDoPonto({ onEscolher }: { onEscolher: (ponto: PontoEscolhido) => void }) {
   const titulo = useId();
-  const [modo, setModo] = useState<"inicio" | "pedindo" | "cidade">("inicio");
+  const [modo, setModo] = useState<"inicio" | "pedindo" | "cidade" | "mapa">("inicio");
   const [erro, setErro] = useState<ErroDaLocalizacao | null>(null);
 
   const usarLocalizacao = async () => {
@@ -30,6 +33,9 @@ export function EscolhaDoPonto({ onEscolher }: { onEscolher: (ponto: PontoEscolh
   if (modo === "cidade") {
     return <EscolherCidade onEscolher={onEscolher} onVoltar={() => setModo("inicio")} />;
   }
+  if (modo === "mapa") {
+    return <MarcarNoMapa onEscolher={onEscolher} onVoltar={() => setModo("inicio")} />;
+  }
   return (
     <section className="cartao" aria-labelledby={titulo}>
       <h2 id={titulo}>Para achar os mercados perto de você</h2>
@@ -42,6 +48,10 @@ export function EscolhaDoPonto({ onEscolher }: { onEscolher: (ponto: PontoEscolh
         de uma região de cerca de 110 km e faz a conta da distância aqui, sem mandar o ponto para
         ninguém.
       </p>
+      <p>
+        Se você abrir um mapa, ele baixa do OpenFreeMap as imagens da área que aparece na tela, e o
+        OpenFreeMap fica sabendo que área é essa.
+      </p>
       <div className="acoes">
         <button
           type="button"
@@ -53,6 +63,9 @@ export function EscolhaDoPonto({ onEscolher }: { onEscolher: (ponto: PontoEscolh
         </button>
         <button type="button" className="botao botao-secundario" onClick={() => setModo("cidade")}>
           Escolher cidade
+        </button>
+        <button type="button" className="botao botao-secundario" onClick={() => setModo("mapa")}>
+          Marcar no mapa
         </button>
       </div>
       <p role="status" className="mercados-carregando">
@@ -182,6 +195,46 @@ function EscolherCidade({
           Voltar
         </button>
       </p>
+    </section>
+  );
+}
+
+/** O ponto marcado com a mira do mapa, partindo do Brasil inteiro na tela (CA-05). */
+function MarcarNoMapa({
+  onEscolher,
+  onVoltar,
+}: {
+  onEscolher: (ponto: PontoEscolhido) => void;
+  onVoltar: () => void;
+}) {
+  const titulo = useId();
+  const [centro, setCentro] = useState<Ponto | null>(null);
+
+  return (
+    <section className="cartao" aria-labelledby={titulo}>
+      <h2 id={titulo}>Marcar no mapa</h2>
+      <MiraNoMapaSobDemanda
+        titulo="Mapa para marcar o ponto"
+        inicio={centroDoBrasil}
+        zoom={zoomDoBrasil}
+        onCentro={setCentro}
+        alternativa="Volte e escolha a cidade."
+      />
+      <div className="acoes">
+        <button
+          type="button"
+          className="botao"
+          disabled={centro === null}
+          onClick={() => {
+            if (centro !== null) onEscolher({ ...centro, origem: "mapa", rotulo: null });
+          }}
+        >
+          Usar este ponto
+        </button>
+        <button type="button" className="botao botao-secundario" onClick={onVoltar}>
+          Voltar
+        </button>
+      </div>
     </section>
   );
 }

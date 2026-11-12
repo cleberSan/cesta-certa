@@ -374,7 +374,7 @@ test.describe("mercado cadastrado pela pessoa", () => {
     await formulario(page).getByRole("button", { name: "Cadastrar" }).click();
 
     await expect(formulario(page).getByRole("alert")).toHaveText(
-      "O navegador não deu permissão para usar a localização. Cadastre no ponto da busca.",
+      "O navegador não deu permissão para usar a localização. Cadastre no ponto da busca ou marque no mapa.",
     );
     await expect(formulario(page).getByLabel("Nome do mercado")).toHaveValue("Mercado do Caminho");
   });

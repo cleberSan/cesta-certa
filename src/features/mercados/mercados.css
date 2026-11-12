@@ -150,3 +150,47 @@
     margin-top: 0.5rem;
   }
 }
+
+.mercados-mapa {
+  margin: 1rem 0;
+}
+
+.mercados-mapa-alternar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.mercados-mapa-alternar p {
+  margin: 0;
+}
+
+/* Folha com os detalhes do mercado tocado no mapa, logo abaixo dele (CA-37). */
+.mercados-folha {
+  margin: 0 0 1rem;
+  padding: 0.75rem var(--espaco) 1rem;
+  border: 1px solid var(--cor-borda);
+  border-top: 4px solid var(--cor-marca);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+.mercados-folha-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.mercados-folha h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
+
+.mercados-folha-topo + p {
+  margin: 0.25rem 0 0;
+  color: var(--cor-texto-suave);
+}

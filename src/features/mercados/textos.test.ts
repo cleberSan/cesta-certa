@@ -28,19 +28,23 @@ describe("mensagemDaLocalizacao", () => {
   it.each(["negada", "indisponivel", "sem-resposta"] as const)(
     "oferece outro caminho quando a localização falha (%s)",
     (erro) => {
-      expect(mensagemDaLocalizacao(erro)).toMatch(/Escolha a cidade/);
+      expect(mensagemDaLocalizacao(erro)).toMatch(/scolha a cidade ou marque o ponto no mapa/);
     },
   );
 
   it.each(["negada", "indisponivel", "sem-resposta"] as const)(
     "no cadastro de mercado, oferece o ponto da busca (%s)",
     (erro) => {
-      expect(mensagemDaLocalizacao(erro, "cadastro")).toMatch(/adastre no ponto da busca/);
+      expect(mensagemDaLocalizacao(erro, "cadastro")).toMatch(
+        /adastre no ponto da busca ou marque no mapa/,
+      );
     },
   );
 
-  it("diz quanto tempo esperou", () => {
-    expect(mensagemDaLocalizacao("sem-resposta")).toContain("10 segundos");
+  it("diz quanto tempo esperou e sugere tentar de novo", () => {
+    expect(mensagemDaLocalizacao("sem-resposta")).toBe(
+      "A localização não chegou em 10 segundos. Tente de novo, escolha a cidade ou marque o ponto no mapa.",
+    );
   });
 });
 

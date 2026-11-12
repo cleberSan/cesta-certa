@@ -58,7 +58,8 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <ul>
     <li>
       Em <a href="/mercados">Mercados</a>, o app só pede a sua localização ao navegador depois que
-      você toca em "Usar minha localização". Se preferir, escolha uma cidade da lista.
+      você toca em "Usar minha localização". Se preferir, escolha uma cidade da lista ou marque o
+      ponto no mapa.
     </li>
     <li>
       O ponto escolhido e a distância máxima ficam só no armazenamento do navegador, no seu
@@ -73,6 +74,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <li>
       Para achar a sua localização, o próprio navegador pode consultar o serviço de localização do
       sistema do aparelho, conforme as regras dele. O Cesta Certa não recebe nada disso.
+    </li>
+    <li>
+      O mapa só abre quando você toca em "Mostrar no mapa" ou "Marcar no mapa". Aberto, ele baixa do
+      OpenFreeMap, um serviço gratuito de mapas, as imagens da área que aparece na tela; então o
+      OpenFreeMap recebe o seu endereço IP e fica sabendo que área é essa, que com o mapa bem perto
+      cobre poucas quadras. O ponto e os mercados não são enviados. A lista mostra as mesmas
+      informações sem abrir o mapa.
     </li>
     <li>"Trocar o ponto" apaga o ponto guardado no aparelho.</li>
     <li>

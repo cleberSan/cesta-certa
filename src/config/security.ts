@@ -22,6 +22,15 @@ export const metaCspDirectives = [
   "form-action 'none'",
 ] as const;
 
+/**
+ * Mapa de /mercados (ADR-0005): os quadros, o estilo, as fontes e os ícones vêm do
+ * OpenFreeMap, sem chave. Só a página de mercados recebe estas diretivas (por
+ * `Astro.csp.insertDirective`), e o mapa só baixa algo quando a pessoa o abre.
+ */
+export const origemDoMapa = "https://tiles.openfreemap.org";
+
+export const cspDoMapa = [`connect-src ${origemDoMapa}`, `img-src blob: ${origemDoMapa}`] as const;
+
 export const headerCsp = [
   "frame-ancestors 'none'",
   "base-uri 'none'",

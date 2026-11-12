@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   apiSecurityHeaders,
+  cspDoMapa,
   headerCsp,
   metaCspDirectives,
+  origemDoMapa,
   permissionsPolicy,
   renderHeadersFile,
   securityHeaders,
@@ -23,6 +25,15 @@ describe("CSP das páginas", () => {
 
   it("não libera nenhuma origem de terceiro", () => {
     expect(metaCspDirectives.join(" ")).not.toMatch(/https?:|\*/);
+  });
+
+  it("libera para o mapa só a origem do OpenFreeMap, sem curinga", () => {
+    expect(cspDoMapa).toEqual([
+      "connect-src https://tiles.openfreemap.org",
+      "img-src blob: https://tiles.openfreemap.org",
+    ]);
+    expect(origemDoMapa).toBe("https://tiles.openfreemap.org");
+    expect(cspDoMapa.join(" ")).not.toMatch(/\*|unsafe|http:/);
   });
 
   it("leva ao cabeçalho as diretivas que o <meta> ignora", () => {

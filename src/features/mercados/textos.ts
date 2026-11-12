@@ -16,21 +16,24 @@ export function descreverTipo(tipo: TipoDeMercado): string {
 }
 
 /**
- * Por que a localização não veio, com o outro caminho de cada tela: escolher a cidade, no
- * primeiro acesso, ou usar o ponto da busca, no cadastro de mercado.
+ * Por que a localização não veio, com os outros caminhos de cada tela: a cidade ou o mapa, no
+ * primeiro acesso, e o ponto da busca ou o mapa, no cadastro de mercado (CA-05 e CA-08).
  */
 export function mensagemDaLocalizacao(
   erro: ErroDaLocalizacao,
   tela: "ponto" | "cadastro" = "ponto",
 ): string {
-  const alternativa = tela === "ponto" ? "escolha a cidade" : "cadastre no ponto da busca";
+  const alternativa =
+    tela === "ponto"
+      ? "escolha a cidade ou marque o ponto no mapa"
+      : "cadastre no ponto da busca ou marque no mapa";
   switch (erro) {
     case "negada":
       return `O navegador não deu permissão para usar a localização. ${maiuscula(alternativa)}.`;
     case "indisponivel":
       return `Este aparelho não informou a localização. ${maiuscula(alternativa)}.`;
     case "sem-resposta":
-      return `A localização não chegou em 10 segundos. ${maiuscula(alternativa)} ou tente de novo.`;
+      return `A localização não chegou em 10 segundos. Tente de novo, ${alternativa}.`;
   }
 }
 

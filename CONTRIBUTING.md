@@ -56,6 +56,7 @@ Os mercados vêm do OpenStreetMap (ODbL) e ficam em `public/data`, gerados uma v
 - Num PR que muda o gerador, o workflow mede só SP e RJ e deixa o relatório no resumo, sem publicar.
 - Os testes de ponta a ponta não dependem de `public/data`: `e2e/base-de-mercados.ts` serve uma base sintética pelo Playwright, no mesmo caminho que o app pede.
 - O ponto e o raio ficam no armazém `ajustes` do IndexedDB, fora da cópia exportada. Teste novo que mexa com localização confere em `e2e/privacidade.spec.ts` que nenhum pedido leva a coordenada.
+- O mapa (`src/features/mapa/`) usa o MapLibre com o estilo do OpenFreeMap, liberado na CSP só de `/mercados` (`cspDoMapa` em `src/config/security.ts`). O CI não alcança o OpenFreeMap: `e2e/mapa.spec.ts` serve um estilo mínimo pelo Playwright e libera essa origem com `test.use({ outrasOrigens: [...] })`. Confira o mapa de verdade na prévia do PR.
 
 ## Publicação
 

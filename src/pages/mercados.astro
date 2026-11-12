@@ -1,6 +1,11 @@
 ---
+import { cspDoMapa } from "../config/security";
 import MercadosProximos from "../features/mercados/MercadosProximos";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+// Só esta página libera a origem do mapa (ADR-0005); as outras seguem com a CSP estrita.
+// Sem CSP configurada não há o que liberar; e2e/http.spec.ts confere a diretiva no build.
+for (const diretiva of cspDoMapa) Astro.csp?.insertDirective(diretiva);
 ---
 
 <BaseLayout
@@ -29,14 +34,20 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       lado. O site fica sabendo qual região foi pedida, nunca o ponto.
     </li>
     <li>
+      O mapa só abre quando você toca em "Mostrar no mapa" ou "Marcar no mapa". Ele baixa do
+      OpenFreeMap as imagens da área que aparece na tela, então o OpenFreeMap fica sabendo que área
+      é essa. A lista mostra os mesmos mercados sem abrir o mapa.
+    </li>
+    <li>
       A localização é pedida ao navegador só quando você toca em "Usar minha localização". Se
-      preferir, escolha a cidade.
+      preferir, escolha a cidade ou marque o ponto no mapa.
     </li>
   </ul>
 
   <h2>De onde vêm os mercados</h2>
   <p>
     Do OpenStreetMap, um mapa aberto feito por voluntários, numa base atualizada uma vez por mês. Se
-    o seu mercado não aparece, ele pode estar sem cadastro no OpenStreetMap.
+    o seu mercado não aparece, ele pode estar sem cadastro no OpenStreetMap. O desenho do mapa vem
+    do OpenFreeMap, com dados do OpenMapTiles e do OpenStreetMap.
   </p>
 </BaseLayout>
