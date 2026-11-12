@@ -344,13 +344,19 @@ test.describe("armazenamento do aparelho", () => {
     await expect(itens(page)).toHaveText([/Macarrão.*3 × 500 g/]);
   });
 
-  for (const rota of ["/lista", "/dados"]) {
+  // O que só aparece depois de a ilha abrir o banco, quando o aviso de "voltar" já está ligado:
+  // o título vem no HTML e, numa máquina ocupada, aparece antes de a ilha acordar.
+  const prontas = {
+    "/lista": (page: Page) => page.getByText(/Arroz/).first(),
+    "/dados": (page: Page) => page.getByText("Neste aparelho: 1 lista e 2 itens."),
+  };
+  for (const [rota, pronta] of Object.entries(prontas)) {
     test(`${rota} recarrega quando o navegador devolve a página do cache de voltar, para não mostrar dados velhos`, async ({
       page,
     }) => {
       await montarLista(page);
       await page.goto(rota);
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(pronta(page)).toBeVisible();
       await page.evaluate(() => {
         (window as { marcaDoTeste?: boolean }).marcaDoTeste = true;
       });
