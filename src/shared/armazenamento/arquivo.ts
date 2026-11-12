@@ -1,4 +1,5 @@
 import { falha, sucesso, type Resultado } from "../resultado";
+import { ehDataIso, ehObjeto } from "../validacao";
 import { armazensDaCopia, type ConteudoDaCopia, type NomeDaCopia, type Registros } from "./banco";
 
 /**
@@ -69,7 +70,7 @@ export function lerArquivo(texto: string): Resultado<ArquivoLido, ErroDoArquivo>
     return falha({ tipo: "arquivo.outro-formato" });
   }
   if (versao > versaoDoArquivo) return falha({ tipo: "arquivo.versao-desconhecida", versao });
-  if (!ehData(exportadoEm) || !ehObjeto(dados)) return falha({ tipo: "arquivo.outro-formato" });
+  if (!ehDataIso(exportadoEm) || !ehObjeto(dados)) return falha({ tipo: "arquivo.outro-formato" });
 
   const lido = (nome: NomeDaCopia): readonly unknown[] | null => {
     const valor = Object.hasOwn(dados, nome) ? dados[nome] : undefined;
@@ -85,16 +86,4 @@ export function lerArquivo(texto: string): Resultado<ArquivoLido, ErroDoArquivo>
 /** O comprimento em caracteres nunca passa do tamanho em bytes: evita codificar um texto enorme. */
 function passaDoLimite(texto: string): boolean {
   return texto.length > limiteDoArquivo || tamanhoEmBytes(texto) > limiteDoArquivo;
-}
-
-function ehObjeto(valor: unknown): valor is Record<string, unknown> {
-  return typeof valor === "object" && valor !== null && !Array.isArray(valor);
-}
-
-function ehData(valor: unknown): valor is string {
-  return (
-    typeof valor === "string" &&
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(valor) &&
-    !Number.isNaN(Date.parse(valor))
-  );
 }

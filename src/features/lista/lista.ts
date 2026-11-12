@@ -1,6 +1,7 @@
 import type { Alteracoes } from "../../shared/armazenamento/banco";
 import { falha, sucesso, type Resultado } from "../../shared/resultado";
 import { chaveDeComparacao, limparTexto } from "../../shared/texto";
+import { ehDataIso, ehObjeto, ehUuid } from "../../shared/validacao";
 
 /**
  * Regras da lista de compras (spec 0001, CA-01 a CA-03), sem React e sem API do navegador.
@@ -421,7 +422,7 @@ export function conferirEstado(conteudo: {
 export function lerLista(valor: unknown): Lista | null {
   if (!ehObjeto(valor)) return null;
   const { id, nome, criadaEm, atualizadaEm } = valor;
-  if (!ehId(id) || !ehData(criadaEm) || !ehData(atualizadaEm) || typeof nome !== "string") {
+  if (!ehUuid(id) || !ehDataIso(criadaEm) || !ehDataIso(atualizadaEm) || typeof nome !== "string") {
     return null;
   }
   const lido = lerNomeDaLista(nome);
@@ -433,8 +434,8 @@ export function lerItem(valor: unknown): Item | null {
   const { id, listaId, nome, quantidade, marca, tamanho, preferencia, comprado, ordem, criadoEm } =
     valor;
   if (
-    !ehId(id) ||
-    !ehId(listaId) ||
+    !ehUuid(id) ||
+    !ehUuid(listaId) ||
     typeof nome !== "string" ||
     typeof quantidade !== "number" ||
     !(marca === null || typeof marca === "string") ||
@@ -444,7 +445,7 @@ export function lerItem(valor: unknown): Item | null {
     typeof ordem !== "number" ||
     !Number.isSafeInteger(ordem) ||
     ordem < 0 ||
-    !ehData(criadoEm)
+    !ehDataIso(criadoEm)
   ) {
     return null;
   }
@@ -561,25 +562,6 @@ function trocar<T extends { readonly id: string }>(
 }
 
 const comparar = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
-
-function ehObjeto(valor: unknown): valor is Record<string, unknown> {
-  return typeof valor === "object" && valor !== null && !Array.isArray(valor);
-}
-
-function ehId(valor: unknown): valor is string {
-  return (
-    typeof valor === "string" &&
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(valor)
-  );
-}
-
-function ehData(valor: unknown): valor is string {
-  return (
-    typeof valor === "string" &&
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(valor) &&
-    !Number.isNaN(Date.parse(valor))
-  );
-}
 
 function ehPreferencia(valor: unknown): valor is Preferencia {
   return preferencias.some((preferencia) => preferencia === valor);

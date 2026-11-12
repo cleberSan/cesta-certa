@@ -10,6 +10,7 @@
  * isso importa com a extensão `.ts` e só usa sintaxe que some ao tirar os tipos.
  */
 import { limparTexto } from "../texto.ts";
+import { ehDataIso, ehObjeto } from "../validacao.ts";
 
 export const versaoDaBase = 1;
 
@@ -133,21 +134,8 @@ export function textoDaBase(valor: unknown, maximo: number): string | null {
   return limpo.length > 0 && limpo.length <= maximo ? limpo : null;
 }
 
-function ehObjeto(valor: unknown): valor is Record<string, unknown> {
-  return typeof valor === "object" && valor !== null && !Array.isArray(valor);
-}
-
 function ehCoordenada(valor: unknown, limite: number): valor is number {
   return typeof valor === "number" && Number.isFinite(valor) && Math.abs(valor) <= limite;
-}
-
-function ehData(valor: unknown): valor is string {
-  return (
-    typeof valor === "string" &&
-    valor.length <= 30 &&
-    !Number.isNaN(Date.parse(valor)) &&
-    new Date(valor).toISOString() === valor
-  );
 }
 
 function ehTipo(valor: unknown): valor is TipoDeMercado {
@@ -213,7 +201,7 @@ export function lerIndice(valor: unknown): LeituraDaBase<IndiceLido> {
   const versao = versaoConhecida(valor);
   if (!versao.ok) return versao;
   const { geradoEm, celulas } = valor;
-  if (!ehData(geradoEm) || !ehObjeto(celulas)) return { ok: false, erro: "formato" };
+  if (!ehDataIso(geradoEm) || !ehObjeto(celulas)) return { ok: false, erro: "formato" };
   const entradas = Object.entries(celulas);
   if (entradas.length > limitesDaBase.celulas) return { ok: false, erro: "formato" };
   const lidas = new Map<string, number>();
@@ -254,7 +242,7 @@ export function lerCidades(valor: unknown): LeituraDaBase<CidadesLidas> {
   const versao = versaoConhecida(valor);
   if (!versao.ok) return versao;
   const { geradoEm, cidades } = valor;
-  if (!ehData(geradoEm) || !Array.isArray(cidades) || cidades.length > limitesDaBase.cidades) {
+  if (!ehDataIso(geradoEm) || !Array.isArray(cidades) || cidades.length > limitesDaBase.cidades) {
     return { ok: false, erro: "formato" };
   }
   const lidas: Cidade[] = [];
