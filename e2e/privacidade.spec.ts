@@ -67,10 +67,9 @@ test.describe("privacidade da localização", () => {
     ]);
     const texto = await readFile(await download.path(), "utf8");
 
-    expect(Object.keys((JSON.parse(texto) as { dados: object }).dados)).toEqual([
-      "listas",
-      "itens",
-    ]);
+    const dados = (JSON.parse(texto) as { dados: Record<string, unknown> }).dados;
+    expect(Object.keys(dados)).toEqual(["listas", "itens", "mercadosProprios"]);
+    expect(dados["mercadosProprios"]).toEqual([]);
     expect(texto).not.toMatch(coordenada);
     expect(texto).not.toContain("ajustes");
   });

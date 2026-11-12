@@ -25,6 +25,9 @@ export interface RespostaDoSite {
 /** Busca um arquivo do próprio site; rejeita sem conexão. */
 export type Buscar = (caminho: string) => Promise<RespostaDoSite>;
 
+/** Só caminhos do próprio site, que é o que a CSP deixa (`connect-src 'self'`). */
+export const buscarNoSite: Buscar = (caminho) => globalThis.fetch(caminho);
+
 export type ErroDaCarga =
   /** O site ainda não tem a base (o primeiro PR de dados não foi mesclado). */
   | "sem-base"

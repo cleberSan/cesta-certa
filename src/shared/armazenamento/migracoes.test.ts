@@ -49,6 +49,23 @@ describe("migrações do banco", () => {
     expect(criados).toEqual([{ nome: "ajustes", chave: "id" }]);
   });
 
+  // spec 0001 CA-08
+  it("a versão 3 acrescenta só o armazém dos mercados cadastrados", () => {
+    const { banco, criados } = bancoFalso();
+
+    aplicarMigracoes(banco, 2, 3);
+
+    expect(criados).toEqual([{ nome: "mercadosProprios", chave: "id" }]);
+  });
+
+  it("um aparelho da versão 1 recebe os ajustes e os mercados cadastrados, nessa ordem", () => {
+    const { banco, criados } = bancoFalso();
+
+    aplicarMigracoes(banco, 1, 3);
+
+    expect(criados.map((criado) => criado.nome)).toEqual(["ajustes", "mercadosProprios"]);
+  });
+
   it("aplica só as migrações que faltam, em ordem", () => {
     const aplicadas: number[] = [];
     const lista: Migracao[] = [0, 1, 2, 3].map((versao) => () => {

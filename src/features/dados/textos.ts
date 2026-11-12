@@ -6,11 +6,20 @@ import type { Copia, ErroDaExportacao, ErroDaImportacao, Resumo } from "./copia"
 /** Textos da tela Seus dados: fora do componente para terem teste de unidade. */
 export const limiteEmMb = limiteDoArquivo / (1024 * 1024);
 
-/** "2 listas e 31 itens", "1 lista sem itens", "nenhuma lista". */
-export function descreverResumo({ listas, itens }: Resumo): string {
-  if (listas === 0) return "nenhuma lista";
+/**
+ * "2 listas e 31 itens", "1 lista sem itens", "nenhuma lista", com os mercados cadastrados
+ * quando houver: "1 lista e 3 itens, mais 2 mercados cadastrados".
+ */
+export function descreverResumo({ listas, itens, mercados }: Resumo): string {
   const quantas = listas === 1 ? "1 lista" : `${listas} listas`;
-  return itens === 0 ? `${quantas} sem itens` : `${quantas} e ${contarItens(itens)}`;
+  const daLista =
+    listas === 0
+      ? "nenhuma lista"
+      : itens === 0
+        ? `${quantas} sem itens`
+        : `${quantas} e ${contarItens(itens)}`;
+  if (mercados === 0) return daLista;
+  return `${daLista}, mais ${mercados === 1 ? "1 mercado cadastrado" : `${mercados} mercados cadastrados`}`;
 }
 
 /** "3 registros", "1 registro". */

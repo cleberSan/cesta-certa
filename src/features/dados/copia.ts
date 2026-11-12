@@ -2,6 +2,7 @@ import { lerArquivo, montarArquivo, type ErroDoArquivo } from "../../shared/arma
 import type { Banco, ErroDoBanco } from "../../shared/armazenamento/banco";
 import { falha, sucesso, type Resultado } from "../../shared/resultado";
 import { conferirEstado, type Estado } from "../lista/lista";
+import { conferirMercadosProprios, type MercadoProprio } from "../mercados/proprios";
 
 /**
  * Cópia dos dados em arquivo: exportar e importar (spec 0001 CA-04, tarefa T05).
@@ -26,10 +27,17 @@ export type ErroDaImportacao =
 export interface Resumo {
   readonly listas: number;
   readonly itens: number;
+  /** Mercados cadastrados pela pessoa (CA-08). */
+  readonly mercados: number;
+}
+
+/** O que vai e volta na cópia, já conferido registro a registro. */
+export interface Dados extends Estado {
+  readonly mercadosProprios: readonly MercadoProprio[];
 }
 
 export interface Aparelho {
-  readonly estado: Estado;
+  readonly dados: Dados;
   readonly resumo: Resumo;
   /** Registros guardados fora do formato esperado: não entram na cópia. */
   readonly recusados: number;
@@ -43,22 +51,37 @@ export interface Copia {
 }
 
 export interface ArquivoConferido {
-  readonly estado: Estado;
+  readonly dados: Dados;
   readonly resumo: Resumo;
   readonly exportadoEm: string;
 }
 
-const resumir = (estado: Estado): Resumo => ({
-  listas: estado.listas.length,
-  itens: estado.itens.length,
+const resumir = (dados: Dados): Resumo => ({
+  listas: dados.listas.length,
+  itens: dados.itens.length,
+  mercados: dados.mercadosProprios.length,
 });
+
+/** Confere listas, itens e mercados próprios; conta o que ficou de fora. */
+function conferirDados(conteudo: {
+  readonly listas: readonly unknown[];
+  readonly itens: readonly unknown[];
+  readonly mercadosProprios: readonly unknown[];
+}): { readonly dados: Dados; readonly recusados: number } {
+  const lista = conferirEstado(conteudo);
+  const mercados = conferirMercadosProprios(conteudo.mercadosProprios);
+  return {
+    dados: { ...lista.estado, mercadosProprios: mercados.mercados },
+    recusados: lista.recusados + mercados.recusados,
+  };
+}
 
 /** O que está guardado no aparelho agora. */
 export async function lerAparelho(banco: Banco): Promise<Resultado<Aparelho, ErroDeArmazenamento>> {
   const lido = await banco.lerTudo();
   if (!lido.ok) return falha({ tipo: "armazenamento", motivo: lido.erro });
-  const { estado, recusados } = conferirEstado(lido.valor);
-  return sucesso({ estado, resumo: resumir(estado), recusados });
+  const { dados, recusados } = conferirDados(lido.valor);
+  return sucesso({ dados, resumo: resumir(dados), recusados });
 }
 
 /** Lê o aparelho na hora do pedido e monta o arquivo de cópia. */
@@ -69,9 +92,9 @@ export async function exportar(
 ): Promise<Resultado<Copia, ErroDaExportacao>> {
   const aparelho = await lerAparelho(banco);
   if (!aparelho.ok) return aparelho;
-  const { estado, resumo, recusados } = aparelho.valor;
+  const { dados, resumo, recusados } = aparelho.valor;
 
-  const texto = montarArquivo(estado, agora);
+  const texto = montarArquivo(dados, agora);
   if (!texto.ok) return texto;
   return sucesso({ nome: nomeDaCopia(agora, fuso), texto: texto.valor, resumo, recusados });
 }
@@ -81,9 +104,9 @@ export function conferirArquivo(texto: string): Resultado<ArquivoConferido, Erro
   const lido = lerArquivo(texto);
   if (!lido.ok) return lido;
 
-  const { estado, recusados } = conferirEstado(lido.valor.conteudo);
+  const { dados, recusados } = conferirDados(lido.valor.conteudo);
   if (recusados > 0) return falha({ tipo: "arquivo.registros-invalidos", quantos: recusados });
-  return sucesso({ estado, resumo: resumir(estado), exportadoEm: lido.valor.exportadoEm });
+  return sucesso({ dados, resumo: resumir(dados), exportadoEm: lido.valor.exportadoEm });
 }
 
 /** Troca o que está no aparelho pelo conteúdo já conferido do arquivo. */
@@ -91,7 +114,7 @@ export async function importar(
   banco: Banco,
   conferido: ArquivoConferido,
 ): Promise<Resultado<Resumo, ErroDeArmazenamento>> {
-  const gravado = await banco.substituirTudo(conferido.estado);
+  const gravado = await banco.substituirTudo(conferido.dados);
   if (!gravado.ok) return falha({ tipo: "armazenamento", motivo: gravado.erro });
   return sucesso(conferido.resumo);
 }

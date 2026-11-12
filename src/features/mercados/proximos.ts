@@ -1,10 +1,13 @@
 /** Mercados dentro do raio, em ordem de distância (CA-07), calculados no aparelho. */
-import type { MercadoDaBase } from "../../shared/contratos/mercados";
 import { dentroDoBrasil, distanciaKm, type Ponto } from "./geo";
 
-export interface MercadoProximo extends MercadoDaBase {
-  readonly distanciaKm: number;
+/** O que a conta precisa de um mercado, da base ou cadastrado pela pessoa. */
+export interface ComPonto extends Ponto {
+  readonly id: string;
+  readonly nome: string;
 }
+
+export type Proximo<T extends ComPonto> = T & { readonly distanciaKm: number };
 
 const ordemDosNomes = new Intl.Collator("pt-BR", { sensitivity: "base" });
 
@@ -12,13 +15,13 @@ const ordemDosNomes = new Intl.Collator("pt-BR", { sensitivity: "base" });
  * Filtra pelo raio e ordena por distância em linha reta; empate pelo nome e pelo id, para a
  * mesma entrada dar sempre a mesma ordem.
  */
-export function mercadosNoRaio(
-  mercados: readonly MercadoDaBase[],
+export function mercadosNoRaio<T extends ComPonto>(
+  mercados: readonly T[],
   centro: Ponto,
   raioKm: number,
-): MercadoProximo[] {
+): Proximo<T>[] {
   const vistos = new Set<string>();
-  const proximos: MercadoProximo[] = [];
+  const proximos: Proximo<T>[] = [];
   for (const mercado of mercados) {
     if (vistos.has(mercado.id)) continue;
     vistos.add(mercado.id);

@@ -5,7 +5,7 @@ import type { Resultado } from "../resultado";
  * interface; a implementação de verdade usa o IndexedDB (indexeddb.ts) e a de memória serve
  * aos testes e de reserva quando o navegador não deixa guardar.
  */
-export const armazensDaCopia = ["listas", "itens"] as const;
+export const armazensDaCopia = ["listas", "itens", "mercadosProprios"] as const;
 
 /**
  * `ajustes` guarda o ponto escolhido e o raio (ADR-0005). Fica fora da cópia exportada e a

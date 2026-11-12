@@ -24,7 +24,7 @@ describe("abrirDados", () => {
 
     expect(recebidas).toEqual([fabrica]);
     expect(aberto.ok && aberto.valor.banco).toBe(banco);
-    expect(aberto.ok && aberto.valor.aparelho.resumo).toEqual({ listas: 1, itens: 0 });
+    expect(aberto.ok && aberto.valor.aparelho.resumo).toEqual({ listas: 1, itens: 0, mercados: 0 });
   });
 
   it("não cria lista nenhuma só por abrir a tela", async () => {
@@ -32,10 +32,10 @@ describe("abrirDados", () => {
 
     const aberto = await abrirDados(fabrica, async () => sucesso(banco));
 
-    expect(aberto.ok && aberto.valor.aparelho.resumo).toEqual({ listas: 0, itens: 0 });
+    expect(aberto.ok && aberto.valor.aparelho.resumo).toEqual({ listas: 0, itens: 0, mercados: 0 });
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [], itens: [], ajustes: [] },
+      valor: { listas: [], itens: [], ajustes: [], mercadosProprios: [] },
     });
   });
 

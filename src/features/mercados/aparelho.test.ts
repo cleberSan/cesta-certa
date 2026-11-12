@@ -3,7 +3,15 @@ import type { Banco, ErroDoBanco } from "../../shared/armazenamento/banco";
 import { criarBancoEmMemoria } from "../../shared/armazenamento/memoria";
 import { falha, sucesso, type Resultado } from "../../shared/resultado";
 import { raioPadrao, registroDoPonto, registroDoRaio, type PontoEscolhido } from "./ajustes";
-import { abrirAparelho, esquecerPonto, guardarPonto, guardarRaio } from "./aparelho";
+import {
+  abrirAparelho,
+  apagarMercado,
+  esquecerPonto,
+  guardarMercado,
+  guardarPonto,
+  guardarRaio,
+} from "./aparelho";
+import type { MercadoProprio } from "./proprios";
 
 const ponto: PontoEscolhido = { lat: -23.5, lon: -46.6, origem: "cidade", rotulo: "Serra, ES" };
 
@@ -16,7 +24,10 @@ describe("abrirAparelho", () => {
       ajustes: [registroDoPonto(ponto), registroDoRaio(10)],
     });
     const aberto = await abrirAparelho(undefined, abrirCom(sucesso(banco)));
-    expect(aberto).toEqual({ ok: true, valor: { banco, ajustes: { ponto, raioKm: 10 } } });
+    expect(aberto).toEqual({
+      ok: true,
+      valor: { banco, ajustes: { ponto, raioKm: 10 }, proprios: [] },
+    });
   });
 
   it("começa sem ponto e com o raio padrão num aparelho novo", async () => {
@@ -86,5 +97,35 @@ describe("guardar e esquecer o ponto", () => {
     await guardarRaio(banco, 2);
     expect(await esquecerPonto(banco)).toEqual({ ok: true, valor: undefined });
     expect(await ajustesDe(banco)).toEqual([{ id: "raio", km: 2 }]);
+  });
+});
+
+// spec 0001 CA-08
+describe("mercados cadastrados", () => {
+  const mercado: MercadoProprio = {
+    id: "11111111-1111-4111-8111-111111111111",
+    nome: "Mercadinho do Bairro",
+    tipo: "bairro",
+    lat: -23.5,
+    lon: -46.6,
+    criadoEm: "2026-11-12T15:00:00.000Z",
+  };
+
+  it("abre com os mercados guardados e deixa de fora o registro estragado", async () => {
+    const banco = criarBancoEmMemoria({
+      mercadosProprios: [mercado, { id: "estragado" } as unknown as MercadoProprio],
+    });
+    const aberto = await abrirAparelho(undefined, abrirCom(sucesso(banco)));
+    expect(aberto.ok && aberto.valor.proprios).toEqual([mercado]);
+  });
+
+  it("guarda e apaga o mercado", async () => {
+    const banco = criarBancoEmMemoria();
+    expect(await guardarMercado(banco, mercado)).toEqual({ ok: true, valor: undefined });
+    let lido = await banco.lerTudo();
+    expect(lido.ok && lido.valor.mercadosProprios).toEqual([mercado]);
+    expect(await apagarMercado(banco, mercado.id)).toEqual({ ok: true, valor: undefined });
+    lido = await banco.lerTudo();
+    expect(lido.ok && lido.valor.mercadosProprios).toEqual([]);
   });
 });

@@ -1,5 +1,11 @@
-import { describe, expect, it } from "vitest";
-import { carregarCidades, carregarIndice, carregarMercados, type Buscar } from "./carga";
+import { describe, expect, it, vi } from "vitest";
+import {
+  buscarNoSite,
+  carregarCidades,
+  carregarIndice,
+  carregarMercados,
+  type Buscar,
+} from "./carga";
 
 const indice = {
   versao: 1,
@@ -130,5 +136,19 @@ describe("carregarCidades", () => {
     const { buscar } = site({ "/data/cidades.json": arquivo });
 
     expect(await carregarCidades(buscar)).toEqual({ ok: false, erro });
+  });
+});
+
+describe("buscarNoSite", () => {
+  it("pede o caminho ao próprio site pelo fetch do navegador", async () => {
+    const resposta = { ok: true, status: 200, json: () => Promise.resolve({}) };
+    const fetch = vi.fn(() => Promise.resolve(resposta));
+    vi.stubGlobal("fetch", fetch);
+    try {
+      expect(await buscarNoSite("/data/mercados/indice.json")).toBe(resposta);
+      expect(fetch).toHaveBeenCalledWith("/data/mercados/indice.json");
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

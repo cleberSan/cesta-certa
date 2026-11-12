@@ -4,6 +4,7 @@ import type { Banco, ErroDoBanco, Registros } from "../../shared/armazenamento/b
 import { criarBancoEmMemoria } from "../../shared/armazenamento/memoria";
 import { falha } from "../../shared/resultado";
 import { limites, type Item, type Lista } from "../lista/lista";
+import type { MercadoProprio } from "../mercados/proprios";
 import { conferirArquivo, exportar, importar, lerAparelho, nomeDaCopia } from "./copia";
 
 const id = (numero: number) => `00000000-0000-4000-8000-${numero.toString(16).padStart(12, "0")}`;
@@ -45,15 +46,36 @@ const arroz = item(10, novembro.id, {
 const feijao = item(11, novembro.id, { nome: "Feijão", ordem: 1 });
 const cafe = item(12, dezembro.id, { nome: "Café", preferencia: "marca-boa", marca: "Outra" });
 
-const guardado: Registros = { listas: [novembro, dezembro], itens: [arroz, feijao, cafe] };
+const mercadinho: MercadoProprio = {
+  id: id(200),
+  nome: "Mercadinho do Bairro",
+  tipo: "bairro",
+  lat: -23.5503,
+  lon: -46.6339,
+  criadoEm: "2026-11-05T10:00:00.000Z",
+};
+
+const guardado: Registros = {
+  listas: [novembro, dezembro],
+  itens: [arroz, feijao, cafe],
+  mercadosProprios: [mercadinho],
+};
 
 /** O texto de um arquivo de cópia, com os dados trocados pelo teste. */
-function arquivo(dados: { listas: readonly unknown[]; itens: readonly unknown[] }): string {
+function arquivo(dados: {
+  listas: readonly unknown[];
+  itens: readonly unknown[];
+  mercadosProprios?: readonly unknown[];
+}): string {
   return JSON.stringify({
     app: "cesta-certa",
-    versao: 1,
+    versao: 2,
     exportadoEm: "2026-11-11T15:30:00.000Z",
-    dados,
+    dados: {
+      listas: dados.listas,
+      itens: dados.itens,
+      mercadosProprios: dados.mercadosProprios ?? [],
+    },
   });
 }
 
@@ -62,10 +84,16 @@ function bancoQueFalha(operacao: keyof Banco, motivo: ErroDoBanco, inicial?: Reg
   return { ...criarBancoEmMemoria(inicial), [operacao]: async () => falha(motivo) };
 }
 
-/** O que vai na cópia: listas e itens guardados. */
+/** O que vai na cópia: listas, itens e mercados cadastrados. */
 async function conteudo(banco: Banco) {
   const lido = await banco.lerTudo();
-  return lido.ok ? { listas: lido.valor.listas, itens: lido.valor.itens } : null;
+  return lido.ok
+    ? {
+        listas: lido.valor.listas,
+        itens: lido.valor.itens,
+        mercadosProprios: lido.valor.mercadosProprios,
+      }
+    : null;
 }
 
 const ponto = { id: "ponto", lat: -23.5505, lon: -46.6333, origem: "localizacao" };
@@ -77,11 +105,11 @@ describe("exportar", () => {
 
     expect(copia.ok && JSON.parse(copia.valor.texto)).toEqual({
       app: "cesta-certa",
-      versao: 1,
+      versao: 2,
       exportadoEm: "2026-11-11T15:30:00.000Z",
       dados: guardado,
     });
-    expect(copia.ok && copia.valor.resumo).toEqual({ listas: 2, itens: 3 });
+    expect(copia.ok && copia.valor.resumo).toEqual({ listas: 2, itens: 3, mercados: 1 });
     expect(copia.ok && copia.valor.recusados).toBe(0);
   });
 
@@ -94,6 +122,7 @@ describe("exportar", () => {
     expect(copia.ok && Object.keys(JSON.parse(copia.valor.texto).dados)).toEqual([
       "listas",
       "itens",
+      "mercadosProprios",
     ]);
     expect(copia.ok && copia.valor.texto).not.toContain("-23.5505");
   });
@@ -107,8 +136,12 @@ describe("exportar", () => {
   it("gera uma cópia vazia quando o aparelho não tem nada", async () => {
     const copia = await exportar(criarBancoEmMemoria(), agora, fuso);
 
-    expect(copia.ok && JSON.parse(copia.valor.texto).dados).toEqual({ listas: [], itens: [] });
-    expect(copia.ok && copia.valor.resumo).toEqual({ listas: 0, itens: 0 });
+    expect(copia.ok && JSON.parse(copia.valor.texto).dados).toEqual({
+      listas: [],
+      itens: [],
+      mercadosProprios: [],
+    });
+    expect(copia.ok && copia.valor.resumo).toEqual({ listas: 0, itens: 0, mercados: 0 });
   });
 
   it("deixa de fora o registro guardado fora do formato e conta quantos ficaram de fora", async () => {
@@ -120,6 +153,7 @@ describe("exportar", () => {
     expect(copia.ok && JSON.parse(copia.valor.texto).dados).toEqual({
       listas: [novembro],
       itens: [arroz],
+      mercadosProprios: [],
     });
     expect(copia.ok && copia.valor.recusados).toBe(1);
   });
@@ -130,7 +164,7 @@ describe("exportar", () => {
 
     const copia = await exportar(banco, agora, fuso);
 
-    expect(copia.ok && copia.valor.resumo).toEqual({ listas: 1, itens: 1 });
+    expect(copia.ok && copia.valor.resumo).toEqual({ listas: 1, itens: 1, mercados: 0 });
   });
 
   it("diz que o armazenamento falhou quando não consegue ler o aparelho", async () => {
@@ -173,7 +207,7 @@ describe("importar o que foi exportado", () => {
     const conferido = conferirArquivo(copia.ok ? copia.valor.texto : "");
     const importado = conferido.ok ? await importar(destino, conferido.valor) : null;
 
-    expect(importado).toEqual({ ok: true, valor: { listas: 2, itens: 3 } });
+    expect(importado).toEqual({ ok: true, valor: { listas: 2, itens: 3, mercados: 1 } });
     expect(await conteudo(destino)).toEqual(await conteudo(origem));
   });
 
@@ -204,7 +238,7 @@ describe("importar o que foi exportado", () => {
   it("mostra o resumo e a data da cópia antes de gravar qualquer coisa", () => {
     const conferido = conferirArquivo(arquivo(guardado));
 
-    expect(conferido.ok && conferido.valor.resumo).toEqual({ listas: 2, itens: 3 });
+    expect(conferido.ok && conferido.valor.resumo).toEqual({ listas: 2, itens: 3, mercados: 1 });
     expect(conferido.ok && conferido.valor.exportadoEm).toBe("2026-11-11T15:30:00.000Z");
   });
 
@@ -214,7 +248,7 @@ describe("importar o que foi exportado", () => {
     const conferido = conferirArquivo(arquivo({ listas: [], itens: [] }));
     if (conferido.ok) await importar(destino, conferido.valor);
 
-    expect(await conteudo(destino)).toEqual({ listas: [], itens: [] });
+    expect(await conteudo(destino)).toEqual({ listas: [], itens: [], mercadosProprios: [] });
   });
 
   it("mantém o item marcado como comprado, a marca, o tamanho e a preferência", async () => {
@@ -235,8 +269,8 @@ describe("conferirArquivo: arquivo recusado", () => {
     ["de outro app", JSON.stringify({ app: "outro" }), { tipo: "arquivo.outro-formato" }],
     [
       "de versão mais nova",
-      arquivo(guardado).replace('"versao":1', '"versao":2'),
-      { tipo: "arquivo.versao-desconhecida", versao: 2 },
+      arquivo(guardado).replace('"versao":2', '"versao":3'),
+      { tipo: "arquivo.versao-desconhecida", versao: 3 },
     ],
     ["maior que 5 MB", " ".repeat(limiteDoArquivo + 1), { tipo: "arquivo.grande-demais" }],
   ] as const)("recusa o arquivo %s e diz o motivo", (_caso, texto, erro) => {
@@ -276,6 +310,16 @@ describe("conferirArquivo: arquivo recusado", () => {
     ["duas listas com o mesmo identificador", { listas: [novembro, novembro], itens: [] }, 1],
     ["dois itens com o mesmo identificador", { listas: [novembro], itens: [arroz, arroz] }, 1],
     ["registros que não são objeto", { listas: [novembro, null, 42], itens: ["arroz"] }, 3],
+    [
+      "mercado cadastrado de tipo desconhecido",
+      { listas: [], itens: [], mercadosProprios: [{ ...mercadinho, tipo: "feira" }] },
+      1,
+    ],
+    [
+      "dois mercados cadastrados com o mesmo identificador",
+      { listas: [], itens: [], mercadosProprios: [mercadinho, mercadinho] },
+      1,
+    ],
   ])("recusa o arquivo inteiro quando tem %s", (_caso, dados, quantos) => {
     expect(conferirArquivo(arquivo(dados))).toEqual({
       ok: false,
@@ -314,6 +358,7 @@ describe("conferirArquivo: arquivo recusado", () => {
     expect(conferido.ok && conferido.valor.resumo).toEqual({
       listas: limites.listas,
       itens: limites.itensPorLista,
+      mercados: 0,
     });
   });
 });
@@ -330,7 +375,11 @@ describe("conferirArquivo: o que entra no aparelho", () => {
     const conferido = conferirArquivo(texto);
     if (conferido.ok) await importar(destino, conferido.valor);
 
-    expect(await conteudo(destino)).toEqual({ listas: [novembro], itens: [arroz] });
+    expect(await conteudo(destino)).toEqual({
+      listas: [novembro],
+      itens: [arroz],
+      mercadosProprios: [],
+    });
     expect(Object.keys((await conteudo(destino))?.listas[0] ?? {})).toEqual(Object.keys(novembro));
     expect(({} as Record<string, unknown>)["poluido"]).toBeUndefined();
   });
@@ -343,8 +392,8 @@ describe("conferirArquivo: o que entra no aparelho", () => {
 
     const conferido = conferirArquivo(texto);
 
-    expect(conferido.ok && conferido.valor.estado.listas[0]?.nome).toBe("Novembro de 2026");
-    expect(conferido.ok && conferido.valor.estado.itens[0]?.nome).toBe("Arroz integral");
+    expect(conferido.ok && conferido.valor.dados.listas[0]?.nome).toBe("Novembro de 2026");
+    expect(conferido.ok && conferido.valor.dados.itens[0]?.nome).toBe("Arroz integral");
   });
 
   it("mantém como texto um nome com marcação HTML", () => {
@@ -352,7 +401,7 @@ describe("conferirArquivo: o que entra no aparelho", () => {
 
     const conferido = conferirArquivo(arquivo({ listas: [{ ...novembro, nome }], itens: [] }));
 
-    expect(conferido.ok && conferido.valor.estado.listas[0]?.nome).toBe(nome);
+    expect(conferido.ok && conferido.valor.dados.listas[0]?.nome).toBe(nome);
   });
 });
 
@@ -361,7 +410,7 @@ describe("importar: falha ao gravar", () => {
   it.each<ErroDoBanco>(["sem-espaco", "fechado", "falhou"])(
     "diz que o armazenamento falhou (%s) e deixa o aparelho como estava",
     async (motivo) => {
-      const antigo = { listas: [dezembro], itens: [cafe] };
+      const antigo = { listas: [dezembro], itens: [cafe], mercadosProprios: [mercadinho] };
       const destino = bancoQueFalha("substituirTudo", motivo, antigo);
       const conferido = conferirArquivo(arquivo({ listas: [novembro], itens: [arroz] }));
 
@@ -379,9 +428,9 @@ describe("lerAparelho", () => {
 
     const aparelho = await lerAparelho(banco);
 
-    expect(aparelho.ok && aparelho.valor.resumo).toEqual({ listas: 1, itens: 2 });
+    expect(aparelho.ok && aparelho.valor.resumo).toEqual({ listas: 1, itens: 2, mercados: 0 });
     expect(aparelho.ok && aparelho.valor.recusados).toBe(1);
-    expect(aparelho.ok && aparelho.valor.estado.itens).toEqual([arroz, feijao]);
+    expect(aparelho.ok && aparelho.valor.dados.itens).toEqual([arroz, feijao]);
   });
 
   it("repassa a falha do armazenamento", async () => {
@@ -408,5 +457,39 @@ describe("nomeDaCopia", () => {
 
   it("sem fuso informado, usa o do aparelho", () => {
     expect(nomeDaCopia(agora)).toMatch(/^cesta-certa-\d{4}-\d{2}-\d{2}\.json$/);
+  });
+});
+
+// spec 0001 CA-04 e CA-08
+describe("mercados cadastrados na cópia", () => {
+  it("lê a cópia da versão 1, de antes dos mercados cadastrados", async () => {
+    const versao1 = JSON.stringify({
+      app: "cesta-certa",
+      versao: 1,
+      exportadoEm: "2026-11-11T15:30:00.000Z",
+      dados: { listas: [novembro], itens: [arroz] },
+    });
+    const destino = criarBancoEmMemoria(guardado);
+
+    const conferido = conferirArquivo(versao1);
+    if (conferido.ok) await importar(destino, conferido.valor);
+
+    expect(conferido.ok && conferido.valor.resumo).toEqual({ listas: 1, itens: 1, mercados: 0 });
+    expect(await conteudo(destino)).toEqual({
+      listas: [novembro],
+      itens: [arroz],
+      mercadosProprios: [],
+    });
+  });
+
+  it("deixa de fora o mercado guardado fora do formato e conta como recusado", async () => {
+    const banco = criarBancoEmMemoria({
+      mercadosProprios: [mercadinho, { id: "estragado" }],
+    });
+
+    const copia = await exportar(banco, agora, fuso);
+
+    expect(copia.ok && JSON.parse(copia.valor.texto).dados.mercadosProprios).toEqual([mercadinho]);
+    expect(copia.ok && copia.valor.recusados).toBe(1);
   });
 });

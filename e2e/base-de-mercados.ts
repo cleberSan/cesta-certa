@@ -17,9 +17,22 @@ function aoNorte(km: number) {
 
 export const mercadosDeExemplo = [
   { id: "w103", nome: "Atacarejo Modelo", tipo: "atacarejo", ...aoNorte(3.4) },
-  { id: "n101", nome: "Mercadinho da Praça", tipo: "bairro", ...aoNorte(0.3) },
+  {
+    id: "n101",
+    nome: "Mercadinho da Praça",
+    tipo: "bairro",
+    ...aoNorte(0.3),
+    site: "http://mercadinho.example/",
+  },
   { id: "n105", nome: "Mercado da Serra", tipo: "bairro", ...aoNorte(25) },
-  { id: "n102", nome: "Supermercado Exemplo", tipo: "supermercado", ...aoNorte(1.2) },
+  {
+    id: "n102",
+    nome: "Supermercado Exemplo",
+    tipo: "supermercado",
+    ...aoNorte(1.2),
+    horario: "Mo-Sa 08:00-22:00; Su 08:00-14:00",
+    site: "https://www.supermercado.example/loja/centro",
+  },
   { id: "n104", nome: "Supermercado Distante", tipo: "supermercado", ...aoNorte(8) },
 ];
 
@@ -132,4 +145,27 @@ export async function abrirMercados(page: Page) {
   await page
     .getByRole("button", { name: /Usar minha localização|Trocar o ponto/ })
     .waitFor({ state: "visible" });
+}
+
+/** Lê os mercados cadastrados pela pessoa, direto do IndexedDB do app. */
+export function mercadosGuardados(page: Page): Promise<unknown[]> {
+  return page.evaluate(
+    () =>
+      new Promise<unknown[]>((resolver, rejeitar) => {
+        const pedido = indexedDB.open("cesta-certa");
+        pedido.onerror = () => rejeitar(pedido.error);
+        pedido.onsuccess = () => {
+          const banco = pedido.result;
+          const leitura = banco
+            .transaction("mercadosProprios", "readonly")
+            .objectStore("mercadosProprios")
+            .getAll();
+          leitura.onsuccess = () => {
+            banco.close();
+            resolver(leitura.result);
+          };
+          leitura.onerror = () => rejeitar(leitura.error);
+        };
+      }),
+  );
 }

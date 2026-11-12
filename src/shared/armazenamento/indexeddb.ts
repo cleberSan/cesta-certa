@@ -83,11 +83,15 @@ export async function abrirIndexedDb(
     persistente: true,
     lerTudo() {
       return transacao<Conteudo>("readonly", (aberta) => {
-        const pedidos = armazens.map((armazem) => aberta.objectStore(armazem).getAll());
+        const pedidos = armazens.map(
+          (armazem) => [armazem, aberta.objectStore(armazem).getAll()] as const,
+        );
         return () => {
-          const lido = (armazem: NomeDoArmazem) =>
-            (pedidos[armazens.indexOf(armazem)]?.result ?? []) as unknown[];
-          return { listas: lido("listas"), itens: lido("itens"), ajustes: lido("ajustes") };
+          const conteudo = {} as Record<NomeDoArmazem, readonly unknown[]>;
+          for (const [armazem, pedido] of pedidos) {
+            conteudo[armazem] = (pedido.result ?? []) as unknown[];
+          }
+          return conteudo;
         };
       });
     },

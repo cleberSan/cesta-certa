@@ -57,7 +57,10 @@ async function escolher(page: Page, conteudo: string | Buffer, nome = "copia.jso
   });
 }
 
-/** Um arquivo de cópia válido, com uma lista e um item, para os testes de importação. */
+/**
+ * Um arquivo de cópia válido, com uma lista e um item, para os testes de importação. Fica na
+ * versão 1 do formato de propósito: o app segue lendo as cópias antigas (CA-04).
+ */
 function copia(campos: Record<string, unknown> = {}): string {
   const listaId = "11111111-1111-4111-8111-111111111111";
   return JSON.stringify({
@@ -109,9 +112,9 @@ test.describe("exportar", () => {
     const noAparelho = await guardado(page);
     expect(lido).toEqual({
       app: "cesta-certa",
-      versao: 1,
+      versao: 2,
       exportadoEm: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
-      dados: { listas: noAparelho.listas, itens: noAparelho.itens },
+      dados: { listas: noAparelho.listas, itens: noAparelho.itens, mercadosProprios: [] },
     });
     expect(noAparelho.itens).toHaveLength(2);
     await expect(page.getByRole("status").filter({ hasText: "Cópia gerada" })).toHaveText(
@@ -141,6 +144,7 @@ test.describe("exportar", () => {
     expect((JSON.parse(arquivo.texto) as { dados: unknown }).dados).toEqual({
       listas: [],
       itens: [],
+      mercadosProprios: [],
     });
     expect((await guardado(page)).listas).toEqual([]);
   });
@@ -269,9 +273,9 @@ test.describe("arquivo recusado", () => {
     },
     {
       caso: "de uma versão mais nova do formato",
-      conteudo: copia({ versao: 2 }),
+      conteudo: copia({ versao: 3 }),
       mensagem:
-        "O arquivo é da versão 2 do formato, e este app lê até a versão 1. Recarregue a página para atualizar o app e tente de novo. Nada foi alterado.",
+        "O arquivo é da versão 3 do formato, e este app lê até a versão 2. Recarregue a página para atualizar o app e tente de novo. Nada foi alterado.",
     },
     {
       caso: "com um registro fora do formato",

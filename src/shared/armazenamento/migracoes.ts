@@ -17,6 +17,10 @@ export const migracoes: readonly Migracao[] = [
   (banco) => {
     banco.createObjectStore("ajustes", { keyPath: "id" });
   },
+  // 2 para 3: mercados que a pessoa cadastrou, que entram na cópia (spec 0001, T08).
+  (banco) => {
+    banco.createObjectStore("mercadosProprios", { keyPath: "id" });
+  },
 ];
 
 export const versaoDoBanco = migracoes.length;

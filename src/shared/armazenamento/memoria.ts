@@ -1,5 +1,12 @@
 import { sucesso } from "../resultado";
-import { armazens, armazensDaCopia, type Banco, type NomeDoArmazem, type Registro } from "./banco";
+import {
+  armazens,
+  armazensDaCopia,
+  type Banco,
+  type Conteudo,
+  type NomeDoArmazem,
+  type Registro,
+} from "./banco";
 
 /**
  * Banco em memória, com o mesmo contrato do IndexedDB. Usado nos testes de unidade e como
@@ -23,11 +30,9 @@ export function criarBancoEmMemoria(
   return {
     persistente: false,
     async lerTudo() {
-      return sucesso({
-        listas: [...armazem("listas").values()],
-        itens: [...armazem("itens").values()],
-        ajustes: [...armazem("ajustes").values()],
-      });
+      const conteudo = {} as Record<NomeDoArmazem, readonly unknown[]>;
+      for (const nome of armazens) conteudo[nome] = [...armazem(nome).values()];
+      return sucesso<Conteudo>(conteudo);
     },
     async aplicar(alteracoes) {
       for (const nome of armazens) {

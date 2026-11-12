@@ -11,7 +11,7 @@ describe("banco em memória", () => {
     expect(banco.persistente).toBe(false);
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [], itens: [], ajustes: [] },
+      valor: { listas: [], itens: [], ajustes: [], mercadosProprios: [] },
     });
   });
 
@@ -19,7 +19,7 @@ describe("banco em memória", () => {
     const banco = criarBancoEmMemoria({ listas: [lista], itens: [arroz] });
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [lista], itens: [arroz], ajustes: [] },
+      valor: { listas: [lista], itens: [arroz], ajustes: [], mercadosProprios: [] },
     });
   });
 
@@ -32,7 +32,7 @@ describe("banco em memória", () => {
     expect(resultado.ok).toBe(true);
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [lista], itens: [arrozIntegral], ajustes: [] },
+      valor: { listas: [lista], itens: [arrozIntegral], ajustes: [], mercadosProprios: [] },
     });
   });
 
@@ -42,7 +42,7 @@ describe("banco em memória", () => {
     expect((await banco.aplicar({ itens: { apagar: ["nao-existe"] } })).ok).toBe(true);
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [lista], itens: [], ajustes: [] },
+      valor: { listas: [lista], itens: [], ajustes: [], mercadosProprios: [] },
     });
   });
 
@@ -55,11 +55,11 @@ describe("banco em memória", () => {
     });
     const outra = { id: "l2", nome: "Dezembro" };
 
-    await banco.substituirTudo({ listas: [outra], itens: [] });
+    await banco.substituirTudo({ listas: [outra], itens: [], mercadosProprios: [] });
 
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [outra], itens: [], ajustes: [ponto] },
+      valor: { listas: [outra], itens: [], ajustes: [ponto], mercadosProprios: [] },
     });
   });
 });

@@ -73,3 +73,80 @@
   font-size: 0.9rem;
   color: var(--cor-texto-suave);
 }
+
+.mercados-acoes-do-item {
+  margin-top: 0.5rem;
+}
+
+.mercados-detalhes {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.mercados-detalhes dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 0.75rem;
+  margin: 0 0 0.75rem;
+}
+
+.mercados-detalhes dt {
+  font-weight: 600;
+}
+
+.mercados-detalhes dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.mercados-nota {
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+}
+
+.mercados-falta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mercados-aviso:empty {
+  display: none;
+}
+
+.mercados-cadastro h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.mercados-cadastro fieldset {
+  border: 0;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.mercados-cadastro legend {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.mercados-opcao {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.5rem 0;
+  font-weight: normal;
+}
+
+@media (max-width: 30rem) {
+  .mercados-detalhes dl {
+    grid-template-columns: 1fr;
+  }
+
+  .mercados-detalhes dt:not(:first-child) {
+    margin-top: 0.5rem;
+  }
+}

@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import {
@@ -8,6 +9,7 @@ import {
   centro,
   geradoEm,
   mercadosDeExemplo,
+  mercadosGuardados,
   servirBase,
 } from "./base-de-mercados";
 import { expect, test } from "./fixtures";
@@ -21,6 +23,24 @@ const wcag = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 const lista = (page: Page) => page.locator("ol.mercados-lista > li");
 const raio = (page: Page) => page.getByLabel("Distância máxima");
 const resumo = (page: Page) => page.getByRole("status").filter({ hasText: / km/ });
+
+const item = (page: Page, nome: string) =>
+  lista(page).filter({ has: page.getByRole("heading", { name: nome }) });
+const formulario = (page: Page) => page.getByRole("form", { name: "Cadastrar mercado" });
+
+async function escolherSaoPaulo(page: Page) {
+  await abrirMercados(page);
+  await page.getByRole("button", { name: "Escolher cidade" }).click();
+  await page.getByLabel("Nome da cidade").fill("são paulo");
+  await page.getByRole("button", { name: "São Paulo, SP" }).click();
+}
+
+async function cadastrar(page: Page, nome: string, tipo = "Mercado de bairro") {
+  await page.getByRole("button", { name: "Cadastrar mercado" }).click();
+  await formulario(page).getByLabel("Nome do mercado").fill(nome);
+  await formulario(page).getByLabel("Tipo").selectOption({ label: tipo });
+  await formulario(page).getByRole("button", { name: "Cadastrar" }).click();
+}
 
 async function abrirNoCentro(page: Page) {
   await page.context().grantPermissions(["geolocation"]);
@@ -161,6 +181,229 @@ test.describe("mercados perto do ponto", () => {
   });
 });
 
+// spec 0001 CA-09
+test.describe("saber mais", () => {
+  test("mostra tipo, distância, horário e site, com link para o Google Maps", async ({
+    page,
+    consoleErrors,
+  }) => {
+    await servirBase(page);
+    await abrirNoCentro(page);
+    const supermercado = item(page, "Supermercado Exemplo");
+    const botao = supermercado.getByRole("button", {
+      name: "Saber mais sobre Supermercado Exemplo",
+    });
+    await expect(botao).toHaveAttribute("aria-expanded", "false");
+
+    await botao.click();
+
+    await expect(supermercado.getByRole("button", { name: /^Fechar/ })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+    await expect(supermercado.locator("dt")).toHaveText(["Tipo", "Distância", "Horário", "Site"]);
+    await expect(supermercado.locator("dd")).toHaveText([
+      "Supermercado",
+      "1,2 km em linha reta do ponto da busca",
+      "Mo-Sa 08:00-22:00; Su 08:00-14:00 (como está no OpenStreetMap)",
+      "supermercado.example/loja/centro (abre em outra aba)",
+    ]);
+    const site = supermercado.getByRole("link", { name: /supermercado\.example/ });
+    await expect(site).toHaveAttribute("href", "https://www.supermercado.example/loja/centro");
+    await expect(site).toHaveAttribute("target", "_blank");
+    await expect(site).toHaveAttribute("rel", "noopener noreferrer");
+    const mapa = supermercado.getByRole("link", { name: /Abrir no Google Maps/ });
+    const destino = new URL((await mapa.getAttribute("href"))!);
+    expect(destino.origin + destino.pathname).toBe("https://www.google.com/maps/search/");
+    expect(destino.searchParams.get("query")).toBe(
+      `${mercadosDeExemplo.find((m) => m.id === "n102")!.lat},${centro.longitude}`,
+    );
+    await expect(mapa).toHaveAttribute("rel", "noopener noreferrer");
+    expect(consoleErrors).toEqual([]);
+  });
+
+  test("mostra site sem https só como texto e esconde o que a base não tem", async ({ page }) => {
+    await servirBase(page);
+    await abrirNoCentro(page);
+    const mercadinho = item(page, "Mercadinho da Praça");
+
+    await mercadinho.getByRole("button", { name: /^Saber mais/ }).click();
+
+    await expect(mercadinho.locator("dt")).toHaveText(["Tipo", "Distância", "Site"]);
+    await expect(mercadinho.locator("dd").last()).toHaveText(
+      "mercadinho.example (sem conexão segura)",
+    );
+    await expect(mercadinho.getByRole("link", { name: /mercadinho\.example/ })).toHaveCount(0);
+
+    await mercadinho.getByRole("button", { name: /^Fechar/ }).click();
+    await expect(mercadinho.locator("dl")).toHaveCount(0);
+  });
+});
+
+// spec 0001 CA-08
+test.describe("mercado cadastrado pela pessoa", () => {
+  test("cadastra no ponto da busca, mostra na lista e mantém depois de recarregar", async ({
+    page,
+    consoleErrors,
+  }) => {
+    await servirBase(page);
+    await escolherSaoPaulo(page);
+    await expect(lista(page)).toHaveCount(3);
+
+    await cadastrar(page, "  Mercado da Esquina ");
+
+    await expect(page.getByRole("status").filter({ hasText: "Mercado cadastrado" })).toHaveText(
+      "Mercado cadastrado: Mercado da Esquina.",
+    );
+    await expect(formulario(page)).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Cadastrar mercado" })).toBeFocused();
+    await expect(lista(page).locator("h3")).toHaveText([
+      "Mercado da Esquina",
+      "Mercadinho da Praça",
+      "Supermercado Exemplo",
+      "Atacarejo Modelo",
+    ]);
+    await expect(item(page, "Mercado da Esquina").locator("p").first()).toHaveText(
+      "Mercado de bairro · 10 m · cadastrado por você",
+    );
+    await expect
+      .poll(() => mercadosGuardados(page))
+      .toEqual([
+        expect.objectContaining({
+          nome: "Mercado da Esquina",
+          tipo: "bairro",
+          lat: centro.latitude,
+          lon: centro.longitude,
+        }),
+      ]);
+
+    await page.reload();
+    await expect(item(page, "Mercado da Esquina")).toHaveCount(1);
+    expect(consoleErrors).toEqual([]);
+  });
+
+  test("pede o nome e recusa o mesmo mercado no mesmo lugar", async ({ page }) => {
+    await servirBase(page);
+    await escolherSaoPaulo(page);
+
+    await page.getByRole("button", { name: "Cadastrar mercado" }).click();
+    await expect(formulario(page).getByLabel("Nome do mercado")).toBeFocused();
+    await formulario(page).getByRole("button", { name: "Cadastrar" }).click();
+    await expect(formulario(page).getByRole("alert")).toHaveText("Escreva o nome do mercado.");
+    await formulario(page).getByRole("button", { name: "Cancelar" }).click();
+
+    await cadastrar(page, "Mercado da Esquina");
+    await cadastrar(page, "MERCADO DA ESQUINA");
+
+    await expect(formulario(page).getByRole("alert")).toHaveText(
+      '"Mercado da Esquina" já está cadastrado neste lugar.',
+    );
+    await expect(item(page, "Mercado da Esquina")).toHaveCount(1);
+  });
+
+  test("cadastra onde a pessoa está e avisa quando fica fora da distância máxima", async ({
+    page,
+    context,
+  }) => {
+    await servirBase(page);
+    await escolherSaoPaulo(page);
+    await context.grantPermissions(["geolocation"]);
+    // Cerca de 7,4 km ao norte do centro da busca, com raio de 5 km.
+    await context.setGeolocation({
+      latitude: centro.latitude + 7.4 / 111.195,
+      longitude: centro.longitude,
+    });
+
+    await page.getByRole("button", { name: "Cadastrar mercado" }).click();
+    await formulario(page).getByLabel("Nome do mercado").fill("Mercado do Caminho");
+    await formulario(page).getByLabel("Onde estou agora, pela localização do aparelho").check();
+    await formulario(page).getByRole("button", { name: "Cadastrar" }).click();
+
+    await expect(page.getByRole("status").filter({ hasText: "Mercado cadastrado" })).toHaveText(
+      "Mercado cadastrado: Mercado do Caminho. Ele fica a 7,4 km do ponto da busca, fora da distância máxima de 5 km.",
+    );
+    await expect(item(page, "Mercado do Caminho")).toHaveCount(0);
+    await raio(page).selectOption("10");
+    await expect(item(page, "Mercado do Caminho")).toHaveCount(1);
+  });
+
+  test("sem permissão de localização, mantém o formulário e oferece o ponto da busca", async ({
+    page,
+    context,
+  }) => {
+    await servirBase(page);
+    await escolherSaoPaulo(page);
+    await context.clearPermissions();
+
+    await page.getByRole("button", { name: "Cadastrar mercado" }).click();
+    await formulario(page).getByLabel("Nome do mercado").fill("Mercado do Caminho");
+    await formulario(page).getByLabel("Onde estou agora, pela localização do aparelho").check();
+    await formulario(page).getByRole("button", { name: "Cadastrar" }).click();
+
+    await expect(formulario(page).getByRole("alert")).toHaveText(
+      "O navegador não deu permissão para usar a localização. Cadastre no ponto da busca.",
+    );
+    await expect(formulario(page).getByLabel("Nome do mercado")).toHaveValue("Mercado do Caminho");
+  });
+
+  test("exclui o mercado cadastrado depois de confirmar", async ({ page }) => {
+    await servirBase(page);
+    await escolherSaoPaulo(page);
+    await cadastrar(page, "Mercado da Esquina");
+    const esquina = item(page, "Mercado da Esquina");
+
+    await esquina.getByRole("button", { name: /^Saber mais/ }).click();
+    await expect(esquina.locator("dt")).toHaveText(["Tipo", "Distância", "Origem"]);
+    await esquina.getByRole("button", { name: "Excluir este mercado" }).click();
+    await esquina.getByRole("group").getByRole("button", { name: "Cancelar" }).click();
+    await expect(esquina).toHaveCount(1);
+    await esquina.getByRole("button", { name: "Excluir este mercado" }).click();
+    await esquina.getByRole("group").getByRole("button", { name: "Excluir" }).click();
+
+    await expect(esquina).toHaveCount(0);
+    await expect.poll(() => mercadosGuardados(page)).toEqual([]);
+    await page.reload();
+    await expect(lista(page)).toHaveCount(3);
+  });
+
+  // spec 0001 CA-39
+  test("sem a base publicada, ainda lista e deixa cadastrar o mercado", async ({ page }) => {
+    await servirBase(page, { ...basePadrao(), indice: "404" });
+    await escolherSaoPaulo(page);
+    await expect(page.getByRole("alert")).toHaveText(
+      "A base de mercados ainda não foi publicada neste site.",
+    );
+
+    await cadastrar(page, "Mercado da Esquina");
+
+    await expect(lista(page).locator("h3")).toHaveText(["Mercado da Esquina"]);
+  });
+
+  // spec 0001 CA-04
+  test("entra na cópia dos dados", async ({ page }) => {
+    await servirBase(page);
+    await escolherSaoPaulo(page);
+    await cadastrar(page, "Mercado da Esquina");
+    await expect(item(page, "Mercado da Esquina")).toHaveCount(1);
+
+    await page.goto("/dados");
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "Exportar cópia" }).click(),
+    ]);
+    const texto = await readFile(await download.path(), "utf8");
+
+    const copia = JSON.parse(texto) as { versao: number; dados: { mercadosProprios: unknown[] } };
+    expect(copia.versao).toBe(2);
+    expect(copia.dados.mercadosProprios).toEqual([
+      expect.objectContaining({ nome: "Mercado da Esquina", tipo: "bairro" }),
+    ]);
+    await expect(page.getByRole("status").filter({ hasText: "Cópia gerada" })).toContainText(
+      "nenhuma lista, mais 1 mercado cadastrado.",
+    );
+  });
+});
+
 test.describe("falhas ao baixar a base", () => {
   test("avisa quando a base ainda não foi publicada, sem oferecer tentar de novo", async ({
     page,
@@ -220,6 +463,13 @@ test.describe("acessibilidade e celular", () => {
 
       await page.getByRole("button", { name: "São Paulo, SP" }).click();
       await expect(lista(page)).toHaveCount(3);
+      expect((await new AxeBuilder({ page }).withTags(wcag).analyze()).violations).toEqual([]);
+
+      await item(page, "Supermercado Exemplo")
+        .getByRole("button", { name: /^Saber mais/ })
+        .click();
+      await page.getByRole("button", { name: "Cadastrar mercado" }).click();
+      await expect(formulario(page)).toBeVisible();
       expect((await new AxeBuilder({ page }).withTags(wcag).analyze()).violations).toEqual([]);
     });
   }
