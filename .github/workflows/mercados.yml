@@ -1,0 +1,115 @@
+# Base nacional de mercados (spec 0001, T06; ADR-0005): uma vez por mês, consulta a Overpass
+# API do OpenStreetMap uma UF por vez, gera public/data e abre um PR com a diferença. O site só
+# muda quando o dono revisa e mescla esse PR.
+name: Base de mercados
+
+on:
+  schedule:
+    # Dia 3 de cada mês, 06:23 UTC (03:23 em Brasília), fora do horário de pico.
+    - cron: "23 6 3 * *"
+  workflow_dispatch:
+  # Num PR que muda o gerador, roda só SP e RJ (as células mais cheias) para medir o tamanho,
+  # sem publicar nada.
+  pull_request:
+    paths:
+      - scripts/mercados.ts
+      - scripts/mercados/**
+      - .github/workflows/mercados.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mercados-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  medir:
+    name: Medir a base (SP e RJ)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # O gerador só usa o próprio Node (remoção de tipos do Node 24), sem npm install.
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Gerar a base de SP e RJ
+        run: >-
+          node scripts/mercados.ts --ufs SP,RJ --saida "$RUNNER_TEMP/base"
+          --relatorio "$RUNNER_TEMP/relatorio.md"
+
+      - name: Relatório no resumo
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/relatorio.md" ]; then
+            cat "$RUNNER_TEMP/relatorio.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  gerar:
+    name: Gerar a base e abrir o PR
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      # Só grava em public/data se todas as UFs responderem e a conferência passar (queda de
+      # mais de 20% no total, UF sem mercado e base sem cidades barram a publicação).
+      - name: Gerar a base das 27 UFs
+        run: >-
+          node scripts/mercados.ts --saida public/data
+          --anterior public/data/mercados/indice.json
+          --relatorio "$RUNNER_TEMP/relatorio.md"
+
+      - name: Relatório no resumo
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/relatorio.md" ]; then
+            cat "$RUNNER_TEMP/relatorio.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # O PR aberto pelo GITHUB_TOKEN não dispara os checks: quem revisa fecha e reabre o PR
+      # para eles rodarem (ADR-0005). Exige "Allow GitHub Actions to create and approve pull
+      # requests" ligado em Settings > Actions.
+      - name: Abrir ou atualizar o PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add public/data
+          if git diff --cached --quiet; then
+            echo "A base não mudou desde a última geração." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          mes="$(date -u +%Y-%m)"
+          git switch -C dados/mercados
+          git -c user.name="github-actions[bot]" \
+            -c user.email="41898828+github-actions[bot]@users.noreply.github.com" \
+            commit -q -m "chore(dados): base de mercados do OpenStreetMap de $mes"
+          git push --force origin dados/mercados
+          {
+            cat "$RUNNER_TEMP/relatorio.md"
+            echo
+            echo "---"
+            echo
+            echo "Aberto pelo workflow **Base de mercados**. PR aberto pelo GITHUB_TOKEN não dispara os checks: **feche e reabra este PR** para o CI, o CodeQL e a revisão de dependências rodarem antes do merge."
+          } > "$RUNNER_TEMP/corpo.md"
+          abertos="$(gh pr list --head dados/mercados --state open --json number --jq length)"
+          if [ "$abertos" = "0" ]; then
+            gh pr create --base main --head dados/mercados \
+              --title "chore(dados): base de mercados de $mes" --body-file "$RUNNER_TEMP/corpo.md"
+          else
+            gh pr edit dados/mercados --body-file "$RUNNER_TEMP/corpo.md"
+          fi
