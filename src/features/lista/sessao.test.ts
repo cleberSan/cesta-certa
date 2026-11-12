@@ -96,7 +96,7 @@ describe("abrirSessao", () => {
     ]);
     expect(await real.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: sessao.estado().listas, itens: [] },
+      valor: { listas: sessao.estado().listas, itens: [], ajustes: [] },
     });
   });
 

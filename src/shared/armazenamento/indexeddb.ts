@@ -1,6 +1,7 @@
 import { falha, sucesso, type Resultado } from "../resultado";
 import {
   armazens,
+  armazensDaCopia,
   type Alteracoes,
   type Banco,
   type Conteudo,
@@ -86,7 +87,7 @@ export async function abrirIndexedDb(
         return () => {
           const lido = (armazem: NomeDoArmazem) =>
             (pedidos[armazens.indexOf(armazem)]?.result ?? []) as unknown[];
-          return { listas: lido("listas"), itens: lido("itens") };
+          return { listas: lido("listas"), itens: lido("itens"), ajustes: lido("ajustes") };
         };
       });
     },
@@ -103,7 +104,7 @@ export async function abrirIndexedDb(
     },
     async substituirTudo(registros: Registros) {
       const substituido = await transacao<void>("readwrite", (aberta) => {
-        for (const nome of armazens) {
+        for (const nome of armazensDaCopia) {
           const armazem = aberta.objectStore(nome);
           armazem.clear();
           for (const registro of registros[nome]) armazem.put(registro);

@@ -1,0 +1,42 @@
+---
+import MercadosProximos from "../features/mercados/MercadosProximos";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Mercados perto de você"
+  description="Veja os mercados num raio de até 30 km de você ou de uma cidade, com a distância calculada no seu aparelho."
+>
+  <h1>Mercados perto de você</h1>
+  <p class="chamada">
+    Escolha um ponto e veja os supermercados, atacarejos e mercados de bairro mais perto, do mais
+    próximo ao mais longe.
+  </p>
+
+  <MercadosProximos client:load />
+  <noscript>
+    <p class="cartao">Esta página precisa de JavaScript para calcular as distâncias no aparelho.</p>
+  </noscript>
+
+  <h2>Onde a sua localização fica</h2>
+  <ul>
+    <li>
+      O ponto que você escolhe fica só neste aparelho, guardado neste navegador. Ele não vai para
+      nenhum servidor e não entra na cópia dos seus dados.
+    </li>
+    <li>
+      Para listar os mercados, o app baixa deste site o arquivo de uma região de cerca de 110 km de
+      lado. O site fica sabendo qual região foi pedida, nunca o ponto.
+    </li>
+    <li>
+      A localização é pedida ao navegador só quando você toca em "Usar minha localização". Se
+      preferir, escolha a cidade.
+    </li>
+  </ul>
+
+  <h2>De onde vêm os mercados</h2>
+  <p>
+    Do OpenStreetMap, um mapa aberto feito por voluntários, numa base atualizada uma vez por mês. Se
+    o seu mercado não aparece, ele pode estar sem cadastro no OpenStreetMap.
+  </p>
+</BaseLayout>

@@ -62,10 +62,13 @@ function bancoQueFalha(operacao: keyof Banco, motivo: ErroDoBanco, inicial?: Reg
   return { ...criarBancoEmMemoria(inicial), [operacao]: async () => falha(motivo) };
 }
 
+/** O que vai na cópia: listas e itens guardados. */
 async function conteudo(banco: Banco) {
   const lido = await banco.lerTudo();
-  return lido.ok ? lido.valor : null;
+  return lido.ok ? { listas: lido.valor.listas, itens: lido.valor.itens } : null;
 }
+
+const ponto = { id: "ponto", lat: -23.5505, lon: -46.6333, origem: "localizacao" };
 
 // spec 0001 CA-04
 describe("exportar", () => {
@@ -80,6 +83,19 @@ describe("exportar", () => {
     });
     expect(copia.ok && copia.valor.resumo).toEqual({ listas: 2, itens: 3 });
     expect(copia.ok && copia.valor.recusados).toBe(0);
+  });
+
+  it("deixa o ponto e o raio fora do arquivo: a cópia pode ser compartilhada", async () => {
+    const raio: { id: string; km: number } = { id: "raio", km: 5 };
+    const banco = criarBancoEmMemoria({ ...guardado, ajustes: [ponto, raio] });
+
+    const copia = await exportar(banco, agora, fuso);
+
+    expect(copia.ok && Object.keys(JSON.parse(copia.valor.texto).dados)).toEqual([
+      "listas",
+      "itens",
+    ]);
+    expect(copia.ok && copia.valor.texto).not.toContain("-23.5505");
   });
 
   it("dá ao arquivo um nome com a data do aparelho", async () => {
@@ -171,6 +187,18 @@ describe("importar o que foi exportado", () => {
     const deNovo = await exportar(destino, agora, fuso);
 
     expect(deNovo.ok && deNovo.valor.texto).toBe(copia.ok && copia.valor.texto);
+  });
+
+  it("não mexe no ponto e no raio guardados neste aparelho", async () => {
+    const origem = await exportar(criarBancoEmMemoria(guardado), agora, fuso);
+    const destino = criarBancoEmMemoria({ ajustes: [ponto] });
+
+    const conferido = conferirArquivo(origem.ok ? origem.valor.texto : "");
+    if (conferido.ok) await importar(destino, conferido.valor);
+
+    const lido = await destino.lerTudo();
+    expect(lido.ok && lido.valor.ajustes).toEqual([ponto]);
+    expect(await conteudo(destino)).toEqual(guardado);
   });
 
   it("mostra o resumo e a data da cópia antes de gravar qualquer coisa", () => {

@@ -9,14 +9,17 @@ describe("banco em memória", () => {
   it("começa vazio e avisa que não é persistente", async () => {
     const banco = criarBancoEmMemoria();
     expect(banco.persistente).toBe(false);
-    expect(await banco.lerTudo()).toEqual({ ok: true, valor: { listas: [], itens: [] } });
+    expect(await banco.lerTudo()).toEqual({
+      ok: true,
+      valor: { listas: [], itens: [], ajustes: [] },
+    });
   });
 
   it("começa com o conteúdo recebido", async () => {
     const banco = criarBancoEmMemoria({ listas: [lista], itens: [arroz] });
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [lista], itens: [arroz] },
+      valor: { listas: [lista], itens: [arroz], ajustes: [] },
     });
   });
 
@@ -29,7 +32,7 @@ describe("banco em memória", () => {
     expect(resultado.ok).toBe(true);
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [lista], itens: [arrozIntegral] },
+      valor: { listas: [lista], itens: [arrozIntegral], ajustes: [] },
     });
   });
 
@@ -37,15 +40,26 @@ describe("banco em memória", () => {
     const banco = criarBancoEmMemoria({ listas: [lista] });
     expect((await banco.aplicar({})).ok).toBe(true);
     expect((await banco.aplicar({ itens: { apagar: ["nao-existe"] } })).ok).toBe(true);
-    expect(await banco.lerTudo()).toEqual({ ok: true, valor: { listas: [lista], itens: [] } });
+    expect(await banco.lerTudo()).toEqual({
+      ok: true,
+      valor: { listas: [lista], itens: [], ajustes: [] },
+    });
   });
 
-  it("troca tudo na substituição, inclusive o que o conteúdo novo não traz", async () => {
-    const banco = criarBancoEmMemoria({ listas: [lista], itens: [arroz, feijao] });
+  it("troca tudo na substituição, inclusive o que o conteúdo novo não traz, menos os ajustes", async () => {
+    const ponto = { id: "ponto", lat: -23.5, lon: -46.6 };
+    const banco = criarBancoEmMemoria({
+      listas: [lista],
+      itens: [arroz, feijao],
+      ajustes: [ponto],
+    });
     const outra = { id: "l2", nome: "Dezembro" };
 
     await banco.substituirTudo({ listas: [outra], itens: [] });
 
-    expect(await banco.lerTudo()).toEqual({ ok: true, valor: { listas: [outra], itens: [] } });
+    expect(await banco.lerTudo()).toEqual({
+      ok: true,
+      valor: { listas: [outra], itens: [], ajustes: [ponto] },
+    });
   });
 });

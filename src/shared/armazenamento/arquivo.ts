@@ -1,5 +1,5 @@
 import { falha, sucesso, type Resultado } from "../resultado";
-import { armazens, type Conteudo, type NomeDoArmazem, type Registros } from "./banco";
+import { armazensDaCopia, type ConteudoDaCopia, type NomeDaCopia, type Registros } from "./banco";
 
 /**
  * Cópia dos dados em arquivo (spec 0001 CA-04): um JSON com a versão do formato no topo.
@@ -28,7 +28,7 @@ export interface ArquivoLido {
   readonly versao: number;
   readonly exportadoEm: string;
   /** Registros como vieram do arquivo, ainda sem conferir o formato de cada um. */
-  readonly conteudo: Conteudo;
+  readonly conteudo: ConteudoDaCopia;
 }
 
 /** Tamanho do texto em bytes (UTF-8), como ele fica no arquivo. */
@@ -45,7 +45,7 @@ export function montarArquivo(
     app: identificacaoDoArquivo,
     versao: versaoDoArquivo,
     exportadoEm: agora.toISOString(),
-    dados: Object.fromEntries(armazens.map((nome) => [nome, registros[nome]])),
+    dados: Object.fromEntries(armazensDaCopia.map((nome) => [nome, registros[nome]])),
   });
   return passaDoLimite(texto) ? falha({ tipo: "arquivo.grande-demais" }) : sucesso(texto);
 }
@@ -71,7 +71,7 @@ export function lerArquivo(texto: string): Resultado<ArquivoLido, ErroDoArquivo>
   if (versao > versaoDoArquivo) return falha({ tipo: "arquivo.versao-desconhecida", versao });
   if (!ehData(exportadoEm) || !ehObjeto(dados)) return falha({ tipo: "arquivo.outro-formato" });
 
-  const lido = (nome: NomeDoArmazem): readonly unknown[] | null => {
+  const lido = (nome: NomeDaCopia): readonly unknown[] | null => {
     const valor = Object.hasOwn(dados, nome) ? dados[nome] : undefined;
     return Array.isArray(valor) ? (valor as readonly unknown[]) : null;
   };

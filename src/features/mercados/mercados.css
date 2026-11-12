@@ -1,0 +1,75 @@
+.mercados {
+  margin: 1.5rem 0;
+}
+
+.mercados h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+}
+
+.mercados-carregando {
+  color: var(--cor-texto-suave);
+}
+
+.mercados-ponto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1rem;
+}
+
+.mercados-ponto p {
+  margin: 0;
+}
+
+.mercados-raio {
+  max-width: 14rem;
+}
+
+.mercados-lista {
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mercados-lista > li {
+  margin: 0 0 0.75rem;
+  padding: 0.75rem var(--espaco);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+.mercados-lista h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.mercados-lista p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.mercados-cidades {
+  margin: 0.75rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mercados-cidades > li + li {
+  margin-top: 0.25rem;
+}
+
+.mercados-cidades button {
+  width: 100%;
+  min-height: 44px;
+  text-align: left;
+}
+
+.mercados-atribuicao {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+}

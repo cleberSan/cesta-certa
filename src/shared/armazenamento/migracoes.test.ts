@@ -40,6 +40,15 @@ describe("migrações do banco", () => {
     expect(criados).toEqual([]);
   });
 
+  // spec 0001 CA-06
+  it("a versão 2 acrescenta só o armazém dos ajustes a um aparelho que já tem a lista", () => {
+    const { banco, criados } = bancoFalso();
+
+    aplicarMigracoes(banco, 1, 2);
+
+    expect(criados).toEqual([{ nome: "ajustes", chave: "id" }]);
+  });
+
   it("aplica só as migrações que faltam, em ordem", () => {
     const aplicadas: number[] = [];
     const lista: Migracao[] = [0, 1, 2, 3].map((versao) => () => {

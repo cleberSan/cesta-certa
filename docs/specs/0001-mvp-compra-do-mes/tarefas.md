@@ -22,10 +22,10 @@ Um PR de portão só com documentação e cinco PRs de código, cada tarefa num 
 ## PR 3: mercados, mapa e rota
 
 - [x] **T06** Base nacional de mercados: script Overpass por UF, divisão em células de 1 grau, `cidades.json`, medição de tamanho e workflow mensal que abre PR — arquivos: `scripts/mercados.ts`, `.github/workflows/mercados.yml`, `public/data/` — prova: unidade do conversor e da divisão com fixture; relatório de tamanho no PR — cobre: CA-07
-- [ ] **T07** Primeiro acesso: tela de explicação, localização só depois do toque, "Escolher cidade", ponto no mapa, células que o raio toca, raio e distância no aparelho — arquivos: `src/features/mercados/` — prova: unidade, `e2e/localizacao.spec.ts`, `e2e/privacidade.spec.ts` — cobre: CA-05, CA-06, CA-07
-- [ ] **T08** Mercado próprio, "Saber mais" e aviso de ponto sem mercados ou fora do Brasil — arquivos: `src/features/mercados/` — prova: `e2e/mercados.spec.ts` — cobre: CA-08, CA-09, CA-39, CA-04 (migração do banco e versão nova do arquivo de cópia com este armazém)
+- [x] **T07** Primeiro acesso: tela de explicação em `/mercados`, localização só depois do toque, "Escolher cidade", células que o raio toca, raio e distância no aparelho, ponto e raio no armazém `ajustes` (banco na versão 2, fora da cópia) — arquivos: `src/features/mercados/`, `src/shared/armazenamento/` — prova: unidade, `e2e/localizacao.spec.ts`, `e2e/privacidade.spec.ts`, `e2e/mercados.spec.ts` — cobre: CA-05, CA-06, CA-07, CA-39 (aviso de ponto sem mercados ou fora do Brasil com "Aumentar para N km"); "Marcar no mapa" entra com o mapa, na T10
+- [ ] **T08** Mercado próprio, "Saber mais" e oferta de cadastrar um mercado quando o raio está vazio — arquivos: `src/features/mercados/` — prova: `e2e/mercados.spec.ts` — cobre: CA-08, CA-09, CA-39, CA-04 (migração do banco e versão nova do arquivo de cópia com este armazém)
 - [ ] **T09** Links de rota para Waze e Google Maps, com paradas — arquivos: `src/features/rota/` — prova: unidade e E2E do `href` — cobre: CA-24, CA-25
-- [ ] **T10** Mapa com MapLibre carregado sob demanda, pessoinha, pinos e folha inferior, com visão em lista equivalente — arquivos: `src/features/mapa/` — prova: E2E com axe e teclado — cobre: CA-37
+- [ ] **T10** Mapa com MapLibre carregado sob demanda, pessoinha, pinos e folha inferior, com visão em lista equivalente, e "Marcar no mapa" como terceira forma de escolher o ponto (CA-05) — arquivos: `src/features/mapa/` — prova: E2E com axe e teclado — cobre: CA-37
 
 ## PR 4: preços
 

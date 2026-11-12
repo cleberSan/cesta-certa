@@ -13,6 +13,10 @@ export const migracoes: readonly Migracao[] = [
     banco.createObjectStore("listas", { keyPath: "id" });
     banco.createObjectStore("itens", { keyPath: "id" });
   },
+  // 1 para 2: ponto escolhido e raio, fora da cópia (spec 0001, T07; ADR-0005).
+  (banco) => {
+    banco.createObjectStore("ajustes", { keyPath: "id" });
+  },
 ];
 
 export const versaoDoBanco = migracoes.length;

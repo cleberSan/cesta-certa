@@ -54,6 +54,8 @@ Os mercados vêm do OpenStreetMap (ODbL) e ficam em `public/data`, gerados uma v
 - Abrir PR pelo workflow exige, uma vez, **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**.
 - Para gerar fora do mês, use **Actions → Base de mercados → Run workflow**. Se alguma UF falhar, nada muda e a base anterior continua.
 - Num PR que muda o gerador, o workflow mede só SP e RJ e deixa o relatório no resumo, sem publicar.
+- Os testes de ponta a ponta não dependem de `public/data`: `e2e/base-de-mercados.ts` serve uma base sintética pelo Playwright, no mesmo caminho que o app pede.
+- O ponto e o raio ficam no armazém `ajustes` do IndexedDB, fora da cópia exportada. Teste novo que mexa com localização confere em `e2e/privacidade.spec.ts` que nenhum pedido leva a coordenada.
 
 ## Publicação
 

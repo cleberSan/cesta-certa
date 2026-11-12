@@ -33,7 +33,10 @@ describe("abrirDados", () => {
     const aberto = await abrirDados(fabrica, async () => sucesso(banco));
 
     expect(aberto.ok && aberto.valor.aparelho.resumo).toEqual({ listas: 0, itens: 0 });
-    expect(await banco.lerTudo()).toEqual({ ok: true, valor: { listas: [], itens: [] } });
+    expect(await banco.lerTudo()).toEqual({
+      ok: true,
+      valor: { listas: [], itens: [], ajustes: [] },
+    });
   });
 
   it.each<ErroDoBanco>(["indisponivel", "versao-mais-nova", "fechado", "falhou"])(

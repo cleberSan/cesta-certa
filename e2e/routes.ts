@@ -1,12 +1,12 @@
-export const routes = ["/", "/dados", "/lista", "/nota", "/privacidade", "/sobre"];
+export const routes = ["/", "/dados", "/lista", "/mercados", "/nota", "/privacidade", "/sobre"];
 
 /** Fora dos buscadores e do sitemap (src/config/site.ts). */
-export const noindexRoutes = ["/dados", "/lista", "/nota"];
+export const noindexRoutes = ["/dados", "/lista", "/mercados", "/nota"];
 
 export const indexableRoutes = routes.filter((route) => !noindexRoutes.includes(route));
 
 /** Únicas páginas com JavaScript: as que têm ilha React (ADR-0001). */
-export const islandRoutes = ["/dados", "/lista", "/nota"];
+export const islandRoutes = ["/dados", "/lista", "/mercados", "/nota"];
 
 export const consultaRoute = "/api/nfce/consultar";
 
