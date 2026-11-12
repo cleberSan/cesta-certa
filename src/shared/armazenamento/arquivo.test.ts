@@ -110,7 +110,7 @@ describe("lerArquivo: arquivo que não é JSON", () => {
     ["texto qualquer", "lista de compras"],
     ["cortado no meio", inteiro.slice(0, inteiro.length / 2)],
     ["sem a última chave", inteiro.slice(0, -1)],
-    ["com vírgula sobrando", inteiro.replace("}", ",}")],
+    ["com vírgula sobrando", `${inteiro.slice(0, -1)},}`],
     ["HTML", "<!doctype html><title>cesta</title>"],
     ["aninhado sem fechar", "[".repeat(100_000)],
   ])("recusa o arquivo %s", (_caso, texto) => {
