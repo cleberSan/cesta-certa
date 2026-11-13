@@ -15,6 +15,7 @@ import {
   type MercadoDaBase,
 } from "../../shared/contratos/mercados";
 import { falha, sucesso, type Resultado } from "../../shared/resultado";
+import { celulasDoRaio, type Ponto } from "./geo";
 
 export interface RespostaDoSite {
   readonly ok: boolean;
@@ -101,4 +102,19 @@ export async function carregarCidades(
   if (!baixado.ok) return falha(baixado.erro === "ausente" ? "sem-base" : baixado.erro);
   const lido = lerCidades(baixado.valor);
   return lido.ok ? sucesso(lido.valor.cidades) : falha("base-invalida");
+}
+
+/**
+ * Mercados da base nas células que o raio toca, para quem só precisa da lista (a tela de
+ * preços); a distância e o corte pelo raio ficam com `mercadosNoRaio`.
+ */
+export async function carregarDoRaio(
+  buscar: Buscar,
+  ponto: Ponto,
+  raioKm: number,
+): Promise<Resultado<readonly MercadoDaBase[], ErroDaCarga>> {
+  const indice = await carregarIndice(buscar);
+  if (!indice.ok) return indice;
+  const carregados = await carregarMercados(buscar, indice.valor, celulasDoRaio(ponto, raioKm));
+  return carregados.ok ? sucesso(carregados.valor.mercados) : carregados;
 }

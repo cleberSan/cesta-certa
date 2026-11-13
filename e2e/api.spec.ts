@@ -1,5 +1,23 @@
-import { expect, test, type APIResponse } from "@playwright/test";
+import { test as base, expect, type APIResponse } from "@playwright/test";
 import { chaveSintetica, consultaRoute } from "./routes";
+
+/**
+ * A API conta as consultas de cada IP (10 por minuto, ADR-0001). Aqui cada teste se apresenta
+ * como um cliente próprio: o workerd local aceita o `CF-Connecting-IP` que vem no pedido, e
+ * assim os testes em paralelo não somam no mesmo contador. Na Cloudflare esse cabeçalho é
+ * escrito pela plataforma e não dá para forjar.
+ */
+const test = base.extend({
+  extraHTTPHeaders: async ({}, use, testInfo) => {
+    let hash = 0;
+    for (const letra of `${testInfo.testId} ${testInfo.retry}`) {
+      hash = (hash * 31 + letra.charCodeAt(0)) >>> 0;
+    }
+    await use({
+      "CF-Connecting-IP": `10.${hash & 255}.${(hash >>> 8) & 255}.${(hash >>> 16) & 255}`,
+    });
+  },
+});
 
 /**
  * A API no Worker de verdade (workerd), pelo mesmo caminho da produção. Só entram aqui
@@ -64,6 +82,23 @@ test.describe("link fora da lista de endereços oficiais", () => {
       expect(JSON.stringify(body)).not.toMatch(/evil|169\.254|127\.0\.0\.1|admin|alert/);
     });
   }
+});
+
+// Plano da spec 0001, risco "abuso da consulta como proxy".
+test.describe("limite de consultas por cliente", () => {
+  test("a 11ª consulta do mesmo IP no minuto responde 429 com Retry-After", async ({ request }) => {
+    const url = "https://exemplo.com/nfce?p=1";
+    const statuses: number[] = [];
+    for (let i = 0; i < 10; i++) {
+      statuses.push((await request.post(consultaRoute, { data: { url } })).status());
+    }
+
+    const response = await request.post(consultaRoute, { data: { url } });
+
+    expect(statuses).toEqual(Array.from({ length: 10 }, () => 422));
+    await esperarProblema(response, 429, "requisicao.muitas-consultas");
+    expect(response.headers()["retry-after"]).toBe("60");
+  });
 });
 
 test.describe("pedido fora do contrato", () => {

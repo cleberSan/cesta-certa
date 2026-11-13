@@ -9,9 +9,19 @@
   // versão enviada de outra branch, fixados aqui para nenhum deploy desligar.
   "workers_dev": true,
   "preview_urls": true,
-  // O build de prévia de cada PR roda `wrangler preview`, que exige este bloco. Vazio: a
-  // prévia usa o mesmo código e não tem binding nem variável própria.
-  "previews": {},
+  // Limite por cliente da consulta da nota (ADR-0001): 10 por minuto, contado pela própria
+  // Cloudflare em cada local da rede. Só para /api; as páginas nem passam pelo Worker.
+  "ratelimits": [
+    { "name": "LIMITE_DA_NOTA", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } },
+  ],
+  // O build de prévia de cada PR roda `wrangler preview`, que exige este bloco. A prévia usa o
+  // mesmo código; binding não passa de um bloco para o outro, então o limite se repete aqui,
+  // com contador próprio.
+  "previews": {
+    "ratelimits": [
+      { "name": "LIMITE_DA_NOTA", "namespace_id": "1002", "simple": { "limit": 10, "period": 60 } },
+    ],
+  },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",

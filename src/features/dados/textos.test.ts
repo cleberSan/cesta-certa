@@ -15,13 +15,21 @@ import {
 
 describe("descreverResumo", () => {
   it.each([
-    [{ listas: 0, itens: 0, mercados: 0 }, "nenhuma lista"],
-    [{ listas: 1, itens: 0, mercados: 0 }, "1 lista sem itens"],
-    [{ listas: 3, itens: 0, mercados: 0 }, "3 listas sem itens"],
-    [{ listas: 1, itens: 1, mercados: 0 }, "1 lista e 1 item"],
-    [{ listas: 2, itens: 31, mercados: 0 }, "2 listas e 31 itens"],
-    [{ listas: 1, itens: 3, mercados: 1 }, "1 lista e 3 itens, mais 1 mercado cadastrado"],
-    [{ listas: 0, itens: 0, mercados: 2 }, "nenhuma lista, mais 2 mercados cadastrados"],
+    [{ listas: 0, itens: 0, mercados: 0, precos: 0 }, "nenhuma lista"],
+    [{ listas: 1, itens: 0, mercados: 0, precos: 0 }, "1 lista sem itens"],
+    [{ listas: 3, itens: 0, mercados: 0, precos: 0 }, "3 listas sem itens"],
+    [{ listas: 1, itens: 1, mercados: 0, precos: 0 }, "1 lista e 1 item"],
+    [{ listas: 2, itens: 31, mercados: 0, precos: 0 }, "2 listas e 31 itens"],
+    [
+      { listas: 1, itens: 3, mercados: 1, precos: 0 },
+      "1 lista e 3 itens, mais 1 mercado cadastrado",
+    ],
+    [{ listas: 0, itens: 0, mercados: 2, precos: 0 }, "nenhuma lista, mais 2 mercados cadastrados"],
+    [{ listas: 1, itens: 3, mercados: 0, precos: 1 }, "1 lista e 3 itens, mais 1 preço"],
+    [
+      { listas: 1, itens: 3, mercados: 2, precos: 15 },
+      "1 lista e 3 itens, mais 2 mercados cadastrados e 15 preços",
+    ],
   ])("descreve %j como %j", (resumo, esperado) => {
     expect(descreverResumo(resumo)).toBe(esperado);
   });
@@ -64,10 +72,10 @@ describe("mensagemDaImportacao", () => {
   });
 
   it("diz a versão do arquivo e a que o app lê", () => {
-    const mensagem = mensagemDaImportacao({ tipo: "arquivo.versao-desconhecida", versao: 3 });
+    const mensagem = mensagemDaImportacao({ tipo: "arquivo.versao-desconhecida", versao: 4 });
 
-    expect(mensagem).toContain("versão 3 do formato");
-    expect(mensagem).toContain("lê até a versão 2");
+    expect(mensagem).toContain("versão 4 do formato");
+    expect(mensagem).toContain("lê até a versão 3");
   });
 
   it.each([
@@ -107,7 +115,7 @@ describe("avisos da cópia", () => {
   it("diz o nome do arquivo e o que ele tem", () => {
     const aviso = avisoDaCopia({
       nome: "cesta-certa-2026-11-11.json",
-      resumo: { listas: 2, itens: 31, mercados: 0 },
+      resumo: { listas: 2, itens: 31, mercados: 0, precos: 0 },
     });
 
     expect(aviso).toBe("Cópia gerada: cesta-certa-2026-11-11.json, com 2 listas e 31 itens.");

@@ -517,6 +517,103 @@ describe("API: requisição recusada antes da consulta", () => {
   });
 });
 
+describe("API: limite de requisições por cliente", () => {
+  /** Contador em memória no lugar do binding da Cloudflare, com o mesmo contrato. */
+  function contador(maximo: number) {
+    const chaves: string[] = [];
+    return {
+      chaves,
+      limite: {
+        limit: async ({ key }: { key: string }) => {
+          chaves.push(key);
+          return { success: chaves.filter((chave) => chave === key).length <= maximo };
+        },
+      },
+    };
+  }
+
+  it("conta pela rota e pelo IP que a Cloudflare informa, e recusa com 429 ao passar", async () => {
+    const { deps, eventos, buscas } = cenario();
+    const { chaves, limite } = contador(1);
+    const comLimite = { ...deps, limite };
+    const doCliente = { "CF-Connecting-IP": "203.0.113.7" };
+
+    const primeira = await tratarApi(pedido({ url: linkSp() }, doCliente), comLimite);
+    const segunda = await tratarApi(pedido({ url: linkSp() }, doCliente), comLimite);
+
+    expect(primeira.status).toBe(200);
+    expect(segunda.status).toBe(429);
+    expect(segunda.headers.get("Retry-After")).toBe("60");
+    esperarCabecalhosDaApi(segunda);
+    expect((await problemaDe(segunda)).code).toBe("requisicao.muitas-consultas");
+    expect(chaves).toEqual([`${rotaDaConsulta} 203.0.113.7`, `${rotaDaConsulta} 203.0.113.7`]);
+    expect(buscas).toHaveLength(1);
+    expect(eventos).toContainEqual({ evento: "api.limite", traceId, rota: rotaDaConsulta });
+    expect(JSON.stringify(eventos)).not.toContain("203.0.113.7");
+  });
+
+  it("conta cada cliente separado", async () => {
+    const { deps } = cenario();
+    const { limite } = contador(1);
+    const comLimite = { ...deps, limite };
+
+    const um = await tratarApi(
+      pedido({ url: linkSp() }, { "CF-Connecting-IP": "203.0.113.1" }),
+      comLimite,
+    );
+    const outro = await tratarApi(
+      pedido({ url: linkSp() }, { "CF-Connecting-IP": "203.0.113.2" }),
+      comLimite,
+    );
+
+    expect([um.status, outro.status]).toEqual([200, 200]);
+  });
+
+  it("não conta pedido de outra origem, recusado antes", async () => {
+    const { deps } = cenario();
+    const { chaves, limite } = contador(10);
+
+    const resposta = await tratarApi(
+      pedido({ url: linkSp() }, { Origin: "https://outro.exemplo" }),
+      { ...deps, limite },
+    );
+
+    expect(resposta.status).toBe(403);
+    expect(chaves).toEqual([]);
+  });
+
+  it("segue a consulta quando o contador falha, e registra só o tipo do erro", async () => {
+    const { deps, eventos } = cenario();
+    const limite = {
+      limit: async () => {
+        throw new TypeError("binding fora do ar");
+      },
+    };
+
+    const resposta = await tratarApi(pedido({ url: linkSp() }), { ...deps, limite });
+
+    expect(resposta.status).toBe(200);
+    expect(eventos).toContainEqual({
+      evento: "api.limite-indisponivel",
+      traceId,
+      tipo: "TypeError",
+    });
+  });
+
+  it("registra como desconhecido o erro que não é Error", async () => {
+    const { deps, eventos } = cenario();
+    const limite = { limit: () => Promise.reject(new Object()) };
+
+    await tratarApi(pedido({ url: linkSp() }), { ...deps, limite });
+
+    expect(eventos).toContainEqual({
+      evento: "api.limite-indisponivel",
+      traceId,
+      tipo: "desconhecido",
+    });
+  });
+});
+
 describe("API: erro inesperado", () => {
   it("responde 500 em ProblemDetails e registra só o tipo do erro", async () => {
     const { deps, eventos } = cenario();

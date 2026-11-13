@@ -55,7 +55,14 @@ export function siteUrlFromEnv(env: Readonly<Record<string, string | undefined>>
  * fiscal são ferramentas, não vitrine. Recebem `<meta name="robots" content="noindex">` e ficam fora do
  * sitemap.
  */
-export const noindexPaths: readonly string[] = ["/404", "/dados", "/lista", "/mercados", "/nota"];
+export const noindexPaths: readonly string[] = [
+  "/404",
+  "/dados",
+  "/lista",
+  "/mercados",
+  "/nota",
+  "/precos",
+];
 
 /**
  * Caminho público de uma página: sem ".html", sem "index" e sem barra no final, como a

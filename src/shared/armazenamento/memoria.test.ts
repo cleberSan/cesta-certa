@@ -11,7 +11,7 @@ describe("banco em memória", () => {
     expect(banco.persistente).toBe(false);
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [], itens: [], ajustes: [], mercadosProprios: [] },
+      valor: { listas: [], itens: [], ajustes: [], mercadosProprios: [], observacoesDePreco: [] },
     });
   });
 
@@ -19,7 +19,13 @@ describe("banco em memória", () => {
     const banco = criarBancoEmMemoria({ listas: [lista], itens: [arroz] });
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [lista], itens: [arroz], ajustes: [], mercadosProprios: [] },
+      valor: {
+        listas: [lista],
+        itens: [arroz],
+        ajustes: [],
+        mercadosProprios: [],
+        observacoesDePreco: [],
+      },
     });
   });
 
@@ -32,7 +38,13 @@ describe("banco em memória", () => {
     expect(resultado.ok).toBe(true);
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [lista], itens: [arrozIntegral], ajustes: [], mercadosProprios: [] },
+      valor: {
+        listas: [lista],
+        itens: [arrozIntegral],
+        ajustes: [],
+        mercadosProprios: [],
+        observacoesDePreco: [],
+      },
     });
   });
 
@@ -42,7 +54,13 @@ describe("banco em memória", () => {
     expect((await banco.aplicar({ itens: { apagar: ["nao-existe"] } })).ok).toBe(true);
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [lista], itens: [], ajustes: [], mercadosProprios: [] },
+      valor: {
+        listas: [lista],
+        itens: [],
+        ajustes: [],
+        mercadosProprios: [],
+        observacoesDePreco: [],
+      },
     });
   });
 
@@ -55,11 +73,22 @@ describe("banco em memória", () => {
     });
     const outra = { id: "l2", nome: "Dezembro" };
 
-    await banco.substituirTudo({ listas: [outra], itens: [], mercadosProprios: [] });
+    await banco.substituirTudo({
+      listas: [outra],
+      itens: [],
+      mercadosProprios: [],
+      observacoesDePreco: [],
+    });
 
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [outra], itens: [], ajustes: [ponto], mercadosProprios: [] },
+      valor: {
+        listas: [outra],
+        itens: [],
+        ajustes: [ponto],
+        mercadosProprios: [],
+        observacoesDePreco: [],
+      },
     });
   });
 });

@@ -1,0 +1,33 @@
+---
+import Precos from "../features/precos/Precos";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Preços"
+  description="Os preços que você registrou, lidos da sua nota fiscal ou digitados no mercado, cada um com a fonte e a data. Ficam só no seu aparelho."
+>
+  <h1>Preços</h1>
+  <p class="chamada">
+    Leia a nota fiscal de uma compra ou digite o preço que viu no mercado. Cada preço mostra de onde
+    veio e quando foi visto, e fica guardado só neste aparelho.
+  </p>
+
+  <Precos client:load />
+  <noscript>
+    <p class="cartao">Esta página precisa de JavaScript para guardar os preços no aparelho.</p>
+  </noscript>
+
+  <h2>De onde vêm os preços</h2>
+  <ul>
+    <li>
+      Da nota fiscal das suas compras (NFC-e), lida pelo QR Code ou pelo link, e do que você digita.
+      O Cesta Certa não copia preço de site de mercado e não promete o preço de hoje.
+    </li>
+    <li>Preço visto há mais de 30 dias aparece como antigo: confira antes de contar com ele.</li>
+    <li>
+      Os preços entram na cópia dos seus dados em <a href="/dados">Seus dados</a>. Eles não vão para
+      nenhum servidor.
+    </li>
+  </ul>
+</BaseLayout>
