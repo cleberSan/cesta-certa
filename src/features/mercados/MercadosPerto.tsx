@@ -1,5 +1,8 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { celulaDe, type IndiceLido, type MercadoDaBase } from "../../shared/contratos/mercados";
+import { Comparacao, useComparacao, type DadosDaComparacao } from "../comparar/Comparacao";
+import type { TotalDoMercado } from "../comparar/otimizador";
+import { rotuloDoPino } from "../comparar/textos";
 import type { Pino } from "../mapa/geojson";
 import { MapaDosMercadosSobDemanda } from "../mapa/SobDemanda";
 import { ehRaio, raios, type PontoEscolhido, type Raio } from "./ajustes";
@@ -24,12 +27,14 @@ const abrindo: CargaDosMercados = { fase: "abrindo" };
 /**
  * Mercados perto do ponto (spec 0001, CA-07, CA-08, CA-09 e CA-39): os da base, baixados por
  * célula, e os que a pessoa cadastrou, juntos e em ordem de distância calculada no aparelho.
- * A lista é a visão padrão; o mapa abre sob demanda e mostra os mesmos mercados (CA-37).
+ * A lista é a visão padrão; o mapa abre sob demanda e mostra os mesmos mercados (CA-37). Com
+ * itens e preços, a comparação (T14) ordena as opções e escreve o total no pino e na lista.
  */
 export function MercadosPerto({
   ponto,
   raioKm,
   proprios,
+  comparacao: dados,
   onRaio,
   onTrocar,
   onCadastrar,
@@ -38,6 +43,7 @@ export function MercadosPerto({
   ponto: PontoEscolhido;
   raioKm: Raio;
   proprios: readonly MercadoProprio[];
+  comparacao: DadosDaComparacao;
   onRaio: (km: Raio) => void;
   onTrocar: () => void;
   onCadastrar: (mercado: MercadoProprio) => void;
@@ -106,10 +112,16 @@ export function MercadosPerto({
     return mercadosNoRaio(todos, ponto, raioKm);
   }, [carga, proprios, ponto, raioKm]);
   const proximoRaio = raios.find((km) => km > raioKm);
+  const comparacao = useComparacao(proximos, dados);
+  const totalEm = (id: string): TotalDoMercado | undefined => comparacao?.porMercado.get(id);
   const pinos = useMemo(
     (): Pino[] =>
-      proximos.map(({ id, lat, lon, origem }) => ({ id, lat, lon, proprio: origem === "proprio" })),
-    [proximos],
+      proximos.map(({ id, lat, lon, origem }) => {
+        const total = comparacao?.porMercado.get(id);
+        const pino = { id, lat, lon, proprio: origem === "proprio" };
+        return total === undefined ? pino : { ...pino, rotulo: rotuloDoPino(total) };
+      }),
+    [proximos, comparacao],
   );
   const mercadoEscolhido = mapaAberto
     ? proximos.find((mercado) => mercado.id === escolhido)
@@ -187,6 +199,7 @@ export function MercadosPerto({
           )}
         </div>
       )}
+      <Comparacao dados={dados} comparacao={comparacao} raioKm={raioKm} />
       <div className="mercados-mapa">
         <div className="mercados-mapa-alternar">
           <button
@@ -221,6 +234,7 @@ export function MercadosPerto({
               <FolhaDoMercado
                 key={mercadoEscolhido.id}
                 mercado={mercadoEscolhido}
+                total={totalEm(mercadoEscolhido.id)}
                 onFechar={voltarAoMapa}
                 onExcluir={(id) => {
                   voltarAoMapa();
@@ -250,7 +264,12 @@ export function MercadosPerto({
       {proximos.length > 0 && (
         <ol className="mercados-lista">
           {proximos.slice(0, mostrar).map((mercado) => (
-            <ItemDoMercado key={mercado.id} mercado={mercado} onExcluir={onExcluir} />
+            <ItemDoMercado
+              key={mercado.id}
+              mercado={mercado}
+              total={totalEm(mercado.id)}
+              onExcluir={onExcluir}
+            />
           ))}
         </ol>
       )}
@@ -319,10 +338,12 @@ export function MercadosPerto({
  */
 function FolhaDoMercado({
   mercado,
+  total,
   onFechar,
   onExcluir,
 }: {
   mercado: Proximo<MercadoNaTela>;
+  total: TotalDoMercado | undefined;
   onFechar: () => void;
   onExcluir: (id: string) => void;
 }) {
@@ -339,7 +360,7 @@ function FolhaDoMercado({
           Fechar<span className="somente-leitor"> os detalhes de {mercado.nome}</span>
         </button>
       </div>
-      <ResumoDoMercado mercado={mercado} />
+      <ResumoDoMercado mercado={mercado} total={total} />
       <div className="mercados-detalhes">
         <DetalhesDoMercado mercado={mercado} onExcluir={onExcluir} />
       </div>

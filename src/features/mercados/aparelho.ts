@@ -1,12 +1,16 @@
 /**
- * Ponto, raio e mercados cadastrados no aparelho (ADR-0005). Sem IndexedDB, a tela funciona em memória e avisa
- * que o ponto some ao fechar a página; dados de uma versão mais nova do app nunca são
+ * Ponto, raio e mercados cadastrados no aparelho (ADR-0005), e o que a comparação usa: as
+ * listas, os preços e o objetivo (T14, ADR-0006). Sem IndexedDB, a tela funciona em memória e
+ * avisa que o ponto some ao fechar a página; dados de uma versão mais nova do app nunca são
  * abertos nem sobrepostos.
  */
 import type { Banco, ErroDoBanco } from "../../shared/armazenamento/banco";
 import { abrirIndexedDb } from "../../shared/armazenamento/indexeddb";
 import { criarBancoEmMemoria } from "../../shared/armazenamento/memoria";
 import { falha, sucesso, type Resultado } from "../../shared/resultado";
+import { lerObjetivo, registroDoObjetivo, type Objetivo } from "../comparar/objetivo";
+import { conferirEstado, type Estado } from "../lista/lista";
+import { conferirObservacoes, type ObservacaoDePreco } from "../precos/precos";
 import {
   idDoPonto,
   lerAjustes,
@@ -30,6 +34,9 @@ export interface Aparelho {
   readonly ajustes: Ajustes;
   /** Mercados que a pessoa cadastrou; registro fora do formato fica de fora (CA-08). */
   readonly proprios: readonly MercadoProprio[];
+  readonly lista: Estado;
+  readonly observacoes: readonly ObservacaoDePreco[];
+  readonly objetivo: Objetivo;
 }
 
 export async function abrirAparelho(
@@ -45,6 +52,9 @@ export async function abrirAparelho(
     banco,
     ajustes: lerAjustes(lido.valor.ajustes),
     proprios: conferirMercadosProprios(lido.valor.mercadosProprios).mercados,
+    lista: conferirEstado(lido.valor).estado,
+    observacoes: conferirObservacoes(lido.valor.observacoesDePreco).observacoes,
+    objetivo: lerObjetivo(lido.valor.ajustes),
   });
 }
 
@@ -58,6 +68,10 @@ export function esquecerPonto(banco: Banco) {
 
 export function guardarRaio(banco: Banco, km: Raio) {
   return banco.aplicar({ ajustes: { gravar: [registroDoRaio(km)] } });
+}
+
+export function guardarObjetivo(banco: Banco, objetivo: Objetivo) {
+  return banco.aplicar({ ajustes: { gravar: [registroDoObjetivo(objetivo)] } });
 }
 
 export function guardarMercado(banco: Banco, mercado: MercadoProprio) {

@@ -174,3 +174,4 @@ ADRs que nascem no repositório novo (skill `novo-adr`), depois das respostas ao
 - ADR-0003: fontes de preço do MVP (nota fiscal própria e digitado, sem raspagem).
 - ADR-0004: assistente com Claude Haiku 5.5 pelo servidor, código de acesso, limites e respostas gravadas na demonstração (escolha do Cleber em 2026-11-10).
 - [ADR-0005](../../adr/0005-mercados-localizacao-e-mapa.md): base nacional mensal do OSM em células (ODbL), pedido de localização, ponto fora da cópia e mapa com MapLibre e OpenFreeMap sob demanda; entra no PR 3.
+- [ADR-0006](../../adr/0006-comparacao-da-lista.md): regras da comparação (preferência de marca, oferta vale pelo preço visto por último, combinações e economia mínima, ordem, distância, teto) e objetivo guardado nos ajustes; entra no PR 5, com a T14.

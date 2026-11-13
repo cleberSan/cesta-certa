@@ -1,14 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ErroDoBanco } from "../../shared/armazenamento/banco";
 import { mensagemDoBanco } from "../../shared/armazenamento/textos";
 import { recarregarAoVoltar } from "../../shared/recarregarAoVoltar";
 import type { Resultado } from "../../shared/resultado";
+import type { DadosDaComparacao } from "../comparar/Comparacao";
+import type { Objetivo } from "../comparar/objetivo";
+import { itensDaLista, listasRecentes } from "../lista/lista";
+import { diaDe } from "../precos/precos";
 import type { Ajustes, PontoEscolhido, Raio } from "./ajustes";
 import {
   abrirAparelho,
   apagarMercado,
   esquecerPonto,
   guardarMercado,
+  guardarObjetivo,
   guardarPonto,
   guardarRaio,
   type Aparelho,
@@ -77,6 +82,14 @@ function Painel({ aparelho }: { aparelho: Aparelho }) {
   const [ajustes, setAjustes] = useState<Ajustes>(aparelho.ajustes);
   const [proprios, setProprios] = useState<readonly MercadoProprio[]>(aparelho.proprios);
   const [aviso, setAviso] = useState<string | null>(null);
+  const [objetivo, setObjetivo] = useState<Objetivo>(aparelho.objetivo);
+  const listas = useMemo(() => listasRecentes(aparelho.lista), [aparelho.lista]);
+  const [listaId, setListaId] = useState<string | null>(listas[0]?.id ?? null);
+  const itens = useMemo(
+    () => (listaId === null ? [] : itensDaLista(aparelho.lista, listaId)),
+    [aparelho.lista, listaId],
+  );
+  const hoje = useMemo(() => diaDe(new Date()), []);
 
   const avisarSeFalhou = (resultado: Resultado<void, ErroDoBanco>) => {
     setAviso(
@@ -99,6 +112,19 @@ function Painel({ aparelho }: { aparelho: Aparelho }) {
   const cadastrar = (mercado: MercadoProprio) => {
     setProprios((atuais) => [...atuais, mercado]);
     void guardarMercado(banco, mercado).then(avisarSeFalhou);
+  };
+  const dados: DadosDaComparacao = {
+    listas,
+    listaId,
+    itens,
+    observacoes: aparelho.observacoes,
+    objetivo,
+    hoje,
+    onLista: setListaId,
+    onObjetivo: (novo) => {
+      setObjetivo(novo);
+      void guardarObjetivo(banco, novo).then(avisarSeFalhou);
+    },
   };
   const excluir = (id: string) => {
     setProprios((atuais) => atuais.filter((mercado) => mercado.id !== id));
@@ -125,6 +151,7 @@ function Painel({ aparelho }: { aparelho: Aparelho }) {
           ponto={ajustes.ponto}
           raioKm={ajustes.raioKm}
           proprios={proprios}
+          comparacao={dados}
           onRaio={mudarRaio}
           onTrocar={trocar}
           onCadastrar={cadastrar}

@@ -1,4 +1,6 @@
 import { useId, useState } from "react";
+import type { TotalDoMercado } from "../comparar/otimizador";
+import { descreverTotalDoMercado } from "../comparar/textos";
 import { DetalhesDoMercado, type MercadoNaTela } from "./DetalhesDoMercado";
 import { formatarDistancia } from "./geo";
 import type { Proximo } from "./proximos";
@@ -12,9 +14,12 @@ export type { MercadoNaTela };
  */
 export function ItemDoMercado({
   mercado,
+  total,
   onExcluir,
 }: {
   mercado: Proximo<MercadoNaTela>;
+  /** O total da lista neste mercado, quando há preço de algum item (T14). */
+  total: TotalDoMercado | undefined;
   onExcluir: (id: string) => void;
 }) {
   const base = useId();
@@ -23,7 +28,7 @@ export function ItemDoMercado({
   return (
     <li>
       <h3>{mercado.nome}</h3>
-      <ResumoDoMercado mercado={mercado} />
+      <ResumoDoMercado mercado={mercado} total={total} />
       <div className="mercados-acoes-do-item">
         <button
           type="button"
@@ -45,12 +50,21 @@ export function ItemDoMercado({
   );
 }
 
-/** "Supermercado · 1,2 km · cadastrado por você". */
-export function ResumoDoMercado({ mercado }: { mercado: Proximo<MercadoNaTela> }) {
+/** "Supermercado · 1,2 km · cadastrado por você" e, com preços, o total da lista. */
+export function ResumoDoMercado({
+  mercado,
+  total,
+}: {
+  mercado: Proximo<MercadoNaTela>;
+  total: TotalDoMercado | undefined;
+}) {
   return (
-    <p>
-      {descreverTipo(mercado.tipo)} · {formatarDistancia(mercado.distanciaKm)}
-      {mercado.origem === "proprio" && " · cadastrado por você"}
-    </p>
+    <>
+      <p>
+        {descreverTipo(mercado.tipo)} · {formatarDistancia(mercado.distanciaKm)}
+        {mercado.origem === "proprio" && " · cadastrado por você"}
+      </p>
+      {total !== undefined && <p className="mercados-total">{descreverTotalDoMercado(total)}</p>}
+    </>
   );
 }
