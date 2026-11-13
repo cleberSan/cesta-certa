@@ -1,5 +1,6 @@
 import { falha, sucesso, type Resultado } from "../resultado";
-import { armazens, type Conteudo, type NomeDoArmazem, type Registros } from "./banco";
+import { ehDataIso, ehObjeto } from "../validacao";
+import { armazensDaCopia, type ConteudoDaCopia, type NomeDaCopia, type Registros } from "./banco";
 
 /**
  * Cópia dos dados em arquivo (spec 0001 CA-04): um JSON com a versão do formato no topo.
@@ -10,7 +11,8 @@ import { armazens, type Conteudo, type NomeDoArmazem, type Registros } from "./b
  * anteriores continua: o que elas não têm entra vazio.
  */
 export const identificacaoDoArquivo = "cesta-certa";
-export const versaoDoArquivo = 1;
+/** 1: listas e itens (T05). 2: mais os mercados cadastrados pela pessoa (T08). */
+export const versaoDoArquivo = 2;
 
 /** 5 MB: vale para o arquivo que entra e para a cópia que sai, que precisa poder voltar. */
 export const limiteDoArquivo = 5 * 1024 * 1024;
@@ -28,7 +30,7 @@ export interface ArquivoLido {
   readonly versao: number;
   readonly exportadoEm: string;
   /** Registros como vieram do arquivo, ainda sem conferir o formato de cada um. */
-  readonly conteudo: Conteudo;
+  readonly conteudo: ConteudoDaCopia;
 }
 
 /** Tamanho do texto em bytes (UTF-8), como ele fica no arquivo. */
@@ -45,7 +47,7 @@ export function montarArquivo(
     app: identificacaoDoArquivo,
     versao: versaoDoArquivo,
     exportadoEm: agora.toISOString(),
-    dados: Object.fromEntries(armazens.map((nome) => [nome, registros[nome]])),
+    dados: Object.fromEntries(armazensDaCopia.map((nome) => [nome, registros[nome]])),
   });
   return passaDoLimite(texto) ? falha({ tipo: "arquivo.grande-demais" }) : sucesso(texto);
 }
@@ -69,32 +71,24 @@ export function lerArquivo(texto: string): Resultado<ArquivoLido, ErroDoArquivo>
     return falha({ tipo: "arquivo.outro-formato" });
   }
   if (versao > versaoDoArquivo) return falha({ tipo: "arquivo.versao-desconhecida", versao });
-  if (!ehData(exportadoEm) || !ehObjeto(dados)) return falha({ tipo: "arquivo.outro-formato" });
+  if (!ehDataIso(exportadoEm) || !ehObjeto(dados)) return falha({ tipo: "arquivo.outro-formato" });
 
-  const lido = (nome: NomeDoArmazem): readonly unknown[] | null => {
+  const lido = (nome: NomeDaCopia): readonly unknown[] | null => {
     const valor = Object.hasOwn(dados, nome) ? dados[nome] : undefined;
     return Array.isArray(valor) ? (valor as readonly unknown[]) : null;
   };
   const listas = lido("listas");
   const itens = lido("itens");
-  if (listas === null || itens === null) return falha({ tipo: "arquivo.outro-formato" });
+  // A versão 1 não tinha mercados próprios: entram vazios. Da 2 em diante, a lista é exigida.
+  const mercadosProprios = versao >= 2 ? lido("mercadosProprios") : [];
+  if (listas === null || itens === null || mercadosProprios === null) {
+    return falha({ tipo: "arquivo.outro-formato" });
+  }
 
-  return sucesso({ versao, exportadoEm, conteudo: { listas, itens } });
+  return sucesso({ versao, exportadoEm, conteudo: { listas, itens, mercadosProprios } });
 }
 
 /** O comprimento em caracteres nunca passa do tamanho em bytes: evita codificar um texto enorme. */
 function passaDoLimite(texto: string): boolean {
   return texto.length > limiteDoArquivo || tamanhoEmBytes(texto) > limiteDoArquivo;
-}
-
-function ehObjeto(valor: unknown): valor is Record<string, unknown> {
-  return typeof valor === "object" && valor !== null && !Array.isArray(valor);
-}
-
-function ehData(valor: unknown): valor is string {
-  return (
-    typeof valor === "string" &&
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(valor) &&
-    !Number.isNaN(Date.parse(valor))
-  );
 }

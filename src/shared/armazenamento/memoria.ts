@@ -1,27 +1,38 @@
 import { sucesso } from "../resultado";
-import { armazens, type Banco, type NomeDoArmazem, type Registro, type Registros } from "./banco";
+import {
+  armazens,
+  armazensDaCopia,
+  type Banco,
+  type Conteudo,
+  type NomeDoArmazem,
+  type Registro,
+} from "./banco";
 
 /**
  * Banco em memória, com o mesmo contrato do IndexedDB. Usado nos testes de unidade e como
  * reserva quando o navegador não deixa guardar: a lista funciona, mas some ao fechar a página.
  */
-export function criarBancoEmMemoria(inicial: Partial<Registros> = {}): Banco {
+export function criarBancoEmMemoria(
+  inicial: Partial<Record<NomeDoArmazem, readonly Registro[]>> = {},
+): Banco {
   const dados = new Map<NomeDoArmazem, Map<string, Registro>>();
-  const preencher = (registros: Partial<Registros>) => {
-    for (const nome of armazens) {
+  const preencher = (
+    nomes: readonly NomeDoArmazem[],
+    registros: Partial<Record<NomeDoArmazem, readonly Registro[]>>,
+  ) => {
+    for (const nome of nomes) {
       dados.set(nome, new Map((registros[nome] ?? []).map((registro) => [registro.id, registro])));
     }
   };
-  preencher(inicial);
+  preencher(armazens, inicial);
   const armazem = (nome: NomeDoArmazem) => dados.get(nome)!;
 
   return {
     persistente: false,
     async lerTudo() {
-      return sucesso({
-        listas: [...armazem("listas").values()],
-        itens: [...armazem("itens").values()],
-      });
+      const conteudo = {} as Record<NomeDoArmazem, readonly unknown[]>;
+      for (const nome of armazens) conteudo[nome] = [...armazem(nome).values()];
+      return sucesso<Conteudo>(conteudo);
     },
     async aplicar(alteracoes) {
       for (const nome of armazens) {
@@ -32,7 +43,7 @@ export function criarBancoEmMemoria(inicial: Partial<Registros> = {}): Banco {
       return sucesso(undefined);
     },
     async substituirTudo(registros) {
-      preencher(registros);
+      preencher(armazensDaCopia, registros);
       return sucesso(undefined);
     },
   };

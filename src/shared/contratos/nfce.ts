@@ -2,6 +2,7 @@
  * Contrato de `POST /api/nfce/consultar` (spec 0001, plano.md): usado pelo Worker para
  * responder e pelo app para conferir a resposta antes de mostrar.
  */
+import { ehObjeto } from "../validacao";
 
 export const rotaDaConsulta = "/api/nfce/consultar";
 
@@ -62,10 +63,6 @@ export interface Problema {
   traceId: string;
   /** Só estrutura da página consultada, nunca o texto dela. */
   diagnostico?: unknown;
-}
-
-function ehObjeto(valor: unknown): valor is Record<string, unknown> {
-  return typeof valor === "object" && valor !== null && !Array.isArray(valor);
 }
 
 function ehTexto(valor: unknown, maximo: number): valor is string {

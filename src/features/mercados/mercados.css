@@ -1,0 +1,196 @@
+.mercados {
+  margin: 1.5rem 0;
+}
+
+.mercados h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+}
+
+.mercados-carregando {
+  color: var(--cor-texto-suave);
+}
+
+.mercados-ponto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: 0 0 1rem;
+}
+
+.mercados-ponto p {
+  margin: 0;
+}
+
+.mercados-raio {
+  max-width: 14rem;
+}
+
+.mercados-lista {
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mercados-lista > li {
+  margin: 0 0 0.75rem;
+  padding: 0.75rem var(--espaco);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+.mercados-lista h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.mercados-lista p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.mercados-cidades {
+  margin: 0.75rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mercados-cidades > li + li {
+  margin-top: 0.25rem;
+}
+
+.mercados-cidades button {
+  width: 100%;
+  min-height: 44px;
+  text-align: left;
+}
+
+.mercados-atribuicao {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+}
+
+.mercados-acoes-do-item {
+  margin-top: 0.5rem;
+}
+
+.mercados-detalhes {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.mercados-detalhes dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 0.75rem;
+  margin: 0 0 0.75rem;
+}
+
+.mercados-detalhes dt {
+  font-weight: 600;
+}
+
+.mercados-detalhes dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.mercados-nota {
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+}
+
+.mercados-falta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mercados-aviso:empty {
+  display: none;
+}
+
+.mercados-cadastro h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.mercados-cadastro fieldset {
+  border: 0;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+.mercados-cadastro legend {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.mercados-opcao {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.5rem 0;
+  font-weight: normal;
+}
+
+@media (max-width: 30rem) {
+  .mercados-detalhes dl {
+    grid-template-columns: 1fr;
+  }
+
+  .mercados-detalhes dt:not(:first-child) {
+    margin-top: 0.5rem;
+  }
+}
+
+.mercados-mapa {
+  margin: 1rem 0;
+}
+
+.mercados-mapa-alternar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.mercados-mapa-alternar p {
+  margin: 0;
+}
+
+/* Folha com os detalhes do mercado tocado no mapa, logo abaixo dele (CA-37). */
+.mercados-folha {
+  margin: 0 0 1rem;
+  padding: 0.75rem var(--espaco) 1rem;
+  border: 1px solid var(--cor-borda);
+  border-top: 4px solid var(--cor-marca);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+.mercados-folha-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.mercados-folha h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
+
+.mercados-folha-topo + p {
+  margin: 0.25rem 0 0;
+  color: var(--cor-texto-suave);
+}

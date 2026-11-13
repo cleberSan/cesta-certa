@@ -180,7 +180,7 @@ function Painel({ banco, inicial }: { banco: Banco; inicial: Aparelho }) {
         setImportacao({ erro: mensagemDaImportacao(gravado.erro) });
         return;
       }
-      setAparelho({ estado: escolhido.conferido.estado, resumo: gravado.valor, recusados: 0 });
+      setAparelho({ dados: escolhido.conferido.dados, resumo: gravado.valor, recusados: 0 });
       limparArquivo();
       setExportacao({});
       setImportacao({ aviso: `Dados importados: ${descreverResumo(gravado.valor)}.` });

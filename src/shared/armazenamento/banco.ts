@@ -5,9 +5,17 @@ import type { Resultado } from "../resultado";
  * interface; a implementação de verdade usa o IndexedDB (indexeddb.ts) e a de memória serve
  * aos testes e de reserva quando o navegador não deixa guardar.
  */
-export const armazens = ["listas", "itens"] as const;
+export const armazensDaCopia = ["listas", "itens", "mercadosProprios"] as const;
+
+/**
+ * `ajustes` guarda o ponto escolhido e o raio (ADR-0005). Fica fora da cópia exportada e a
+ * importação não mexe nele: o arquivo pode ser compartilhado e não deve levar a localização.
+ */
+export const armazens = [...armazensDaCopia, "ajustes"] as const;
 
 export type NomeDoArmazem = (typeof armazens)[number];
+
+export type NomeDaCopia = (typeof armazensDaCopia)[number];
 
 /** Todo registro guardado tem um `id`, que é a chave dele no armazém. */
 export interface Registro {
@@ -17,7 +25,11 @@ export interface Registro {
 /** O que foi lido do aparelho, ainda sem conferir o formato de cada registro. */
 export type Conteudo = Readonly<Record<NomeDoArmazem, readonly unknown[]>>;
 
-export type Registros = Readonly<Record<NomeDoArmazem, readonly Registro[]>>;
+/** O que vai e volta no arquivo de cópia. */
+export type ConteudoDaCopia = Readonly<Record<NomeDaCopia, readonly unknown[]>>;
+
+/** Registros que a importação grava no lugar dos que estavam no aparelho. */
+export type Registros = Readonly<Record<NomeDaCopia, readonly Registro[]>>;
 
 export interface AlteracoesDoArmazem {
   readonly gravar?: readonly Registro[];
@@ -43,6 +55,6 @@ export interface Banco {
   readonly persistente: boolean;
   lerTudo(): Promise<Resultado<Conteudo, ErroDoBanco>>;
   aplicar(alteracoes: Alteracoes): Promise<Resultado<void, ErroDoBanco>>;
-  /** Troca tudo o que está guardado pelo conteúdo recebido (importação). */
+  /** Troca o que vai na cópia pelo conteúdo recebido (importação); os ajustes ficam. */
   substituirTudo(registros: Registros): Promise<Resultado<void, ErroDoBanco>>;
 }

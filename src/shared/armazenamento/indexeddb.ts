@@ -1,6 +1,7 @@
 import { falha, sucesso, type Resultado } from "../resultado";
 import {
   armazens,
+  armazensDaCopia,
   type Alteracoes,
   type Banco,
   type Conteudo,
@@ -82,11 +83,15 @@ export async function abrirIndexedDb(
     persistente: true,
     lerTudo() {
       return transacao<Conteudo>("readonly", (aberta) => {
-        const pedidos = armazens.map((armazem) => aberta.objectStore(armazem).getAll());
+        const pedidos = armazens.map(
+          (armazem) => [armazem, aberta.objectStore(armazem).getAll()] as const,
+        );
         return () => {
-          const lido = (armazem: NomeDoArmazem) =>
-            (pedidos[armazens.indexOf(armazem)]?.result ?? []) as unknown[];
-          return { listas: lido("listas"), itens: lido("itens") };
+          const conteudo = {} as Record<NomeDoArmazem, readonly unknown[]>;
+          for (const [armazem, pedido] of pedidos) {
+            conteudo[armazem] = (pedido.result ?? []) as unknown[];
+          }
+          return conteudo;
         };
       });
     },
@@ -103,7 +108,7 @@ export async function abrirIndexedDb(
     },
     async substituirTudo(registros: Registros) {
       const substituido = await transacao<void>("readwrite", (aberta) => {
-        for (const nome of armazens) {
+        for (const nome of armazensDaCopia) {
           const armazem = aberta.objectStore(nome);
           armazem.clear();
           for (const registro of registros[nome]) armazem.put(registro);
