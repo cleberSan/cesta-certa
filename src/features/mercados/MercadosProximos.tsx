@@ -3,6 +3,7 @@ import type { ErroDoBanco } from "../../shared/armazenamento/banco";
 import { mensagemDoBanco } from "../../shared/armazenamento/textos";
 import { recarregarAoVoltar } from "../../shared/recarregarAoVoltar";
 import type { Resultado } from "../../shared/resultado";
+import type { AcessoAoAssistente } from "../assistente/acesso";
 import type { DadosDaComparacao } from "../comparar/Comparacao";
 import type { Objetivo } from "../comparar/objetivo";
 import { itensDaLista, listasRecentes } from "../lista/lista";
@@ -13,6 +14,7 @@ import {
   apagarMercado,
   esquecerPonto,
   guardarMercado,
+  guardarAcesso,
   guardarObjetivo,
   guardarPonto,
   guardarRaio,
@@ -83,6 +85,7 @@ function Painel({ aparelho }: { aparelho: Aparelho }) {
   const [proprios, setProprios] = useState<readonly MercadoProprio[]>(aparelho.proprios);
   const [aviso, setAviso] = useState<string | null>(null);
   const [objetivo, setObjetivo] = useState<Objetivo>(aparelho.objetivo);
+  const [acesso, setAcesso] = useState<AcessoAoAssistente>(aparelho.assistente);
   const listas = useMemo(() => listasRecentes(aparelho.lista), [aparelho.lista]);
   const [listaId, setListaId] = useState<string | null>(listas[0]?.id ?? null);
   const itens = useMemo(
@@ -124,6 +127,14 @@ function Painel({ aparelho }: { aparelho: Aparelho }) {
     onObjetivo: (novo) => {
       setObjetivo(novo);
       void guardarObjetivo(banco, novo).then(avisarSeFalhou);
+    },
+    assistente: {
+      acesso,
+      modo: "servidor",
+      onAcesso: (novo) => {
+        setAcesso(novo);
+        void guardarAcesso(banco, novo).then(avisarSeFalhou);
+      },
     },
   };
   const excluir = (id: string) => {
