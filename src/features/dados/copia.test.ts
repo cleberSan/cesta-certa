@@ -77,6 +77,7 @@ const guardado: Registros = {
   itens: [arroz, feijao, cafe],
   mercadosProprios: [mercadinho],
   observacoesDePreco: [precoDoArroz],
+  associacoes: [],
 };
 
 /** O texto de um arquivo de cópia, com os dados trocados pelo teste. */
@@ -85,16 +86,18 @@ function arquivo(dados: {
   itens: readonly unknown[];
   mercadosProprios?: readonly unknown[];
   observacoesDePreco?: readonly unknown[];
+  associacoes?: readonly unknown[];
 }): string {
   return JSON.stringify({
     app: "cesta-certa",
-    versao: 3,
+    versao: 4,
     exportadoEm: "2026-11-11T15:30:00.000Z",
     dados: {
       listas: dados.listas,
       itens: dados.itens,
       mercadosProprios: dados.mercadosProprios ?? [],
       observacoesDePreco: dados.observacoesDePreco ?? [],
+      associacoes: dados.associacoes ?? [],
     },
   });
 }
@@ -113,6 +116,7 @@ async function conteudo(banco: Banco) {
         itens: lido.valor.itens,
         mercadosProprios: lido.valor.mercadosProprios,
         observacoesDePreco: lido.valor.observacoesDePreco,
+        associacoes: lido.valor.associacoes,
       }
     : null;
 }
@@ -126,7 +130,7 @@ describe("exportar", () => {
 
     expect(copia.ok && JSON.parse(copia.valor.texto)).toEqual({
       app: "cesta-certa",
-      versao: 3,
+      versao: 4,
       exportadoEm: "2026-11-11T15:30:00.000Z",
       dados: guardado,
     });
@@ -145,6 +149,7 @@ describe("exportar", () => {
       "itens",
       "mercadosProprios",
       "observacoesDePreco",
+      "associacoes",
     ]);
     expect(copia.ok && copia.valor.texto).not.toContain("-23.5505");
   });
@@ -163,6 +168,7 @@ describe("exportar", () => {
       itens: [],
       mercadosProprios: [],
       observacoesDePreco: [],
+      associacoes: [],
     });
     expect(copia.ok && copia.valor.resumo).toEqual({ listas: 0, itens: 0, mercados: 0, precos: 0 });
   });
@@ -178,6 +184,7 @@ describe("exportar", () => {
       itens: [arroz],
       mercadosProprios: [],
       observacoesDePreco: [],
+      associacoes: [],
     });
     expect(copia.ok && copia.valor.recusados).toBe(1);
   });
@@ -282,6 +289,7 @@ describe("importar o que foi exportado", () => {
       itens: [],
       mercadosProprios: [],
       observacoesDePreco: [],
+      associacoes: [],
     });
   });
 
@@ -303,8 +311,8 @@ describe("conferirArquivo: arquivo recusado", () => {
     ["de outro app", JSON.stringify({ app: "outro" }), { tipo: "arquivo.outro-formato" }],
     [
       "de versão mais nova",
-      arquivo(guardado).replace('"versao":3', '"versao":4'),
-      { tipo: "arquivo.versao-desconhecida", versao: 4 },
+      arquivo(guardado).replace('"versao":4', '"versao":5'),
+      { tipo: "arquivo.versao-desconhecida", versao: 5 },
     ],
     ["maior que 5 MB", " ".repeat(limiteDoArquivo + 1), { tipo: "arquivo.grande-demais" }],
   ] as const)("recusa o arquivo %s e diz o motivo", (_caso, texto, erro) => {
@@ -356,12 +364,22 @@ describe("conferirArquivo: arquivo recusado", () => {
     ],
     [
       "preço com valor negativo",
-      { listas: [], itens: [], observacoesDePreco: [{ ...precoDoArroz, precoCentavos: -1 }] },
+      {
+        listas: [],
+        itens: [],
+        observacoesDePreco: [{ ...precoDoArroz, precoCentavos: -1 }],
+        associacoes: [],
+      },
       1,
     ],
     [
       "preço de fonte desconhecida",
-      { listas: [], itens: [], observacoesDePreco: [{ ...precoDoArroz, fonte: "encarte" }] },
+      {
+        listas: [],
+        itens: [],
+        observacoesDePreco: [{ ...precoDoArroz, fonte: "encarte" }],
+        associacoes: [],
+      },
       1,
     ],
   ])("recusa o arquivo inteiro quando tem %s", (_caso, dados, quantos) => {
@@ -425,6 +443,7 @@ describe("conferirArquivo: o que entra no aparelho", () => {
       itens: [arroz],
       mercadosProprios: [],
       observacoesDePreco: [],
+      associacoes: [],
     });
     expect(Object.keys((await conteudo(destino))?.listas[0] ?? {})).toEqual(Object.keys(novembro));
     expect(({} as Record<string, unknown>)["poluido"]).toBeUndefined();
@@ -461,6 +480,7 @@ describe("importar: falha ao gravar", () => {
         itens: [cafe],
         mercadosProprios: [mercadinho],
         observacoesDePreco: [precoDoArroz],
+        associacoes: [],
       };
       const destino = bancoQueFalha("substituirTudo", motivo, antigo);
       const conferido = conferirArquivo(arquivo({ listas: [novembro], itens: [arroz] }));
@@ -541,6 +561,7 @@ describe("mercados cadastrados na cópia", () => {
       itens: [arroz],
       mercadosProprios: [],
       observacoesDePreco: [],
+      associacoes: [],
     });
   });
 
@@ -592,6 +613,7 @@ describe("preços na cópia", () => {
   it("deixa de fora o preço guardado fora do formato e conta como recusado", async () => {
     const banco = criarBancoEmMemoria({
       observacoesDePreco: [precoDoArroz, { ...precoDoArroz, id: id(301), vistoEm: "ontem" }],
+      associacoes: [],
     });
 
     const copia = await exportar(banco, agora, fuso);

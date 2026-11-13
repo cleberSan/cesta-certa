@@ -48,9 +48,15 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <h2>Leitura da nota fiscal</h2>
   <ul>
     <li>
-      Quando você cola o link do QR Code de uma nota, ele é enviado ao servidor do Cesta Certa, que
-      busca a página pública da nota na Secretaria da Fazenda de São Paulo e devolve o mercado, a
-      data e os itens com preço.
+      A câmera só liga quando você toca em "Ler o QR Code com a câmera" e desliga assim que o QR
+      Code é lido, quando você fecha a câmera ou sai da página. A imagem é lida no próprio aparelho
+      e não é gravada nem enviada: só o link do QR Code segue para a consulta, e só quando parece o
+      de uma nota. Outros QR Codes (de Wi-Fi ou Pix, por exemplo) não saem do aparelho.
+    </li>
+    <li>
+      Quando você lê o QR Code ou cola o link de uma nota, ele é enviado ao servidor do Cesta Certa,
+      que busca a página pública da nota na Secretaria da Fazenda de São Paulo e devolve o mercado,
+      a data e os itens com preço.
     </li>
     <li>
       O CPF e o nome do consumidor, quando aparecem na nota, não entram na resposta e não são
@@ -65,7 +71,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       Para barrar abuso, o servidor aceita até 10 consultas por minuto de cada endereço IP. Quem
       conta é a própria Cloudflare; o Cesta Certa não guarda o IP nem o registra em log.
     </li>
-    <li>O resultado aparece na sua tela e some quando você sai da página.</li>
+    <li>
+      O resultado aparece na sua tela. Se você guardar os preços, eles e as suas escolhas (qual
+      mercado é a loja da nota, pelo CNPJ dela, e a que item da lista corresponde cada produto)
+      ficam só no aparelho e entram na cópia gerada em Seus dados. Para reconhecer a mesma nota numa
+      segunda leitura, o app guarda um resumo embaralhado da chave de acesso, nunca o link.
+    </li>
   </ul>
 
   <h2>Mercados perto de você</h2>
@@ -118,9 +129,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
   <h2>O que ainda vai chegar</h2>
   <ul>
-    <li>
-      <strong>Preços:</strong> ficarão guardados só no seu aparelho, junto com a lista.
-    </li>
     <li>
       <strong>Assistente:</strong> só enviará a sua pergunta com o seu aceite, e isso estará
       descrito aqui antes de ser ligado.

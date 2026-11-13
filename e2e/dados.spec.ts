@@ -112,13 +112,14 @@ test.describe("exportar", () => {
     const noAparelho = await guardado(page);
     expect(lido).toEqual({
       app: "cesta-certa",
-      versao: 3,
+      versao: 4,
       exportadoEm: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
       dados: {
         listas: noAparelho.listas,
         itens: noAparelho.itens,
         mercadosProprios: [],
         observacoesDePreco: [],
+        associacoes: [],
       },
     });
     expect(noAparelho.itens).toHaveLength(2);
@@ -151,6 +152,7 @@ test.describe("exportar", () => {
       itens: [],
       mercadosProprios: [],
       observacoesDePreco: [],
+      associacoes: [],
     });
     expect((await guardado(page)).listas).toEqual([]);
   });
@@ -279,9 +281,9 @@ test.describe("arquivo recusado", () => {
     },
     {
       caso: "de uma versão mais nova do formato",
-      conteudo: copia({ versao: 4 }),
+      conteudo: copia({ versao: 5 }),
       mensagem:
-        "O arquivo é da versão 4 do formato, e este app lê até a versão 3. Recarregue a página para atualizar o app e tente de novo. Nada foi alterado.",
+        "O arquivo é da versão 5 do formato, e este app lê até a versão 4. Recarregue a página para atualizar o app e tente de novo. Nada foi alterado.",
     },
     {
       caso: "com um registro fora do formato",

@@ -4,16 +4,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout
-  title="Testar a leitura da nota fiscal"
-  description="Cole o link do QR Code de uma nota fiscal de consumidor (NFC-e) de São Paulo e veja o mercado, a data e os itens com preço."
+  title="Ler a nota fiscal de uma compra"
+  description="Leia com a câmera o QR Code de uma nota fiscal de consumidor (NFC-e) de São Paulo, ou cole o link, e guarde os preços da compra neste aparelho."
 >
-  <p>
-    <span class="etiqueta">Teste</span>
-  </p>
-  <h1>Testar a leitura da nota fiscal</h1>
+  <h1>Ler a nota fiscal de uma compra</h1>
   <p class="chamada">
-    Cole o link do QR Code de um cupom fiscal (NFC-e) emitido em São Paulo. O Cesta Certa consulta a
-    página pública da Secretaria da Fazenda e mostra o mercado, a data e os itens com preço.
+    Leia o QR Code do cupom fiscal (NFC-e) emitido em São Paulo com a câmera, ou cole o link dele. O
+    Cesta Certa consulta a página pública da Secretaria da Fazenda, mostra o mercado, a data e os
+    itens, e você escolhe o item da sua lista que corresponde a cada produto.
   </p>
 
   <ConsultaNota client:load />
@@ -21,7 +19,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <p class="cartao">Esta página precisa de JavaScript para consultar a nota.</p>
   </noscript>
 
-  <h2>Como pegar o link</h2>
+  <h2>Sem câmera? Cole o link</h2>
   <ol>
     <li>Aponte a câmera do celular para o QR Code do cupom.</li>
     <li>
@@ -33,6 +31,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <h2>O que acontece com a nota</h2>
   <ul>
     <li>
+      A imagem da câmera fica no aparelho: só o link lido do QR Code segue para a consulta, e só
+      quando parece o de uma nota.
+    </li>
+    <li>
       O link vai ao servidor do Cesta Certa só para buscar a página da nota. Ele não é guardado nem
       registrado em log.
     </li>
@@ -41,8 +43,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       mercado, a data e os itens.
     </li>
     <li>
+      Os preços e as suas escolhas (qual mercado é a loja da nota e a que item da lista corresponde
+      cada produto) ficam só neste aparelho. Para reconhecer a mesma nota depois, o app guarda um
+      resumo da chave de acesso, nunca o link.
+    </li>
+    <li>
       Só os endereços oficiais da consulta de NFC-e de São Paulo são aceitos. Notas de outros
-      estados ainda não têm leitor.
+      estados ainda não têm leitor: os preços delas podem ser digitados em{" "}
+      <a href="/precos">Preços</a>.
     </li>
   </ul>
   <p>

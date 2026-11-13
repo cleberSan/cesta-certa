@@ -11,8 +11,11 @@ import { armazensDaCopia, type ConteudoDaCopia, type NomeDaCopia, type Registros
  * anteriores continua: o que elas não têm entra vazio.
  */
 export const identificacaoDoArquivo = "cesta-certa";
-/** 1: listas e itens (T05). 2: mais os mercados cadastrados (T08). 3: mais os preços (T12). */
-export const versaoDoArquivo = 3;
+/**
+ * 1: listas e itens (T05). 2: mais os mercados cadastrados (T08). 3: mais os preços (T12).
+ * 4: mais as associações das notas fiscais (T11).
+ */
+export const versaoDoArquivo = 4;
 
 /** 5 MB: vale para o arquivo que entra e para a cópia que sai, que precisa poder voltar. */
 export const limiteDoArquivo = 5 * 1024 * 1024;
@@ -83,11 +86,13 @@ export function lerArquivo(texto: string): Resultado<ArquivoLido, ErroDoArquivo>
   // a lista é exigida.
   const mercadosProprios = versao >= 2 ? lido("mercadosProprios") : [];
   const observacoesDePreco = versao >= 3 ? lido("observacoesDePreco") : [];
+  const associacoes = versao >= 4 ? lido("associacoes") : [];
   if (
     listas === null ||
     itens === null ||
     mercadosProprios === null ||
-    observacoesDePreco === null
+    observacoesDePreco === null ||
+    associacoes === null
   ) {
     return falha({ tipo: "arquivo.outro-formato" });
   }
@@ -95,7 +100,7 @@ export function lerArquivo(texto: string): Resultado<ArquivoLido, ErroDoArquivo>
   return sucesso({
     versao,
     exportadoEm,
-    conteudo: { listas, itens, mercadosProprios, observacoesDePreco },
+    conteudo: { listas, itens, mercadosProprios, observacoesDePreco, associacoes },
   });
 }
 

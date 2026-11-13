@@ -102,6 +102,7 @@ describe("abrirSessao", () => {
         ajustes: [],
         mercadosProprios: [],
         observacoesDePreco: [],
+        associacoes: [],
       },
     });
   });

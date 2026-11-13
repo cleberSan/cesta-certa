@@ -3,6 +3,7 @@ import type { Banco, ConteudoDaCopia, ErroDoBanco } from "../../shared/armazenam
 import { falha, sucesso, type Resultado } from "../../shared/resultado";
 import { conferirEstado, type Estado } from "../lista/lista";
 import { conferirMercadosProprios, type MercadoProprio } from "../mercados/proprios";
+import { conferirAssociacoes, type Associacao } from "../precos/nfce/associacoes";
 import { conferirObservacoes, type ObservacaoDePreco } from "../precos/precos";
 
 /**
@@ -38,6 +39,8 @@ export interface Resumo {
 export interface Dados extends Estado {
   readonly mercadosProprios: readonly MercadoProprio[];
   readonly observacoesDePreco: readonly ObservacaoDePreco[];
+  /** Mercado e produtos de cada nota ligados aos do app (CA-14); não entram no resumo. */
+  readonly associacoes: readonly Associacao[];
 }
 
 export interface Aparelho {
@@ -75,13 +78,15 @@ function conferirDados(conteudo: ConteudoDaCopia): {
   const lista = conferirEstado(conteudo);
   const mercados = conferirMercadosProprios(conteudo.mercadosProprios);
   const precos = conferirObservacoes(conteudo.observacoesDePreco);
+  const associacoes = conferirAssociacoes(conteudo.associacoes);
   return {
     dados: {
       ...lista.estado,
       mercadosProprios: mercados.mercados,
       observacoesDePreco: precos.observacoes,
+      associacoes: associacoes.associacoes,
     },
-    recusados: lista.recusados + mercados.recusados + precos.recusados,
+    recusados: lista.recusados + mercados.recusados + precos.recusados + associacoes.recusados,
   };
 }
 

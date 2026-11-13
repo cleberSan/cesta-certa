@@ -24,6 +24,7 @@ function arquivo(campos: Record<string, unknown> = {}): string {
       itens: [item],
       mercadosProprios: [mercado],
       observacoesDePreco: [preco],
+      associacoes: [],
     },
     ...campos,
   });
@@ -39,26 +40,33 @@ function arquivoComTamanho(bytes: number): string {
 describe("montarArquivo", () => {
   it("gera um JSON com a identificação do app, a versão do formato, a data e os dados", () => {
     const texto = montarArquivo(
-      { listas: [lista], itens: [item], mercadosProprios: [mercado], observacoesDePreco: [preco] },
+      {
+        listas: [lista],
+        itens: [item],
+        mercadosProprios: [mercado],
+        observacoesDePreco: [preco],
+        associacoes: [],
+      },
       agora,
     );
 
     expect(texto.ok && JSON.parse(texto.valor)).toEqual({
       app: "cesta-certa",
-      versao: 3,
+      versao: 4,
       exportadoEm: "2026-11-11T15:30:00.000Z",
       dados: {
         listas: [lista],
         itens: [item],
         mercadosProprios: [mercado],
         observacoesDePreco: [preco],
+        associacoes: [],
       },
     });
   });
 
   it("gera o arquivo mesmo sem nenhum registro", () => {
     const texto = montarArquivo(
-      { listas: [], itens: [], mercadosProprios: [], observacoesDePreco: [] },
+      { listas: [], itens: [], mercadosProprios: [], observacoesDePreco: [], associacoes: [] },
       agora,
     );
 
@@ -67,6 +75,7 @@ describe("montarArquivo", () => {
       itens: [],
       mercadosProprios: [],
       observacoesDePreco: [],
+      associacoes: [],
     });
   });
 
@@ -75,7 +84,13 @@ describe("montarArquivo", () => {
 
     expect(
       montarArquivo(
-        { listas: [enorme], itens: [], mercadosProprios: [], observacoesDePreco: [] },
+        {
+          listas: [enorme],
+          itens: [],
+          mercadosProprios: [],
+          observacoesDePreco: [],
+          associacoes: [],
+        },
         agora,
       ),
     ).toEqual({
@@ -86,20 +101,27 @@ describe("montarArquivo", () => {
 
   it("o arquivo que ele gera é lido de volta com o mesmo conteúdo", () => {
     const texto = montarArquivo(
-      { listas: [lista], itens: [item], mercadosProprios: [mercado], observacoesDePreco: [preco] },
+      {
+        listas: [lista],
+        itens: [item],
+        mercadosProprios: [mercado],
+        observacoesDePreco: [preco],
+        associacoes: [],
+      },
       agora,
     );
 
     expect(texto.ok && lerArquivo(texto.valor)).toEqual({
       ok: true,
       valor: {
-        versao: 3,
+        versao: 4,
         exportadoEm: "2026-11-11T15:30:00.000Z",
         conteudo: {
           listas: [lista],
           itens: [item],
           mercadosProprios: [mercado],
           observacoesDePreco: [preco],
+          associacoes: [],
         },
       },
     });
@@ -182,12 +204,49 @@ describe("lerArquivo: JSON que não é uma cópia do app", () => {
     ["versão 2 sem os mercados próprios", arquivo({ versao: 2, dados: { listas: [], itens: [] } })],
     [
       "mercados próprios que não são lista",
-      arquivo({ dados: { listas: [], itens: [], mercadosProprios: {}, observacoesDePreco: [] } }),
+      arquivo({
+        dados: {
+          listas: [],
+          itens: [],
+          mercadosProprios: {},
+          observacoesDePreco: [],
+          associacoes: [],
+        },
+      }),
     ],
-    ["versão 3 sem os preços", arquivo({ dados: { listas: [], itens: [], mercadosProprios: [] } })],
+    [
+      "versão 3 sem os preços",
+      arquivo({ versao: 3, dados: { listas: [], itens: [], mercadosProprios: [] } }),
+    ],
     [
       "preços que não são lista",
-      arquivo({ dados: { listas: [], itens: [], mercadosProprios: [], observacoesDePreco: 7 } }),
+      arquivo({
+        dados: {
+          listas: [],
+          itens: [],
+          mercadosProprios: [],
+          observacoesDePreco: 7,
+          associacoes: [],
+        },
+      }),
+    ],
+    [
+      "versão 4 sem as associações das notas",
+      arquivo({
+        dados: { listas: [], itens: [], mercadosProprios: [], observacoesDePreco: [] },
+      }),
+    ],
+    [
+      "associações que não são lista",
+      arquivo({
+        dados: {
+          listas: [],
+          itens: [],
+          mercadosProprios: [],
+          observacoesDePreco: [],
+          associacoes: "nenhuma",
+        },
+      }),
     ],
   ])("recusa %s", (_caso, texto) => {
     expect(lerArquivo(texto)).toEqual({ ok: false, erro: { tipo: "arquivo.outro-formato" } });
@@ -207,7 +266,7 @@ describe("lerArquivo: JSON que não é uma cópia do app", () => {
 
 // spec 0001 CA-04
 describe("lerArquivo: versão do formato", () => {
-  it.each([4, 5, 99])("recusa a versão %i, mais nova que a deste app, dizendo qual é", (versao) => {
+  it.each([5, 6, 99])("recusa a versão %i, mais nova que a deste app, dizendo qual é", (versao) => {
     expect(lerArquivo(arquivo({ versao }))).toEqual({
       ok: false,
       erro: { tipo: "arquivo.versao-desconhecida", versao },
@@ -215,9 +274,9 @@ describe("lerArquivo: versão do formato", () => {
   });
 
   it("olha a versão antes dos dados: uma cópia mais nova pode ter outro formato", () => {
-    expect(lerArquivo(arquivo({ versao: 4, dados: "formato novo" }))).toEqual({
+    expect(lerArquivo(arquivo({ versao: 5, dados: "formato novo" }))).toEqual({
       ok: false,
-      erro: { tipo: "arquivo.versao-desconhecida", versao: 4 },
+      erro: { tipo: "arquivo.versao-desconhecida", versao: 5 },
     });
   });
 });
@@ -232,6 +291,7 @@ describe("lerArquivo: campos a mais", () => {
         itens: [item],
         mercadosProprios: [],
         observacoesDePreco: [],
+        associacoes: [],
         segredos: [{ id: "x" }],
       },
     });
@@ -243,6 +303,7 @@ describe("lerArquivo: campos a mais", () => {
       itens: [item],
       mercadosProprios: [],
       observacoesDePreco: [],
+      associacoes: [],
     });
     expect(lido.ok && Object.keys(lido.valor)).toEqual(["versao", "exportadoEm", "conteudo"]);
   });
@@ -254,6 +315,7 @@ describe("lerArquivo: campos a mais", () => {
         itens: [{}],
         mercadosProprios: [false],
         observacoesDePreco: [""],
+        associacoes: [],
       },
     });
 
@@ -264,6 +326,7 @@ describe("lerArquivo: campos a mais", () => {
       itens: [{}],
       mercadosProprios: [false],
       observacoesDePreco: [""],
+      associacoes: [],
     });
   });
 });
@@ -278,7 +341,13 @@ describe("lerArquivo: versões anteriores", () => {
       valor: {
         versao: 1,
         exportadoEm: "2026-11-11T15:30:00.000Z",
-        conteudo: { listas: [lista], itens: [item], mercadosProprios: [], observacoesDePreco: [] },
+        conteudo: {
+          listas: [lista],
+          itens: [item],
+          mercadosProprios: [],
+          observacoesDePreco: [],
+          associacoes: [],
+        },
       },
     });
   });
@@ -299,6 +368,7 @@ describe("lerArquivo: versões anteriores", () => {
         itens: [item],
         mercadosProprios: [mercado],
         observacoesDePreco: [1],
+        associacoes: [],
       },
     });
 
@@ -312,6 +382,35 @@ describe("lerArquivo: versões anteriores", () => {
           itens: [item],
           mercadosProprios: [mercado],
           observacoesDePreco: [],
+          associacoes: [],
+        },
+      },
+    });
+  });
+
+  it("lê a cópia da versão 3, de antes das associações das notas, com elas vazias", () => {
+    const texto = arquivo({
+      versao: 3,
+      dados: {
+        listas: [lista],
+        itens: [item],
+        mercadosProprios: [mercado],
+        observacoesDePreco: [preco],
+        associacoes: [1],
+      },
+    });
+
+    expect(lerArquivo(texto)).toEqual({
+      ok: true,
+      valor: {
+        versao: 3,
+        exportadoEm: "2026-11-11T15:30:00.000Z",
+        conteudo: {
+          listas: [lista],
+          itens: [item],
+          mercadosProprios: [mercado],
+          observacoesDePreco: [preco],
+          associacoes: [],
         },
       },
     });

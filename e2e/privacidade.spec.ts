@@ -73,6 +73,7 @@ test.describe("privacidade da localização", () => {
       "itens",
       "mercadosProprios",
       "observacoesDePreco",
+      "associacoes",
     ]);
     expect(dados["mercadosProprios"]).toEqual([]);
     expect(texto).not.toMatch(coordenada);

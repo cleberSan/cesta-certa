@@ -72,10 +72,10 @@ describe("mensagemDaImportacao", () => {
   });
 
   it("diz a versão do arquivo e a que o app lê", () => {
-    const mensagem = mensagemDaImportacao({ tipo: "arquivo.versao-desconhecida", versao: 4 });
+    const mensagem = mensagemDaImportacao({ tipo: "arquivo.versao-desconhecida", versao: 5 });
 
-    expect(mensagem).toContain("versão 4 do formato");
-    expect(mensagem).toContain("lê até a versão 3");
+    expect(mensagem).toContain("versão 5 do formato");
+    expect(mensagem).toContain("lê até a versão 4");
   });
 
   it.each([

@@ -148,7 +148,8 @@ function lerAtacado(texto: string): Resultado<number | null, ErroDoPreco> {
     : falha({ tipo: "atacado-invalido" });
 }
 
-function lerMercado(mercado: MercadoDoPreco | null): MercadoDoPreco | null {
+/** Mercado escolhido com id válido e nome limpo, cortado no tamanho guardado; senão, nulo. */
+export function conferirMercado(mercado: MercadoDoPreco | null): MercadoDoPreco | null {
   if (mercado === null || !ehIdDeMercado(mercado.id)) return null;
   const nome = limparTexto(mercado.nome);
   return nome === "" ? null : { id: mercado.id, nome: nome.slice(0, limitesDoPreco.mercado) };
@@ -168,7 +169,7 @@ export function registrarPrecoDigitado(
   if (!tamanho.ok) return falha({ tipo: "tamanho-longo" });
   const preco = lerReais(entrada.preco);
   if (preco === null) return falha({ tipo: "preco-invalido" });
-  const mercado = lerMercado(entrada.mercado);
+  const mercado = conferirMercado(entrada.mercado);
   if (mercado === null) return falha({ tipo: "mercado-vazio" });
   const atacado = lerAtacado(entrada.minimoAtacado);
   if (!atacado.ok) return atacado;

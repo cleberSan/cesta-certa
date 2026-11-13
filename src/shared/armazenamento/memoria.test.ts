@@ -11,7 +11,14 @@ describe("banco em memória", () => {
     expect(banco.persistente).toBe(false);
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [], itens: [], ajustes: [], mercadosProprios: [], observacoesDePreco: [] },
+      valor: {
+        listas: [],
+        itens: [],
+        ajustes: [],
+        mercadosProprios: [],
+        observacoesDePreco: [],
+        associacoes: [],
+      },
     });
   });
 
@@ -25,6 +32,7 @@ describe("banco em memória", () => {
         ajustes: [],
         mercadosProprios: [],
         observacoesDePreco: [],
+        associacoes: [],
       },
     });
   });
@@ -44,6 +52,7 @@ describe("banco em memória", () => {
         ajustes: [],
         mercadosProprios: [],
         observacoesDePreco: [],
+        associacoes: [],
       },
     });
   });
@@ -60,6 +69,7 @@ describe("banco em memória", () => {
         ajustes: [],
         mercadosProprios: [],
         observacoesDePreco: [],
+        associacoes: [],
       },
     });
   });
@@ -78,6 +88,7 @@ describe("banco em memória", () => {
       itens: [],
       mercadosProprios: [],
       observacoesDePreco: [],
+      associacoes: [],
     });
 
     expect(await banco.lerTudo()).toEqual({
@@ -88,6 +99,7 @@ describe("banco em memória", () => {
         ajustes: [ponto],
         mercadosProprios: [],
         observacoesDePreco: [],
+        associacoes: [],
       },
     });
   });

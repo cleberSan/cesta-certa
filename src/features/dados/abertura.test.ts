@@ -45,7 +45,14 @@ describe("abrirDados", () => {
     });
     expect(await banco.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: [], itens: [], ajustes: [], mercadosProprios: [], observacoesDePreco: [] },
+      valor: {
+        listas: [],
+        itens: [],
+        ajustes: [],
+        mercadosProprios: [],
+        observacoesDePreco: [],
+        associacoes: [],
+      },
     });
   });
 
