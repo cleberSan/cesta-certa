@@ -1,6 +1,7 @@
 export const routes = [
   "/",
   "/dados",
+  "/demonstracao",
   "/lista",
   "/mercados",
   "/nota",
@@ -15,7 +16,7 @@ export const noindexRoutes = ["/dados", "/lista", "/mercados", "/nota", "/precos
 export const indexableRoutes = routes.filter((route) => !noindexRoutes.includes(route));
 
 /** Únicas páginas com JavaScript: as que têm ilha React (ADR-0001). */
-export const islandRoutes = ["/dados", "/lista", "/mercados", "/nota", "/precos"];
+export const islandRoutes = ["/dados", "/demonstracao", "/lista", "/mercados", "/nota", "/precos"];
 
 export const consultaRoute = "/api/nfce/consultar";
 

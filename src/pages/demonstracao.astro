@@ -1,0 +1,49 @@
+---
+import Demonstracao from "../features/demo/Demonstracao";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Demonstração"
+  description="Veja como o Cesta Certa compara a compra do mês entre mercados, com um bairro, mercados e preços fictícios."
+  aplicativo
+>
+  <p>
+    <span class="etiqueta">Demonstração</span>
+  </p>
+  <h1>Como o Cesta Certa compara a compra</h1>
+  <p class="chamada">
+    Uma compra do mês de exemplo num bairro que não existe, para ver o ranking, o que comprar em
+    cada mercado e o assistente antes de registrar os seus preços.
+  </p>
+  <div class="alerta" role="note">
+    <p>
+      <strong>Tudo nesta página é fictício:</strong> o bairro, os mercados, as marcas e os preços.
+      Os nomes foram inventados e não são de nenhuma rede ou loja real.
+    </p>
+    <p>
+      Nada daqui entra nos seus dados, e o que você muda aqui some ao sair. O assistente responde
+      com respostas gravadas, sem enviar nada.
+    </p>
+  </div>
+
+  <Demonstracao client:load />
+  <noscript>
+    <p class="cartao">Esta página precisa de JavaScript para fazer a comparação no aparelho.</p>
+  </noscript>
+
+  <h2>Para usar com a sua compra</h2>
+  <ol class="passos">
+    <li>
+      <a href="/lista">Monte a lista do mês</a>.
+    </li>
+    <li>
+      <a href="/nota">Leia a nota fiscal</a> de uma compra ou{" "}
+      <a href="/precos#digitar">digite os preços</a> que viu no mercado.
+    </li>
+    <li>
+      <a href="/mercados">Escolha um ponto</a> e veja onde a sua lista sai mais barata, com a rota
+      até lá.
+    </li>
+  </ol>
+</BaseLayout>

@@ -143,7 +143,9 @@ test.describe("onde comprar a lista", () => {
   });
 
   // spec 0001 CA-40
-  test("sem preço, orienta a ler a nota ou digitar", async ({ page }) => {
+  test("sem preço, mostra os mercados sem total e orienta a ler a nota, digitar ou ver a demonstração", async ({
+    page,
+  }) => {
     await abrirComparacao(page, false);
     const area = comparacao(page);
 
@@ -156,7 +158,15 @@ test.describe("onde comprar a lista", () => {
       "href",
       "/precos#digitar",
     );
+    await expect(area.getByRole("link", { name: "Ver a demonstração" })).toHaveAttribute(
+      "href",
+      "/demonstracao",
+    );
     await expect(area.getByRole("status")).toHaveText("");
+    await expect(
+      page.getByRole("heading", { name: "Atacarejo Modelo", exact: true }),
+    ).toBeVisible();
+    await expect(page.getByText(/Sua lista aqui/)).toHaveCount(0);
   });
 
   for (const colorScheme of ["light", "dark"] as const) {

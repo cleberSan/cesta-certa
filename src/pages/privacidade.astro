@@ -126,6 +126,28 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </li>
   </ul>
 
+  <h2 id="sem-internet">Uso sem internet</h2>
+  <ul>
+    <li>
+      Depois que você abre uma página do aplicativo (lista, mercados, preços, nota fiscal, seus
+      dados ou demonstração), o navegador guarda uma cópia das páginas do site para elas abrirem sem
+      internet. É o recurso do navegador chamado service worker.
+    </li>
+    <li>
+      A cópia tem só arquivos públicos do site e a última versão da base de mercados das regiões que
+      você já baixou. A sua lista, os seus preços e o ponto escolhido continuam no armazenamento do
+      aparelho, como antes; a nota fiscal e as perguntas ao assistente nunca entram na cópia.
+    </li>
+    <li>Limpar os dados do site no navegador apaga a cópia junto com o resto.</li>
+  </ul>
+
+  <h2 id="demonstracao">Demonstração</h2>
+  <p>
+    A demonstração usa um bairro, mercados e preços fictícios, que ficam só na memória da página:
+    ela não lê nem grava os seus dados, e o assistente dela responde com respostas gravadas, sem
+    enviar nada.
+  </p>
+
   <h2>Hospedagem</h2>
   <p>
     O site é servido pela Cloudflare. Como em qualquer site, o provedor recebe o endereço IP e os

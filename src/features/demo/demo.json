@@ -1,0 +1,341 @@
+{
+  "bairro": "Vila Exemplo",
+  "cidade": "Cidade Fictícia",
+  "raioKm": 5,
+  "mercados": [
+    {
+      "id": "demo-mercadinho",
+      "nome": "Mercadinho Exemplo da Praça",
+      "tipo": "bairro",
+      "distanciaKm": 0.6,
+      "rumo": 10
+    },
+    {
+      "id": "demo-sacolao",
+      "nome": "Sacolão Faz de Conta",
+      "tipo": "bairro",
+      "distanciaKm": 1.2,
+      "rumo": 170
+    },
+    {
+      "id": "demo-supermercado",
+      "nome": "Supermercado Fictício Central",
+      "tipo": "supermercado",
+      "distanciaKm": 1.9,
+      "rumo": 85
+    },
+    {
+      "id": "demo-atacarejo",
+      "nome": "Atacarejo Imaginário",
+      "tipo": "atacarejo",
+      "distanciaKm": 4.3,
+      "rumo": 225
+    }
+  ],
+  "lista": {
+    "nome": "Compra do mês de exemplo",
+    "itens": [
+      {
+        "nome": "Arroz",
+        "quantidade": 1,
+        "marca": "Marca A",
+        "tamanho": "5 kg",
+        "preferencia": "marca-boa"
+      },
+      {
+        "nome": "Feijão",
+        "quantidade": 2,
+        "marca": null,
+        "tamanho": "1 kg",
+        "preferencia": "mais-barato"
+      },
+      {
+        "nome": "Café",
+        "quantidade": 2,
+        "marca": null,
+        "tamanho": "500 g",
+        "preferencia": "mais-barato"
+      },
+      {
+        "nome": "Óleo",
+        "quantidade": 3,
+        "marca": null,
+        "tamanho": "900 ml",
+        "preferencia": "mais-barato"
+      },
+      {
+        "nome": "Leite",
+        "quantidade": 12,
+        "marca": null,
+        "tamanho": "1 L",
+        "preferencia": "mais-barato"
+      },
+      {
+        "nome": "Açúcar",
+        "quantidade": 2,
+        "marca": null,
+        "tamanho": "1 kg",
+        "preferencia": "mais-barato"
+      },
+      {
+        "nome": "Macarrão",
+        "quantidade": 3,
+        "marca": null,
+        "tamanho": "500 g",
+        "preferencia": "mais-barato"
+      },
+      {
+        "nome": "Banana",
+        "quantidade": 2,
+        "marca": null,
+        "tamanho": "1 kg",
+        "preferencia": "mais-barato"
+      }
+    ]
+  },
+  "precos": [
+    {
+      "mercado": "demo-mercadinho",
+      "produto": "Arroz",
+      "marca": "Marca A",
+      "tamanho": "5 kg",
+      "centavos": 3290,
+      "atacadoAPartirDe": null,
+      "diasAtras": 3
+    },
+    {
+      "mercado": "demo-mercadinho",
+      "produto": "Feijão",
+      "marca": null,
+      "tamanho": "1 kg",
+      "centavos": 899,
+      "atacadoAPartirDe": null,
+      "diasAtras": 3
+    },
+    {
+      "mercado": "demo-mercadinho",
+      "produto": "Café",
+      "marca": null,
+      "tamanho": "500 g",
+      "centavos": 1590,
+      "atacadoAPartirDe": null,
+      "diasAtras": 40
+    },
+    {
+      "mercado": "demo-mercadinho",
+      "produto": "Óleo",
+      "marca": null,
+      "tamanho": "900 ml",
+      "centavos": 849,
+      "atacadoAPartirDe": null,
+      "diasAtras": 3
+    },
+    {
+      "mercado": "demo-mercadinho",
+      "produto": "Leite",
+      "marca": null,
+      "tamanho": "1 L",
+      "centavos": 549,
+      "atacadoAPartirDe": null,
+      "diasAtras": 3
+    },
+    {
+      "mercado": "demo-mercadinho",
+      "produto": "Açúcar",
+      "marca": null,
+      "tamanho": "1 kg",
+      "centavos": 549,
+      "atacadoAPartirDe": null,
+      "diasAtras": 3
+    },
+    {
+      "mercado": "demo-mercadinho",
+      "produto": "Macarrão",
+      "marca": null,
+      "tamanho": "500 g",
+      "centavos": 499,
+      "atacadoAPartirDe": null,
+      "diasAtras": 3
+    },
+    {
+      "mercado": "demo-mercadinho",
+      "produto": "Banana",
+      "marca": null,
+      "tamanho": "1 kg",
+      "centavos": 799,
+      "atacadoAPartirDe": null,
+      "diasAtras": 1
+    },
+    {
+      "mercado": "demo-sacolao",
+      "produto": "Banana",
+      "marca": null,
+      "tamanho": "1 kg",
+      "centavos": 549,
+      "atacadoAPartirDe": null,
+      "diasAtras": 1
+    },
+    {
+      "mercado": "demo-supermercado",
+      "produto": "Arroz",
+      "marca": "Marca A",
+      "tamanho": "5 kg",
+      "centavos": 2990,
+      "atacadoAPartirDe": null,
+      "diasAtras": 5
+    },
+    {
+      "mercado": "demo-supermercado",
+      "produto": "Arroz",
+      "marca": "Marca B",
+      "tamanho": "5 kg",
+      "centavos": 2390,
+      "atacadoAPartirDe": null,
+      "diasAtras": 5
+    },
+    {
+      "mercado": "demo-supermercado",
+      "produto": "Feijão",
+      "marca": null,
+      "tamanho": "1 kg",
+      "centavos": 849,
+      "atacadoAPartirDe": null,
+      "diasAtras": 5
+    },
+    {
+      "mercado": "demo-supermercado",
+      "produto": "Café",
+      "marca": null,
+      "tamanho": "500 g",
+      "centavos": 1890,
+      "atacadoAPartirDe": null,
+      "diasAtras": 5
+    },
+    {
+      "mercado": "demo-supermercado",
+      "produto": "Óleo",
+      "marca": null,
+      "tamanho": "900 ml",
+      "centavos": 799,
+      "atacadoAPartirDe": null,
+      "diasAtras": 5
+    },
+    {
+      "mercado": "demo-supermercado",
+      "produto": "Leite",
+      "marca": null,
+      "tamanho": "1 L",
+      "centavos": 489,
+      "atacadoAPartirDe": null,
+      "diasAtras": 5
+    },
+    {
+      "mercado": "demo-supermercado",
+      "produto": "Açúcar",
+      "marca": null,
+      "tamanho": "1 kg",
+      "centavos": 469,
+      "atacadoAPartirDe": null,
+      "diasAtras": 5
+    },
+    {
+      "mercado": "demo-supermercado",
+      "produto": "Macarrão",
+      "marca": null,
+      "tamanho": "500 g",
+      "centavos": 429,
+      "atacadoAPartirDe": null,
+      "diasAtras": 5
+    },
+    {
+      "mercado": "demo-supermercado",
+      "produto": "Banana",
+      "marca": null,
+      "tamanho": "1 kg",
+      "centavos": 699,
+      "atacadoAPartirDe": null,
+      "diasAtras": 2
+    },
+    {
+      "mercado": "demo-atacarejo",
+      "produto": "Arroz",
+      "marca": "Marca B",
+      "tamanho": "5 kg",
+      "centavos": 2190,
+      "atacadoAPartirDe": null,
+      "diasAtras": 6
+    },
+    {
+      "mercado": "demo-atacarejo",
+      "produto": "Feijão",
+      "marca": null,
+      "tamanho": "1 kg",
+      "centavos": 749,
+      "atacadoAPartirDe": null,
+      "diasAtras": 6
+    },
+    {
+      "mercado": "demo-atacarejo",
+      "produto": "Café",
+      "marca": null,
+      "tamanho": "500 g",
+      "centavos": 2090,
+      "atacadoAPartirDe": null,
+      "diasAtras": 6
+    },
+    {
+      "mercado": "demo-atacarejo",
+      "produto": "Óleo",
+      "marca": null,
+      "tamanho": "900 ml",
+      "centavos": 749,
+      "atacadoAPartirDe": null,
+      "diasAtras": 6
+    },
+    {
+      "mercado": "demo-atacarejo",
+      "produto": "Óleo",
+      "marca": null,
+      "tamanho": "900 ml",
+      "centavos": 649,
+      "atacadoAPartirDe": 6,
+      "diasAtras": 6
+    },
+    {
+      "mercado": "demo-atacarejo",
+      "produto": "Leite",
+      "marca": null,
+      "tamanho": "1 L",
+      "centavos": 459,
+      "atacadoAPartirDe": null,
+      "diasAtras": 6
+    },
+    {
+      "mercado": "demo-atacarejo",
+      "produto": "Leite",
+      "marca": null,
+      "tamanho": "1 L",
+      "centavos": 399,
+      "atacadoAPartirDe": 12,
+      "diasAtras": 6
+    },
+    {
+      "mercado": "demo-atacarejo",
+      "produto": "Açúcar",
+      "marca": null,
+      "tamanho": "1 kg",
+      "centavos": 419,
+      "atacadoAPartirDe": null,
+      "diasAtras": 6
+    },
+    {
+      "mercado": "demo-atacarejo",
+      "produto": "Macarrão",
+      "marca": null,
+      "tamanho": "500 g",
+      "centavos": 389,
+      "atacadoAPartirDe": null,
+      "diasAtras": 6
+    }
+  ]
+}

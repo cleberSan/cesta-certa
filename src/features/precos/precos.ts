@@ -13,9 +13,17 @@ import { limparTexto } from "../../shared/texto";
 import { ehDataIso, ehObjeto, ehUuid } from "../../shared/validacao";
 import { limites as limitesDaLista } from "../lista/lista";
 
+/** Fontes que o aparelho guarda e que a cópia em arquivo aceita (ADR-0003). */
 export const fontesDePreco = ["nota", "digitado"] as const;
 
-export type FonteDePreco = (typeof fontesDePreco)[number];
+export type FonteGuardada = (typeof fontesDePreco)[number];
+
+/**
+ * A demonstração (CA-38, ADR-0007) marca os preços fictícios com a fonte "demonstracao". Eles
+ * vivem só na memória da página: `lerObservacao` recusa essa fonte, então nada a guarda nem a
+ * importa.
+ */
+export type FonteDePreco = FonteGuardada | "demonstracao";
 
 export const limitesDoPreco = {
   produto: limitesDaLista.nomeDoItem,
@@ -256,7 +264,7 @@ export function lerObservacao(valor: unknown): ObservacaoDePreco | null {
     minimoAtacado,
     mercadoId,
     mercadoNome,
-    fonte: fonte as FonteDePreco,
+    fonte: fonte as FonteGuardada,
     vistoEm,
     nota,
     criadoEm,

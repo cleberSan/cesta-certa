@@ -1,7 +1,9 @@
 // @ts-check
-import { writeFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
+import { readFile, readdir, writeFile } from "node:fs/promises";
 import react from "@astrojs/react";
 import { defineConfig } from "astro/config";
+import { montarListaDoServiceWorker, montarServiceWorker } from "./src/config/offline.ts";
 import { metaCspDirectives, renderHeadersFile } from "./src/config/security.ts";
 import { isIndexable, publicPath, siteUrlFromEnv } from "./src/config/site.ts";
 import { renderRobots, renderSitemap } from "./src/shared/seo.ts";
@@ -39,6 +41,34 @@ function searchEngineFiles() {
   });
 }
 
+/**
+ * Escreve em dist/sw.js a versão e a lista de arquivos que o service worker guarda para abrir
+ * sem internet (spec 0001, CA-36; ADR-0007). A lista sai das páginas geradas; as regras ficam
+ * em src/config/offline.ts.
+ */
+function serviceWorker() {
+  return /** @type {import("astro").AstroIntegration} */ ({
+    name: "cesta-certa:service-worker",
+    hooks: {
+      "astro:build:done": async ({ dir, logger }) => {
+        /** @param {string} arquivo */
+        const ler = (arquivo) => {
+          try {
+            return readFileSync(new URL(arquivo, dir));
+          } catch {
+            return undefined;
+          }
+        };
+        const paginas = (await readdir(dir)).filter((nome) => nome.endsWith(".html"));
+        const lista = montarListaDoServiceWorker(ler, paginas);
+        const destino = new URL("sw.js", dir);
+        await writeFile(destino, montarServiceWorker(await readFile(destino, "utf8"), lista));
+        logger.info(`sw.js gerado com ${lista.enderecos.length} arquivos (versão ${lista.versao})`);
+      },
+    },
+  });
+}
+
 export default defineConfig({
   // Endereço de produção, ou SITE_URL nos testes E2E (src/config/site.ts).
   site: site.origin,
@@ -53,6 +83,6 @@ export default defineConfig({
     },
   },
   // React só nas ilhas (ADR-0001); as demais páginas saem sem JavaScript.
-  integrations: [react(), cloudflareHeaders(), searchEngineFiles()],
+  integrations: [react(), cloudflareHeaders(), searchEngineFiles(), serviceWorker()],
   devToolbar: { enabled: false },
 });

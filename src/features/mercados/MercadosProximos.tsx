@@ -124,6 +124,7 @@ function Painel({ aparelho }: { aparelho: Aparelho }) {
     objetivo,
     hoje,
     onLista: setListaId,
+    demonstracao: false,
     onObjetivo: (novo) => {
       setObjetivo(novo);
       void guardarObjetivo(banco, novo).then(avisarSeFalhou);

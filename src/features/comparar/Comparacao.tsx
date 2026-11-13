@@ -36,8 +36,9 @@ import {
   rotuloDaEconomia,
   rotuloDosMercados,
   rotulosDasMarcas,
-  semItens,
-  semPrecos,
+  semItens as textoSemItens,
+  semPrecos as textoSemPrecos,
+  semRotaNaDemonstracao,
 } from "./textos";
 import "./comparar.css";
 
@@ -54,6 +55,11 @@ export interface DadosDaComparacao {
   readonly onLista: (id: string) => void;
   readonly onObjetivo: (objetivo: Objetivo) => void;
   readonly assistente: DadosDoAssistente;
+  /**
+   * Na demonstração (CA-38), os mercados são fictícios: a tela não oferece rota, que levaria a
+   * um lugar de verdade.
+   */
+  readonly demonstracao: boolean;
 }
 
 /** A conta da comparação para os mercados do raio; nula sem itens ou sem preços. */
@@ -98,9 +104,9 @@ export function Comparacao({
     queueMicrotask(() => botaoDoObjetivo.current?.focus());
   };
 
-  const pendentes = itens.filter((item) => !item.comprado);
-  const situacao =
-    pendentes.length === 0 ? "sem-itens" : observacoes.length === 0 ? "sem-precos" : "pronta";
+  const semItens = itens.every((item) => item.comprado);
+  const semPrecos = observacoes.length === 0;
+  const pronta = !semItens && !semPrecos;
 
   return (
     <section className="comparar" aria-labelledby={`${base}-titulo`}>
@@ -154,9 +160,9 @@ export function Comparacao({
         />
       )}
 
-      {situacao === "sem-itens" && (
+      {semItens && (
         <div className="cartao">
-          <p>{semItens}</p>
+          <p>{textoSemItens}</p>
           <p>
             <a className="botao botao-secundario" href="/lista">
               Abrir a lista
@@ -164,9 +170,9 @@ export function Comparacao({
           </p>
         </div>
       )}
-      {situacao === "sem-precos" && (
+      {semPrecos && (
         <div className="cartao">
-          <p>{semPrecos}</p>
+          <p>{textoSemPrecos}</p>
           <p className="comparar-links">
             <a className="botao botao-secundario" href="/nota">
               Ler uma nota fiscal
@@ -174,16 +180,22 @@ export function Comparacao({
             <a className="botao botao-secundario" href="/precos#digitar">
               Digitar um preço
             </a>
+            <a className="botao botao-secundario" href="/demonstracao">
+              Ver a demonstração
+            </a>
           </p>
         </div>
       )}
       <p role="status" className="comparar-resumo">
-        {situacao === "pronta" && comparacao !== null ? resumoDaComparacao(comparacao) : ""}
+        {pronta && comparacao !== null ? resumoDaComparacao(comparacao) : ""}
       </p>
-      {situacao === "pronta" && comparacao !== null && (
+      {pronta && comparacao !== null && (
         <>
           {comparacao.ajuste !== null && objetivo.tetoCentavos !== null && (
             <AjusteAoTeto ajuste={comparacao.ajuste} tetoCentavos={objetivo.tetoCentavos} />
+          )}
+          {comparacao.opcoes.length > 0 && dados.demonstracao && (
+            <p className="campo-ajuda">{semRotaNaDemonstracao}</p>
           )}
           {comparacao.opcoes.length > 0 && (
             <ol className="comparar-opcoes">
@@ -194,6 +206,7 @@ export function Comparacao({
                   posicao={posicao + 1}
                   objetivo={objetivo}
                   hoje={dados.hoje}
+                  comRota={!dados.demonstracao}
                 />
               ))}
             </ol>
@@ -396,11 +409,13 @@ function OpcaoDeCompra({
   posicao,
   objetivo,
   hoje,
+  comRota,
 }: {
   opcao: Opcao;
   posicao: number;
   objetivo: Objetivo;
   hoje: string;
+  comRota: boolean;
 }) {
   const base = useId();
   const [compras, setCompras] = useState(false);
@@ -432,16 +447,18 @@ function OpcaoDeCompra({
           {compras ? "Fechar a lista" : "O que comprar"}
           <span className="somente-leitor"> em {nome}</span>
         </button>
-        <button
-          type="button"
-          className="botao botao-pequeno"
-          aria-expanded={rota}
-          aria-controls={`${base}-rota`}
-          onClick={() => setRota((atual) => !atual)}
-        >
-          {rota ? "Fechar a rota" : "Ir"}
-          <span className="somente-leitor"> para {nome}</span>
-        </button>
+        {comRota && (
+          <button
+            type="button"
+            className="botao botao-pequeno"
+            aria-expanded={rota}
+            aria-controls={`${base}-rota`}
+            onClick={() => setRota((atual) => !atual)}
+          >
+            {rota ? "Fechar a rota" : "Ir"}
+            <span className="somente-leitor"> para {nome}</span>
+          </button>
+        )}
       </div>
       {compras && (
         <div id={`${base}-compras`} className="comparar-compras">
@@ -466,7 +483,7 @@ function OpcaoDeCompra({
           ))}
         </div>
       )}
-      {rota && (
+      {comRota && rota && (
         <div id={`${base}-rota`}>
           <OpcoesDeRota
             paradas={opcao.paradas.map(({ mercado }) => ({

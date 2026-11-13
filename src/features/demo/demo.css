@@ -1,0 +1,19 @@
+/* Demonstração (spec 0001, T17). Os mercados usam a lista de mercados.css. */
+
+.demo {
+  margin: 1.5rem 0;
+}
+
+.demo h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.2rem;
+}
+
+.demo-itens {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+}
+
+.demo-itens > li + li {
+  margin-top: 0.25rem;
+}

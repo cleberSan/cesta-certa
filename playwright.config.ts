@@ -48,6 +48,10 @@ export default defineConfig({
     trace: remoteURL ? "off" : "retain-on-failure",
     screenshot: remoteURL ? "only-on-failure" : "off",
     launchOptions: executablePath ? { executablePath } : {},
+    // O service worker (ADR-0007) atende os pedidos fora da página, onde o `page.route` dos
+    // testes não chega: fica bloqueado, menos em e2e/offline.spec.ts, que prova o uso sem
+    // internet.
+    serviceWorkers: "block",
   },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },

@@ -1,0 +1,30 @@
+---
+/**
+ * Uso sem internet (spec 0001, CA-36; ADR-0007): a região que avisa quando falta conexão e o
+ * registro do service worker. Só entra nas páginas com o aplicativo (BaseLayout `aplicativo`),
+ * que já carregam JavaScript; as demais continuam sem script (ADR-0001).
+ */
+---
+
+<!--
+  Região viva sempre presente, para o leitor de tela anunciar quando o aviso aparece. Fica sem
+  o papel "status" para não competir com o aviso de cada tela, e some da vista quando vazia.
+-->
+<p id="aviso-sem-conexao" class="alerta aviso-sem-conexao" aria-live="polite"></p>
+
+<script>
+  import { acompanharConexao, registrarServiceWorker } from "../shared/offline/navegador";
+
+  const regiao = document.getElementById("aviso-sem-conexao");
+  if (regiao !== null) acompanharConexao(window, regiao);
+  // No `astro dev` não há lista de arquivos: o service worker só existe no build.
+  if (import.meta.env.PROD) void registrarServiceWorker(navigator);
+</script>
+
+<style>
+  .aviso-sem-conexao:empty {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+</style>

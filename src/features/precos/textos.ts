@@ -8,10 +8,15 @@ export function formatarDia(dia: string): string {
   return `${diaDoMes}/${mes}/${ano}`;
 }
 
-/** De onde veio o preço e quando foi visto (CA-16). */
+const fontes: Readonly<Record<ObservacaoDePreco["fonte"], string>> = {
+  nota: "Nota fiscal de",
+  digitado: "Digitado em",
+  demonstracao: "Demonstração: preço fictício de",
+};
+
+/** De onde veio o preço e quando foi visto (CA-16); o da demonstração diz que é fictício (CA-38). */
 export function descreverFonte(observacao: Pick<ObservacaoDePreco, "fonte" | "vistoEm">): string {
-  const quando = formatarDia(observacao.vistoEm);
-  return observacao.fonte === "nota" ? `Nota fiscal de ${quando}` : `Digitado em ${quando}`;
+  return `${fontes[observacao.fonte]} ${formatarDia(observacao.vistoEm)}`;
 }
 
 /** "Marca Exemplo, 5 kg", só com o que houver; nulo quando não há marca nem tamanho. */

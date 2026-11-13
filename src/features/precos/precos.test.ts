@@ -222,6 +222,8 @@ describe("lerObservacao", () => {
     ["mercado sem id válido", { mercadoId: "mercado" }],
     ["mercado sem nome", { mercadoNome: "" }],
     ["fonte desconhecida", { fonte: "encarte" }],
+    // spec 0001 CA-38: preço fictício da demonstração nunca entra no aparelho nem na cópia.
+    ["fonte da demonstração", { fonte: "demonstracao" }],
     ["dia inválido", { vistoEm: "2026-02-30" }],
     ["nota que não é resumo", { nota: "abc" }],
     ["data de criação inválida", { criadoEm: "ontem" }],

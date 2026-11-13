@@ -73,6 +73,12 @@ export const apiSecurityHeaders: Readonly<Record<string, string>> = {
 export const immutableAssetsCacheControl = "public, max-age=31536000, immutable";
 
 /**
+ * O service worker (ADR-0007) é conferido a cada visita: uma versão nova do site chega na
+ * próxima abertura, sem esperar o cache do navegador vencer.
+ */
+export const serviceWorkerCacheControl = "no-cache";
+
+/**
  * Conteúdo do arquivo `_headers` lido pelos arquivos estáticos da Cloudflare.
  * Formato: um caminho por bloco e um cabeçalho por linha, indentado.
  */
@@ -83,6 +89,7 @@ export function renderHeadersFile(): string {
   return [
     block("/*", securityHeaders),
     block("/_astro/*", { "Cache-Control": immutableAssetsCacheControl }),
+    block("/sw.js", { "Cache-Control": serviceWorkerCacheControl }),
   ]
     .join("\n\n")
     .concat("\n");
