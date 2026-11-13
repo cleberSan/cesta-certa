@@ -1,7 +1,7 @@
 # ADR-0003: Fontes de preço do MVP e como cada preço é guardado
 
 - Status: aceito
-- Data: 2026-11-13 (itens 8 a 10 acrescentados com a importação da nota, T11)
+- Data: 2026-11-13 (itens 8 a 10 acrescentados com a importação da nota, T11, e o 11 com o preço por unidade, T13)
 
 ## Contexto
 
@@ -21,6 +21,8 @@ Um preço sozinho não diz muito: o mesmo produto muda de preço toda semana, va
 8. **Da nota para o preço, a pessoa decide (CA-14).** Cada produto da nota vira preço só depois que a pessoa escolhe o item da lista que corresponde a ele, ou "Ignorar"; o mercado do app também é escolhido por ela. Nada é ligado por semelhança de nome. As escolhas ficam no armazém `associacoes` (migração 5), por loja e código: a do mercado tem id `mercado <CNPJ>`, a do produto `produto <CNPJ> <código na loja>`, com a descrição da nota da última vez e o nome do produto (nulo quando ignorado). Na nota seguinte da mesma loja elas já aparecem escolhidas, e a pessoa pode trocar. Entram na cópia em arquivo (versão 4 do formato; as versões 1 a 3 são lidas com elas vazias), até 20.000 escolhas.
 9. **Como a nota vira preço:** o preço guardado é o preço unitário da nota; item vendido a quilo ou a litro (unidade `KG`, `L` ou `LT`) ganha o tamanho "1 kg" ou "1 L", para o preço por unidade (T13). O mesmo código passado duas vezes no caixa vira um produto só, e item com preço zero (brinde, sacola) fica de fora. Ler a mesma nota de novo troca os preços dela, reconhecida pelo resumo SHA-256 da chave de acesso; nem o link nem a chave são guardados (CA-11).
 10. **QR Code lido no aparelho.** A câmera de trás abre só no toque, cada quadro é lido no próprio navegador e a câmera desliga quando o link é lido, na hora de fechar ou ao sair da página. Onde o navegador tem o `BarcodeDetector` (Chrome no Android), ele lê; nos outros (Safari no iPhone, Firefox) entra o [jsQR](https://github.com/cozmo/jsQR) 1.4.0, Apache-2.0, conferido no pacote publicado: JavaScript puro, sem dependências e sem `eval`, baixado só quando a câmera abre (cerca de 130 KB, fora do JavaScript inicial). Só um texto que parece endereço web segue para a consulta; outro QR (Wi-Fi, Pix) não sai do aparelho.
+
+11. **Tamanho e preço por unidade (CA-17, CA-18).** O tamanho é lido do campo do preço ("5 kg", "1,5L", "12x1L", "32 rolos") e, quando ele falta, do fim da descrição da nota ("CAFE SOLUVEL 200G"). Massa vira gramas, volume mililitros e contagem unidades, sempre números inteiros; o preço por kg, litro, unidade ou rolo aparece ao lado do preço da embalagem. As embalagens necessárias para um item são o total pedido na lista (quantidade vezes o tamanho do item) dividido pelo tamanho do preço, arredondado para cima, quando os dois tamanhos são da mesma grandeza; senão, a quantidade da lista. O preço de atacado só entra quando essas embalagens alcançam o mínimo dele. Texto que não segue esse formato não vira tamanho: melhor não comparar do que comparar errado.
 
 ## Alternativas
 

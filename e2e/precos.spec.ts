@@ -107,6 +107,8 @@ test.describe("tela de preços", () => {
     await expect(formulario(page).getByLabel("Mercado")).toHaveValue("n101");
     const arroz = produto(page, "Arroz");
     await expect(arroz).toContainText("R$ 25,90 · Marca Exemplo, 5 kg");
+    // spec 0001 CA-17: o preço por kg aparece junto do preço da embalagem.
+    await expect(arroz).toContainText("R$ 5,18 por kg");
     await expect(arroz).toContainText("Mercadinho da Praça");
     await expect(arroz).toContainText("Digitado em 13/11/2026");
     await expect(arroz).not.toContainText("Antigo");
@@ -128,6 +130,28 @@ test.describe("tela de preços", () => {
         minimoAtacado: null,
       }),
     ]);
+  });
+
+  // spec 0001 CA-17
+  test("mostra o preço por litro do fardo e nada quando o tamanho não é reconhecido", async ({
+    page,
+  }) => {
+    await servirBase(page);
+    await escolherSaoPaulo(page);
+    await abrirPrecos(page, "/precos#digitar");
+
+    await digitar(page, {
+      produto: "Leite",
+      tamanho: "12x1L",
+      preco: "59,88",
+      mercado: "Mercadinho da Praça (300 m)",
+    });
+    await digitar(page, { produto: "Pão", tamanho: "pacote", preco: "8,50" });
+
+    await expect(produto(page, "Leite")).toContainText("R$ 59,88 · 12x1L");
+    await expect(produto(page, "Leite")).toContainText("R$ 4,99 por litro");
+    await expect(produto(page, "Pão")).toContainText("R$ 8,50 · pacote");
+    await expect(produto(page, "Pão")).not.toContainText(" por ");
   });
 
   // spec 0001 CA-15 CA-18

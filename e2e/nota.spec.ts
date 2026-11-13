@@ -452,6 +452,8 @@ test.describe("guardar os preços da nota", () => {
     const cafe = page.getByRole("region", { name: "Café" });
     await expect(cafe).toContainText("Mercadinho da Praça");
     await expect(cafe).toContainText("Nota fiscal de 07/11/2026");
+    // spec 0001 CA-17: o tamanho vem da descrição da nota ("200G").
+    await expect(cafe).toContainText("R$ 94,95 por kg");
     expect(consoleErrors).toEqual([]);
   });
 
