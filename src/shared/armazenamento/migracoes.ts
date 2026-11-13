@@ -21,6 +21,10 @@ export const migracoes: readonly Migracao[] = [
   (banco) => {
     banco.createObjectStore("mercadosProprios", { keyPath: "id" });
   },
+  // 3 para 4: preços digitados e lidos da nota, que entram na cópia (spec 0001, T12).
+  (banco) => {
+    banco.createObjectStore("observacoesDePreco", { keyPath: "id" });
+  },
 ];
 
 export const versaoDoBanco = migracoes.length;

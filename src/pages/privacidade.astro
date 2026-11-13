@@ -21,9 +21,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       servidor do Cesta Certa nem a terceiros, e não aparece em outro aparelho.
     </li>
     <li>
-      Em <a href="/dados">Seus dados</a> você gera uma cópia das listas em arquivo e traz uma cópia
-      de volta. O arquivo é criado e lido no próprio aparelho, não passa pelo servidor e não tem
-      senha: quem tiver o arquivo lê as listas.
+      Em <a href="/dados">Seus dados</a> você gera uma cópia das listas, dos mercados cadastrados e
+      dos preços em arquivo e traz uma cópia de volta. O arquivo é criado e lido no próprio
+      aparelho, não passa pelo servidor e não tem senha: quem tiver o arquivo lê o que está nele.
     </li>
     <li>
       Para apagar tudo, limpe os dados deste site nas configurações do navegador. Excluir uma lista
@@ -33,6 +33,16 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       O navegador pode apagar os dados de sites que ficam muito tempo sem uso. O Cesta Certa não tem
       cópia da sua lista.
     </li>
+  </ul>
+
+  <h2>Preços</h2>
+  <ul>
+    <li>
+      Os preços que você digita ou lê da nota fiscal ficam só no aparelho, com o nome do mercado, a
+      fonte e o dia em que foram vistos. Eles não vão para o servidor do Cesta Certa e entram na
+      cópia gerada em Seus dados.
+    </li>
+    <li>Excluir um preço apaga o registro do aparelho.</li>
   </ul>
 
   <h2>Leitura da nota fiscal</h2>

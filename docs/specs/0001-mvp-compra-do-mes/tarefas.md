@@ -30,7 +30,7 @@ Um PR de portão só com documentação e cinco PRs de código, cada tarefa num 
 ## PR 4: preços
 
 - [ ] **T11** Importar NFC-e no app (QR pela câmera e link colado) e associar produtos — arquivos: `src/features/precos/nfce/` — prova: unidade e `e2e/nota.spec.ts` com Worker simulado — cobre: CA-10, CA-14, CA-04 (migração do banco e versão nova do arquivo de cópia com este armazém)
-- [ ] **T12** Preço digitado, fonte, data e marca de antigo — arquivos: `src/features/precos/manual/` — prova: unidade com relógio controlado — cobre: CA-15, CA-16, CA-04 (migração do banco e versão nova do arquivo de cópia com este armazém)
+- [x] **T12** Preço digitado, fonte, data e marca de antigo, na tela `/precos`, e ADR-0003 — arquivos: `src/features/precos/`, `src/shared/armazenamento/`, `src/pages/precos.astro` — prova: unidade com relógio controlado e `e2e/precos.spec.ts` com o relógio do navegador fixo — cobre: CA-15, CA-16, CA-04 (banco na versão 4 com `observacoesDePreco`; arquivo de cópia na versão 3, que segue lendo a 1 e a 2); feita antes da T11, porque a importação da nota grava preços neste armazém
 - [ ] **T13** Leitor de embalagem, preço por unidade e faixa de atacado — arquivos: `src/features/precos/unidades.ts` — prova: unidade com valores-limite — cobre: CA-17, CA-18
 
 ## PR 5: comparar, assistente e demonstração

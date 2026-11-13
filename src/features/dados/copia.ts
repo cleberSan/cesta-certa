@@ -1,8 +1,9 @@
 import { lerArquivo, montarArquivo, type ErroDoArquivo } from "../../shared/armazenamento/arquivo";
-import type { Banco, ErroDoBanco } from "../../shared/armazenamento/banco";
+import type { Banco, ConteudoDaCopia, ErroDoBanco } from "../../shared/armazenamento/banco";
 import { falha, sucesso, type Resultado } from "../../shared/resultado";
 import { conferirEstado, type Estado } from "../lista/lista";
 import { conferirMercadosProprios, type MercadoProprio } from "../mercados/proprios";
+import { conferirObservacoes, type ObservacaoDePreco } from "../precos/precos";
 
 /**
  * Cópia dos dados em arquivo: exportar e importar (spec 0001 CA-04, tarefa T05).
@@ -29,11 +30,14 @@ export interface Resumo {
   readonly itens: number;
   /** Mercados cadastrados pela pessoa (CA-08). */
   readonly mercados: number;
+  /** Preços lidos da nota ou digitados (CA-15). */
+  readonly precos: number;
 }
 
 /** O que vai e volta na cópia, já conferido registro a registro. */
 export interface Dados extends Estado {
   readonly mercadosProprios: readonly MercadoProprio[];
+  readonly observacoesDePreco: readonly ObservacaoDePreco[];
 }
 
 export interface Aparelho {
@@ -60,19 +64,24 @@ const resumir = (dados: Dados): Resumo => ({
   listas: dados.listas.length,
   itens: dados.itens.length,
   mercados: dados.mercadosProprios.length,
+  precos: dados.observacoesDePreco.length,
 });
 
-/** Confere listas, itens e mercados próprios; conta o que ficou de fora. */
-function conferirDados(conteudo: {
-  readonly listas: readonly unknown[];
-  readonly itens: readonly unknown[];
-  readonly mercadosProprios: readonly unknown[];
-}): { readonly dados: Dados; readonly recusados: number } {
+/** Confere cada armazém da cópia; conta o que ficou de fora. */
+function conferirDados(conteudo: ConteudoDaCopia): {
+  readonly dados: Dados;
+  readonly recusados: number;
+} {
   const lista = conferirEstado(conteudo);
   const mercados = conferirMercadosProprios(conteudo.mercadosProprios);
+  const precos = conferirObservacoes(conteudo.observacoesDePreco);
   return {
-    dados: { ...lista.estado, mercadosProprios: mercados.mercados },
-    recusados: lista.recusados + mercados.recusados,
+    dados: {
+      ...lista.estado,
+      mercadosProprios: mercados.mercados,
+      observacoesDePreco: precos.observacoes,
+    },
+    recusados: lista.recusados + mercados.recusados + precos.recusados,
   };
 }
 

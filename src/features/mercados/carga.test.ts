@@ -3,6 +3,7 @@ import {
   buscarNoSite,
   carregarCidades,
   carregarIndice,
+  carregarDoRaio,
   carregarMercados,
   type Buscar,
 } from "./carga";
@@ -150,5 +151,41 @@ describe("buscarNoSite", () => {
     } finally {
       vi.unstubAllGlobals();
     }
+  });
+});
+
+// spec 0001 CA-06, CA-15
+describe("carregarDoRaio", () => {
+  it("baixa o índice e só as células que o raio toca", async () => {
+    const { buscar, pedidos } = site({
+      "/data/mercados/indice.json": indice,
+      "/data/mercados/-24_-47.json": celulaA,
+      "/data/mercados/-23_-47.json": celulaB,
+    });
+
+    const carregados = await carregarDoRaio(buscar, { lat: -23.5, lon: -46.6 }, 1);
+
+    expect(carregados).toEqual({ ok: true, valor: [mercadoA] });
+    expect(pedidos).toEqual(["/data/mercados/indice.json", "/data/mercados/-24_-47.json"]);
+  });
+
+  it("diz que a base não foi publicada quando falta o índice", async () => {
+    const { buscar } = site({});
+
+    expect(await carregarDoRaio(buscar, { lat: -23.5, lon: -46.6 }, 1)).toEqual({
+      ok: false,
+      erro: "sem-base",
+    });
+  });
+
+  it("repassa a falha de uma célula", async () => {
+    const { buscar } = site({
+      "/data/mercados/indice.json": indice,
+      "/data/mercados/-24_-47.json": "500",
+    });
+
+    const carregados = await carregarDoRaio(buscar, { lat: -23.5, lon: -46.6 }, 1);
+
+    expect(carregados.ok).toBe(false);
   });
 });
