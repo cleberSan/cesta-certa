@@ -21,14 +21,25 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     preço, de onde ele veio e de quando é.
   </p>
 
-  <h2>Andamento</h2>
+  <h2>O que já faz</h2>
   <ul>
+    <li>Lista do mês guardada no aparelho, com cópia dos dados em arquivo.</li>
     <li>
-      <strong>No ar:</strong> lista do mês guardada no aparelho, cópia dos dados em arquivo,
-      mercados perto de você com mapa e rota, e teste da leitura da nota fiscal de São Paulo.
+      Preços lidos da nota fiscal de São Paulo pelo QR Code ou digitados no mercado, cada um com a
+      fonte e a data.
+    </li>
+    <li>Mercados perto de você, em lista e no mapa, com a rota no Waze ou no Google Maps.</li>
+    <li>
+      Comparação da lista pelo seu objetivo: teto de gasto, marcas, até quantos mercados e a que
+      distância.
     </li>
     <li>
-      <strong>Em construção:</strong> preços, comparação pelo seu objetivo e assistente.
+      <a href="/demonstracao">Demonstração</a> com um bairro, mercados e preços fictícios, e uso sem
+      internet depois da primeira visita.
+    </li>
+    <li>
+      Assistente com o Claude para explicar as opções, de uso restrito: só responde com código de
+      acesso e tem limite de perguntas por dia.
     </li>
   </ul>
 
@@ -51,6 +62,39 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     . A especificação, as decisões de arquitetura e os testes ficam no mesmo repositório.
   </p>
 
+  <h2>Créditos</h2>
+  <ul>
+    <li>
+      Mercados e cidades: dados ©{" "}
+      <ExternalLink href="https://www.openstreetmap.org/copyright">
+        colaboradores do OpenStreetMap
+      </ExternalLink>
+      , sob a licença ODbL.
+    </li>
+    <li>
+      Mapa: <ExternalLink href="https://openfreemap.org">OpenFreeMap</ExternalLink>, com dados do{" "}
+      <ExternalLink href="https://openmaptiles.org">OpenMapTiles</ExternalLink> e do OpenStreetMap,
+      desenhado com o <ExternalLink href="https://maplibre.org">MapLibre GL JS</ExternalLink>
+      (BSD-3-Clause).
+    </li>
+    <li>
+      Leitura do QR Code da nota:{" "}
+      <ExternalLink href="https://github.com/cozmo/jsQR">jsQR</ExternalLink>
+      (Apache-2.0).
+    </li>
+    <li>
+      Assistente: o Claude, da Anthropic, chamado pelo servidor do site com o{" "}
+      <ExternalLink href="https://github.com/anthropics/anthropic-sdk-typescript">
+        SDK da Anthropic
+      </ExternalLink>
+      (Apache-2.0).
+    </li>
+    <li>
+      Site feito com <ExternalLink href="https://astro.build">Astro</ExternalLink> e{" "}
+      <ExternalLink href="https://react.dev">React</ExternalLink> (MIT) e publicado na Cloudflare.
+    </li>
+  </ul>
+
   <h2>Avisos</h2>
   <ul>
     <li>
@@ -63,5 +107,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <li>
       Os preços mostrados são os que constam nas notas e anotações de quem usa, na data indicada.
     </li>
+    <li>
+      A demonstração usa nomes de mercado, marcas e preços inventados, que não são de nenhuma rede
+      ou loja real.
+    </li>
+    <li>Claude é marca da Anthropic, citada só para dizer qual modelo o assistente usa.</li>
   </ul>
 </BaseLayout>
