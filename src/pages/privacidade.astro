@@ -51,6 +51,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       a consulta deu certo ou qual foi o erro, quantos itens vieram, o tempo de resposta e um código
       embaralhado da nota, que serve para notar repetição e não permite voltar ao número dela.
     </li>
+    <li>
+      Para barrar abuso, o servidor aceita até 10 consultas por minuto de cada endereço IP. Quem
+      conta é a própria Cloudflare; o Cesta Certa não guarda o IP nem o registra em log.
+    </li>
     <li>O resultado aparece na sua tela e some quando você sai da página.</li>
   </ul>
 

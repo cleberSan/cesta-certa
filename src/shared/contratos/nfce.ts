@@ -23,6 +23,7 @@ export const codigosDeErro = [
   "requisicao.metodo-nao-permitido",
   "requisicao.grande-demais",
   "requisicao.tipo-nao-suportado",
+  "requisicao.muitas-consultas",
   "erro.interno",
 ] as const;
 
