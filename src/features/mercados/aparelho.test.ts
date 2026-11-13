@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import type { Banco, ErroDoBanco } from "../../shared/armazenamento/banco";
 import { criarBancoEmMemoria } from "../../shared/armazenamento/memoria";
 import { falha, sucesso, type Resultado } from "../../shared/resultado";
+import { acessoInicial, registroDoAcesso } from "../assistente/acesso";
 import { objetivoPadrao, registroDoObjetivo, type Objetivo } from "../comparar/objetivo";
 import { raioPadrao, registroDoPonto, registroDoRaio, type PontoEscolhido } from "./ajustes";
 import {
   abrirAparelho,
   apagarMercado,
   esquecerPonto,
+  guardarAcesso,
   guardarMercado,
   guardarObjetivo,
   guardarPonto,
@@ -35,6 +37,7 @@ describe("abrirAparelho", () => {
         lista: { listas: [], itens: [] },
         observacoes: [],
         objetivo: objetivoPadrao,
+        assistente: acessoInicial,
       },
     });
   });
@@ -82,6 +85,31 @@ describe("objetivo da comparação", () => {
     expect(lido.ok && lido.valor.ajustes).toEqual([registroDoObjetivo(objetivo)]);
     const aberto = await abrirAparelho(undefined, abrirCom(sucesso(banco)));
     expect(aberto.ok && aberto.valor.objetivo).toEqual(objetivo);
+  });
+});
+
+// spec 0001 CA-28 e CA-29
+describe("aceite e código do assistente", () => {
+  const acesso = { aceitoEm: "2026-11-13T12:00:00.000Z", codigo: "k".repeat(40) };
+
+  it("guarda o aceite e o código nos ajustes, fora da cópia, e lê de volta", async () => {
+    const banco = criarBancoEmMemoria();
+
+    expect(await guardarAcesso(banco, acesso)).toEqual({ ok: true, valor: undefined });
+
+    const lido = await banco.lerTudo();
+    expect(lido.ok && lido.valor.ajustes).toEqual([registroDoAcesso(acesso)]);
+    const aberto = await abrirAparelho(undefined, abrirCom(sucesso(banco)));
+    expect(aberto.ok && aberto.valor.assistente).toEqual(acesso);
+  });
+
+  it("esquecer apaga o registro do aparelho", async () => {
+    const banco = criarBancoEmMemoria({ ajustes: [registroDoAcesso(acesso)] });
+
+    await guardarAcesso(banco, acessoInicial);
+
+    const lido = await banco.lerTudo();
+    expect(lido.ok && lido.valor.ajustes).toEqual([]);
   });
 });
 

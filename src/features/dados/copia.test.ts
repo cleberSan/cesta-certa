@@ -3,6 +3,7 @@ import { limiteDoArquivo } from "../../shared/armazenamento/arquivo";
 import type { Banco, ErroDoBanco, Registros } from "../../shared/armazenamento/banco";
 import { criarBancoEmMemoria } from "../../shared/armazenamento/memoria";
 import { falha } from "../../shared/resultado";
+import { registroDoAcesso } from "../assistente/acesso";
 import { limites, type Item, type Lista } from "../lista/lista";
 import type { MercadoProprio } from "../mercados/proprios";
 import type { ObservacaoDePreco } from "../precos/precos";
@@ -138,9 +139,11 @@ describe("exportar", () => {
     expect(copia.ok && copia.valor.recusados).toBe(0);
   });
 
-  it("deixa o ponto e o raio fora do arquivo: a cópia pode ser compartilhada", async () => {
+  it("deixa o ponto, o raio e o código do assistente fora do arquivo: a cópia pode ser compartilhada", async () => {
     const raio: { id: string; km: number } = { id: "raio", km: 5 };
-    const banco = criarBancoEmMemoria({ ...guardado, ajustes: [ponto, raio] });
+    const codigo = "codigo-de-acesso-de-teste-".padEnd(40, "x");
+    const assistente = registroDoAcesso({ aceitoEm: "2026-11-13T12:00:00.000Z", codigo });
+    const banco = criarBancoEmMemoria({ ...guardado, ajustes: [ponto, raio, assistente] });
 
     const copia = await exportar(banco, agora, fuso);
 
@@ -152,6 +155,7 @@ describe("exportar", () => {
       "associacoes",
     ]);
     expect(copia.ok && copia.valor.texto).not.toContain("-23.5505");
+    expect(copia.ok && copia.valor.texto).not.toContain(codigo);
   });
 
   it("dá ao arquivo um nome com a data do aparelho", async () => {

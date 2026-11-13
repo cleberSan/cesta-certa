@@ -6,7 +6,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 <BaseLayout
   title="Privacidade"
-  description="O que o Cesta Certa faz com os seus dados: sem cadastro nem rastreador, localização só no aparelho e nota fiscal consultada sem guardar o link."
+  description="O que o Cesta Certa faz com os seus dados: sem cadastro nem rastreador, localização só no aparelho, nota fiscal consultada sem guardar o link e assistente só com aceite."
 >
   <h1>Privacidade</h1>
   <p class="chamada">
@@ -132,11 +132,44 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     dados técnicos de cada acesso para entregar as páginas e proteger o serviço.
   </p>
 
-  <h2>O que ainda vai chegar</h2>
+  <h2 id="assistente">Assistente</h2>
   <ul>
     <li>
-      <strong>Assistente:</strong> só enviará a sua pergunta com o seu aceite, e isso estará
-      descrito aqui antes de ser ligado.
+      O assistente explica as opções da comparação usando o Claude, um modelo de inteligência
+      artificial da Anthropic. Ele é de uso restrito: só funciona com um código de acesso, digitado
+      uma vez em cada aparelho e guardado só nele, fora da cópia em arquivo.
+    </li>
+    <li>
+      Antes da primeira pergunta num aparelho, o app mostra o que será enviado e só envia depois do
+      seu aceite. O aceite fica guardado no aparelho; "Esquecer o aceite e o código" apaga os dois.
+    </li>
+    <li>
+      Cada pergunta vai ao servidor do Cesta Certa, que a repassa à Anthropic junto com o objetivo
+      da compra, os itens da lista (nome, quantidade, marca e tamanho) e as três melhores opções:
+      nomes dos mercados, preços com a fonte e a data, totais, diferenças entre as opções e
+      distâncias arredondadas para 1 km.
+    </li>
+    <li>
+      Não vão a sua localização, o ponto escolhido, o nome da cidade, os identificadores dos
+      registros do aparelho nem a descrição impressa nas notas fiscais.
+    </li>
+    <li>
+      A Anthropic recebe esses dados como prestadora do serviço, para gerar a resposta, conforme os
+      termos e a{" "}
+      <ExternalLink href="https://www.anthropic.com/legal/privacy">
+        política de privacidade dela
+      </ExternalLink>
+      .
+    </li>
+    <li>
+      O servidor do Cesta Certa não guarda a pergunta nem a resposta. O banco dele tem só um
+      contador de perguntas por dia, sem conteúdo, sem IP e sem identificação, para o limite de 30
+      perguntas por dia e 300 por mês. O log tem só dados técnicos: o resultado, o tempo, a
+      quantidade de texto processada e o custo estimado.
+    </li>
+    <li>
+      A resposta pode errar. Valor em reais que não está nos dados enviados aparece marcado como
+      "valor não conferido".
     </li>
   </ul>
 
@@ -147,5 +180,5 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     de segurança, use o
     <ExternalLink href={`${repositoryUrl}/security/advisories/new`}>reporte privado</ExternalLink>.
   </p>
-  <p>Atualizada em 12 de novembro de 2026.</p>
+  <p>Atualizada em 13 de novembro de 2026.</p>
 </BaseLayout>

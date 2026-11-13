@@ -8,6 +8,12 @@ import type { Banco, ErroDoBanco } from "../../shared/armazenamento/banco";
 import { abrirIndexedDb } from "../../shared/armazenamento/indexeddb";
 import { criarBancoEmMemoria } from "../../shared/armazenamento/memoria";
 import { falha, sucesso, type Resultado } from "../../shared/resultado";
+import {
+  idDoAssistente,
+  lerAcesso,
+  registroDoAcesso,
+  type AcessoAoAssistente,
+} from "../assistente/acesso";
 import { lerObjetivo, registroDoObjetivo, type Objetivo } from "../comparar/objetivo";
 import { conferirEstado, type Estado } from "../lista/lista";
 import { conferirObservacoes, type ObservacaoDePreco } from "../precos/precos";
@@ -37,6 +43,8 @@ export interface Aparelho {
   readonly lista: Estado;
   readonly observacoes: readonly ObservacaoDePreco[];
   readonly objetivo: Objetivo;
+  /** Aceite e código do assistente (T16, ADR-0004). */
+  readonly assistente: AcessoAoAssistente;
 }
 
 export async function abrirAparelho(
@@ -55,6 +63,7 @@ export async function abrirAparelho(
     lista: conferirEstado(lido.valor).estado,
     observacoes: conferirObservacoes(lido.valor.observacoesDePreco).observacoes,
     objetivo: lerObjetivo(lido.valor.ajustes),
+    assistente: lerAcesso(lido.valor.ajustes),
   });
 }
 
@@ -72,6 +81,13 @@ export function guardarRaio(banco: Banco, km: Raio) {
 
 export function guardarObjetivo(banco: Banco, objetivo: Objetivo) {
   return banco.aplicar({ ajustes: { gravar: [registroDoObjetivo(objetivo)] } });
+}
+
+/** Sem aceite e sem código, o registro sai do aparelho em vez de ficar vazio. */
+export function guardarAcesso(banco: Banco, acesso: AcessoAoAssistente) {
+  return acesso.aceitoEm === null && acesso.codigo === null
+    ? banco.aplicar({ ajustes: { apagar: [idDoAssistente] } })
+    : banco.aplicar({ ajustes: { gravar: [registroDoAcesso(acesso)] } });
 }
 
 export function guardarMercado(banco: Banco, mercado: MercadoProprio) {

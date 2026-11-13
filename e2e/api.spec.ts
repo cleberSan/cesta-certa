@@ -171,19 +171,62 @@ test.describe("pedido fora do contrato", () => {
   });
 });
 
-test.describe("assistente sem os segredos", () => {
-  // spec 0001 CA-34: os segredos só existem no painel da Cloudflare; o `wrangler dev` dos testes
-  // não tem nenhum, então o assistente fica desligado, sem derrubar o resto da API.
-  test("responde 503 indisponível, sem pedir código e sem expor configuração", async ({
-    request,
-  }) => {
+/**
+ * O assistente no Worker de verdade (spec 0001, CA-29, CA-34 e CA-35). No E2E local o servidor
+ * sobe com o provedor gravado e um código sorteado a cada execução (playwright.config.ts): nada
+ * chama a Anthropic. Contra a produção o código não existe aqui, então só vale o pedido sem ele,
+ * que dá 401 com os segredos criados e 503 antes disso.
+ */
+test.describe("assistente", () => {
+  const remoto = Boolean(process.env.E2E_BASE_URL);
+  const codigoDoE2E = process.env.E2E_ASSISTENTE_CODIGO ?? "";
+  const pedido = { pergunta: "Vale a pena ir a dois mercados?", contexto: { opcoes: [] } };
+
+  // spec 0001 CA-29
+  test("sem o código de acesso responde 401 e pede o código", async ({ request }) => {
+    const response = await request.post("/api/assistente", { data: pedido });
+
+    const esperados: Record<number, string> = remoto
+      ? { 401: "assistente.nao-autorizado", 503: "assistente.indisponivel" }
+      : { 401: "assistente.nao-autorizado" };
+    expect(Object.keys(esperados)).toContain(String(response.status()));
+    await esperarProblema(response, response.status(), esperados[response.status()]!);
+    const texto = JSON.stringify(await response.json());
+    expect(texto).not.toMatch(/ANTHROPIC|ASSISTENTE_CODIGO|sem-codigo|sem-chave|sem-banco/);
+  });
+
+  // spec 0001 CA-29
+  test("com o código errado responde 401", async ({ request }) => {
+    test.skip(remoto, "O código de acesso da produção não existe no E2E.");
     const response = await request.post("/api/assistente", {
-      headers: { Authorization: "Bearer qualquer-coisa" },
-      data: { pergunta: "Qual a melhor opção?", contexto: {} },
+      headers: { Authorization: `Bearer ${"x".repeat(codigoDoE2E.length)}` },
+      data: pedido,
     });
 
-    await esperarProblema(response, 503, "assistente.indisponivel");
-    const texto = JSON.stringify(await response.json());
-    expect(texto).not.toMatch(/ANTHROPIC|ASSISTENTE_CODIGO|sem-codigo|sem-chave/);
+    await esperarProblema(response, 401, "assistente.nao-autorizado");
+    expect(response.headers()["www-authenticate"]).toBe('Bearer realm="assistente"');
+  });
+
+  // spec 0001 CA-34 CA-35
+  test("com o código certo responde com a gravação e a cota, sem devolver o código", async ({
+    request,
+  }) => {
+    test.skip(remoto, "O código de acesso da produção não existe no E2E.");
+    const response = await request.post("/api/assistente", {
+      headers: { Authorization: `Bearer ${codigoDoE2E}` },
+      data: pedido,
+    });
+
+    expect(response.status()).toBe(200);
+    expect(response.headers()["cache-control"]).toBe("no-store");
+    const corpo = await response.json();
+    expect(corpo.texto).toMatch(/^Esta é uma resposta gravada\./);
+    expect(corpo.limite).toEqual({
+      restantesHoje: expect.any(Number),
+      restantesMes: expect.any(Number),
+      voltaEm: null,
+    });
+    expect(JSON.stringify(corpo)).not.toContain(codigoDoE2E);
+    expect(JSON.stringify(response.headers())).not.toContain(codigoDoE2E);
   });
 });
