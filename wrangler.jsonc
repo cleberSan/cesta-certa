@@ -21,13 +21,13 @@
   "d1_databases": [{ "binding": "USO_ASSISTENTE", "database_name": "cesta-certa-uso" }],
   // O build de prévia de cada PR roda `wrangler preview`, que exige este bloco. A prévia usa o
   // mesmo código; binding não passa de um bloco para o outro, então o limite se repete aqui,
-  // com contador próprio. O banco do assistente é o mesmo: prévia e produção dividem a cota,
-  // que é o teto de custo.
+  // com contador próprio. Sem D1 por enquanto: o `wrangler preview` não cria banco e precisa
+  // de um que já exista; até o primeiro deploy da main criar o banco, o assistente da prévia
+  // responde "indisponível" (ADR-0004).
   "previews": {
     "ratelimits": [
       { "name": "LIMITE_DA_NOTA", "namespace_id": "1002", "simple": { "limit": 10, "period": 60 } },
     ],
-    "d1_databases": [{ "binding": "USO_ASSISTENTE", "database_name": "cesta-certa-uso" }],
   },
   "assets": {
     "directory": "./dist",

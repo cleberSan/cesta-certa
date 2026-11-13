@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -12,6 +12,15 @@ const padroes: readonly [string, RegExp][] = [
   ["chave atribuída", /ANTHROPIC_API_KEY\s*[=:]\s*["'`]?[A-Za-z0-9_-]{16,}/],
   ["código atribuído", /ASSISTENTE_CODIGO\s*[=:]\s*["'`]?[^\s"'`,;)]{16,}/],
 ];
+
+/** Lê direto, sem conferir antes: arquivo apagado ou pasta (submódulo) fica de fora. */
+function lerTexto(caminho: string): string | null {
+  try {
+    return readFileSync(caminho, "utf8");
+  } catch {
+    return null;
+  }
+}
 
 function arquivosDoRepositorio(): string[] {
   const raiz = new URL("../../", import.meta.url);
@@ -35,8 +44,8 @@ describe("segredos fora do repositório", () => {
   it("nenhum arquivo guardado traz a chave ou o código", () => {
     const achados: string[] = [];
     for (const caminho of arquivos) {
-      if (statSync(caminho, { throwIfNoEntry: false })?.isFile() !== true) continue;
-      const texto = readFileSync(caminho, "utf8");
+      const texto = lerTexto(caminho);
+      if (texto === null) continue;
       for (const [nome, padrao] of padroes) {
         if (padrao.test(texto)) achados.push(`${nome} em ${caminho}`);
       }
