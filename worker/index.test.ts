@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { rotaDoAssistente } from "../src/shared/contratos/assistente";
 import { ehProblema, rotaDaConsulta } from "../src/shared/contratos/nfce";
+import type { BancoD1 } from "./assistente/cota";
 import worker, { type Env } from "./index";
 import { linkSp } from "./nfce/fixtures/chaves";
 import { paginaSp } from "./nfce/fixtures/pagina-sp";
@@ -121,5 +123,64 @@ describe("Worker", () => {
 
     expect(resposta.status).toBe(429);
     expect(chaves).toEqual([`${rotaDaConsulta} 198.51.100.4`]);
+  });
+
+  // spec 0001 CA-34
+  it("sem o banco e os segredos no ambiente, o assistente responde 503 e diz o motivo no log", async () => {
+    const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    const { env } = ambiente();
+
+    const resposta = await worker.fetch(
+      new Request(`${origem}${rotaDoAssistente}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Origin: origem },
+        body: JSON.stringify({ pergunta: "Oi", contexto: {} }),
+      }),
+      env,
+    );
+
+    expect(resposta.status).toBe(503);
+    expect(JSON.parse(String(log.mock.calls[0]?.[0]))).toMatchObject({
+      evento: "assistente",
+      resultado: "indisponivel",
+      motivo: "sem-banco",
+    });
+  });
+
+  // spec 0001 CA-35
+  it("com o provedor gravado, responde pelo ambiente sem chave da Anthropic", async () => {
+    vi.spyOn(console, "log").mockImplementation(() => undefined);
+    const rede = vi.spyOn(globalThis, "fetch");
+    const codigo = "codigo-do-ambiente-de-teste-com-40-letras";
+    const banco: BancoD1 = {
+      prepare: () => ({ bind: () => banco.prepare("") }),
+      batch: async () => [{}, {}, { results: [{ usadas: 1 }] }, { results: [{ dia: 1, mes: 1 }] }],
+    };
+    const env: Env = {
+      ...ambiente().env,
+      USO_ASSISTENTE: banco,
+      ASSISTENTE_CODIGO: codigo,
+      ASSISTENTE_PROVEDOR: "gravado",
+    };
+
+    const resposta = await worker.fetch(
+      new Request(`${origem}${rotaDoAssistente}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Origin: origem,
+          Authorization: `Bearer ${codigo}`,
+        },
+        body: JSON.stringify({ pergunta: "Por que essa opção?", contexto: {} }),
+      }),
+      env,
+    );
+
+    expect(resposta.status).toBe(200);
+    expect(await resposta.json()).toMatchObject({
+      texto: expect.stringContaining("resposta gravada") as string,
+      limite: { restantesHoje: 29, restantesMes: 299, voltaEm: null },
+    });
+    expect(rede).not.toHaveBeenCalled();
   });
 });

@@ -1,0 +1,146 @@
+/* Onde comprar a lista (spec 0001, T14). */
+
+.comparar {
+  margin: 1rem 0 1.5rem;
+  padding: var(--espaco);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+.comparar h3 {
+  margin-top: 0;
+}
+
+.comparar-objetivo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.comparar-objetivo p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.comparar-formulario {
+  margin: 1rem 0;
+}
+
+.comparar-formulario .campo {
+  margin-bottom: 1rem;
+}
+
+.campo-ajuda {
+  margin: 0 0 0.3rem;
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+}
+
+.comparar-escolhas {
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
+}
+
+.comparar-escolhas legend {
+  margin-bottom: 0.3rem;
+  font-weight: 700;
+}
+
+.comparar-escolha {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.35rem 0;
+  cursor: pointer;
+}
+
+.comparar-escolha input {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0.15rem 0 0;
+  accent-color: var(--cor-marca);
+}
+
+.comparar-escolha small {
+  display: block;
+  color: var(--cor-texto-suave);
+}
+
+.comparar-botoes,
+.comparar-acoes,
+.comparar-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Vazio, o anúncio não ocupa espaço, mas segue na árvore de acessibilidade para ser lido depois. */
+.comparar-resumo:empty {
+  margin: 0;
+}
+
+.comparar-ajuste {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  border-radius: var(--raio);
+  background: var(--cor-aviso-fundo);
+}
+
+.comparar-ajuste h4 {
+  margin-top: 0;
+}
+
+.comparar-opcoes {
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comparar-opcao {
+  margin: 0 0 1rem;
+  padding: 0.75rem 0 0;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.comparar-opcao h4 {
+  margin: 0;
+}
+
+.comparar-total {
+  margin: 0.2rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.comparar-alerta {
+  color: var(--cor-destaque);
+  font-weight: 600;
+}
+
+.comparar-caminho {
+  color: var(--cor-texto-suave);
+}
+
+.comparar-compras h5 {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 1rem;
+}
+
+.comparar-compras ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.comparar-compras small {
+  display: block;
+  color: var(--cor-texto-suave);
+}
+
+.mercados-total {
+  font-weight: 700;
+}

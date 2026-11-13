@@ -12,9 +12,18 @@ export interface Parada extends Ponto {
  * "Ir" (spec 0001, CA-24 e CA-25): abre a navegação no Waze ou no Google Maps, em outra aba ou
  * no app, com as paradas na ordem recebida. Os botões são texto, sem marca nem cores deles.
  */
-export function OpcoesDeRota({ paradas, titulo }: { paradas: readonly Parada[]; titulo: string }) {
+export function OpcoesDeRota({
+  paradas,
+  titulo,
+  modoInicial = "carro",
+}: {
+  paradas: readonly Parada[];
+  titulo: string;
+  /** O modo que a pessoa escolheu no objetivo da comparação (T14). */
+  modoInicial?: ModoDeViagem;
+}) {
   const base = useId();
-  const [modo, setModo] = useState<ModoDeViagem>("carro");
+  const [modo, setModo] = useState<ModoDeViagem>(modoInicial);
   const rota = montarRota(paradas, modo);
   if (!rota.ok) return null;
   const avisos = avisosDaRota(rota.valor, paradas[0]!.nome, modo);

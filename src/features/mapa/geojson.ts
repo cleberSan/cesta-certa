@@ -39,6 +39,8 @@ export interface Colecao<T> {
 export interface Pino extends Ponto {
   readonly id: string;
   readonly proprio: boolean;
+  /** O total da lista neste mercado, escrito sobre o pino quando há preço (T14). */
+  readonly rotulo?: string;
 }
 
 /** Ponto de partida de "Marcar no mapa" quando ainda não há ponto: o Brasil inteiro na tela. */

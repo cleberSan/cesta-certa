@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import type { Banco, ErroDoBanco } from "../../shared/armazenamento/banco";
 import { criarBancoEmMemoria } from "../../shared/armazenamento/memoria";
 import { falha, sucesso, type Resultado } from "../../shared/resultado";
+import { objetivoPadrao, registroDoObjetivo, type Objetivo } from "../comparar/objetivo";
 import { raioPadrao, registroDoPonto, registroDoRaio, type PontoEscolhido } from "./ajustes";
 import {
   abrirAparelho,
   apagarMercado,
   esquecerPonto,
   guardarMercado,
+  guardarObjetivo,
   guardarPonto,
   guardarRaio,
 } from "./aparelho";
@@ -26,7 +28,14 @@ describe("abrirAparelho", () => {
     const aberto = await abrirAparelho(undefined, abrirCom(sucesso(banco)));
     expect(aberto).toEqual({
       ok: true,
-      valor: { banco, ajustes: { ponto, raioKm: 10 }, proprios: [] },
+      valor: {
+        banco,
+        ajustes: { ponto, raioKm: 10 },
+        proprios: [],
+        lista: { listas: [], itens: [] },
+        observacoes: [],
+        objetivo: objetivoPadrao,
+      },
     });
   });
 
@@ -57,6 +66,22 @@ describe("abrirAparelho", () => {
       ok: false,
       erro: "fechado",
     });
+  });
+});
+
+// spec 0001 CA-19
+describe("objetivo da comparação", () => {
+  const objetivo: Objetivo = { ...objetivoPadrao, tetoCentavos: 60_000, maximoDeMercados: 3 };
+
+  it("guarda o objetivo nos ajustes, fora da cópia, e lê de volta", async () => {
+    const banco = criarBancoEmMemoria();
+
+    expect(await guardarObjetivo(banco, objetivo)).toEqual({ ok: true, valor: undefined });
+
+    const lido = await banco.lerTudo();
+    expect(lido.ok && lido.valor.ajustes).toEqual([registroDoObjetivo(objetivo)]);
+    const aberto = await abrirAparelho(undefined, abrirCom(sucesso(banco)));
+    expect(aberto.ok && aberto.valor.objetivo).toEqual(objetivo);
   });
 });
 

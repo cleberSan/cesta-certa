@@ -1,0 +1,7 @@
+// Só para os testes de integração do contador (worker/assistente/cota.test.ts): um D1 local,
+// criado pelo próprio wrangler em memória, sem conta da Cloudflare.
+{
+  "name": "cesta-certa-teste",
+  "compatibility_date": "2026-10-01",
+  "d1_databases": [{ "binding": "USO_ASSISTENTE", "database_name": "cesta-certa-uso-teste" }],
+}

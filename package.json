@@ -21,6 +21,7 @@
     "node": "24.x"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "1.6.0",
     "@astrojs/react": "^7.1.2",
     "astro": "^7.4.4",
     "jsqr": "1.4.0",

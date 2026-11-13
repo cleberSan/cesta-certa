@@ -6,6 +6,7 @@
  */
 import {
   Map as MapaGl,
+  Marker,
   NavigationControl,
   setWorkerUrl,
   type GeoJSONSource,
@@ -191,8 +192,31 @@ export function mostrarRaio(mapa: MapaGl, ponto: Ponto, raioKm: number, limites:
   mapa.fitBounds(limites, { padding: 24 });
 }
 
+const etiquetas = new WeakMap<MapaGl, Marker[]>();
+
+/**
+ * Os pinos e, sobre os que têm preço, o total da lista (T14). O total é uma etiqueta HTML com a
+ * fonte da página, não texto do MapLibre: nada de fontes baixadas (ADR-0005). Ela não recebe o
+ * toque, que segue para o pino, e fica escondida do leitor de tela, porque a lista diz o mesmo.
+ */
 export function mostrarPinos(mapa: MapaGl, pinos: readonly Pino[]) {
   atualizar(mapa, fontes.mercados, colecaoDosPinos(pinos));
+  for (const etiqueta of etiquetas.get(mapa) ?? []) etiqueta.remove();
+  etiquetas.set(
+    mapa,
+    pinos.flatMap((pino) => {
+      if (pino.rotulo === undefined) return [];
+      const elemento = document.createElement("span");
+      elemento.className = "mapa-total";
+      elemento.textContent = pino.rotulo;
+      elemento.setAttribute("aria-hidden", "true");
+      return [
+        new Marker({ element: elemento, anchor: "bottom", offset: [0, -12] })
+          .setLngLat([pino.lon, pino.lat])
+          .addTo(mapa),
+      ];
+    }),
+  );
 }
 
 export function mostrarEscolhido(mapa: MapaGl, ponto: Ponto, escolhido: Pino | null) {
