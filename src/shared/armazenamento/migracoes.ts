@@ -25,6 +25,10 @@ export const migracoes: readonly Migracao[] = [
   (banco) => {
     banco.createObjectStore("observacoesDePreco", { keyPath: "id" });
   },
+  // 4 para 5: mercado e produtos de cada nota ligados aos do app, que entram na cópia (T11).
+  (banco) => {
+    banco.createObjectStore("associacoes", { keyPath: "id" });
+  },
 ];
 
 export const versaoDoBanco = migracoes.length;

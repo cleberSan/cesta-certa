@@ -1,6 +1,10 @@
-import { useId, useState, useSyncExternalStore, type SubmitEvent } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type SubmitEvent } from "react";
+import type { ErroDoBanco } from "../../../shared/armazenamento/banco";
+import { mensagemDoBanco } from "../../../shared/armazenamento/textos";
 import type { NotaConsultada } from "../../../shared/contratos/nfce";
 import { formatarCentavos } from "../../../shared/dinheiro";
+import { recarregarAoVoltar } from "../../../shared/recarregarAoVoltar";
+import { abrirPrecos, type AparelhoDosPrecos } from "../aparelho";
 import {
   consultarNota,
   formatarCnpj,
@@ -10,13 +14,22 @@ import {
   somarItens,
   type FalhaDaConsulta,
 } from "./cliente";
+import { ImportacaoDaNota } from "./ImportacaoDaNota";
+import { resumoDaNota } from "./importacao";
+import { LeitorDeQr } from "./LeitorDeQr";
 import "./consulta-nota.css";
 
 type Estado =
   | { fase: "inicial" }
   | { fase: "consultando" }
-  | { fase: "lida"; nota: NotaConsultada }
+  /** `vez` separa duas leituras seguidas: cada nota começa a importação do zero. */
+  | { fase: "lida"; nota: NotaConsultada; resumo: string | null; vez: number }
   | { fase: "falhou"; falha: FalhaDaConsulta };
+
+type Carga =
+  | { fase: "abrindo" }
+  | { fase: "pronta"; aparelho: AparelhoDosPrecos }
+  | { fase: "falhou"; motivo: ErroDoBanco };
 
 const semAssinatura = () => () => undefined;
 
@@ -33,32 +46,66 @@ function useIlhaCarregada(): boolean {
 }
 
 /**
- * Tela de teste da leitura da nota fiscal (spec 0001, tarefa T03). Todo texto que vem da
- * nota é mostrado como texto pelo React, nunca como HTML.
+ * Leitura da nota fiscal (spec 0001, CA-10, CA-13 e CA-14): o QR Code pela câmera ou o link
+ * colado, a nota consultada no servidor e os preços guardados no aparelho. Todo texto que vem
+ * da nota é mostrado como texto pelo React, nunca como HTML. O link não é guardado: só o
+ * resumo SHA-256 da chave de acesso, para reconhecer a mesma nota depois (CA-11).
  */
 export default function ConsultaNota() {
   const [link, setLink] = useState("");
   const [estado, setEstado] = useState<Estado>({ fase: "inicial" });
+  const [carga, setCarga] = useState<Carga>({ fase: "abrindo" });
   // O botão só liga depois que a ilha carrega: antes disso o formulário não teria efeito.
   const pronta = useIlhaCarregada();
   const idDoCampo = useId();
   const idDaAjuda = useId();
   const consultando = estado.fase === "consultando";
+  const leituras = useRef(0);
 
-  async function enviar(evento: SubmitEvent<HTMLFormElement>) {
-    evento.preventDefault();
+  useEffect(() => recarregarAoVoltar(globalThis), []);
+
+  useEffect(() => {
+    let ativa = true;
+    void abrirPrecos(globalThis.indexedDB).then((aberto) => {
+      if (!ativa) return;
+      setCarga(
+        aberto.ok
+          ? { fase: "pronta", aparelho: aberto.valor }
+          : { fase: "falhou", motivo: aberto.erro },
+      );
+    });
+    return () => {
+      ativa = false;
+    };
+  }, []);
+
+  async function consultar(endereco: string) {
     if (consultando) return;
     setEstado({ fase: "consultando" });
-    const resultado = await consultarNota(link, (rota, init) => fetch(rota, init));
-    setEstado(
-      resultado.ok
-        ? { fase: "lida", nota: resultado.valor }
-        : { fase: "falhou", falha: resultado.erro },
-    );
+    const resultado = await consultarNota(endereco, (rota, init) => fetch(rota, init));
+    if (!resultado.ok) {
+      setEstado({ fase: "falhou", falha: resultado.erro });
+      return;
+    }
+    const resumo = await resumoDaNota(endereco).catch(() => null);
+    leituras.current += 1;
+    setEstado({ fase: "lida", nota: resultado.valor, resumo, vez: leituras.current });
+  }
+
+  function enviar(evento: SubmitEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    void consultar(link);
   }
 
   return (
     <section className="consulta" aria-label="Consultar nota fiscal">
+      <LeitorDeQr
+        desligado={!pronta || consultando}
+        onLer={(lido) => {
+          setLink(lido);
+          void consultar(lido);
+        }}
+      />
       <form className="consulta-formulario" onSubmit={enviar} noValidate>
         <label htmlFor={idDoCampo}>Link do QR Code da nota</label>
         <textarea
@@ -104,7 +151,35 @@ export default function ConsultaNota() {
       </p>
 
       {estado.fase === "falhou" && <Falha falha={estado.falha} />}
-      {estado.fase === "lida" && <Nota nota={estado.nota} />}
+      {estado.fase === "lida" && (
+        <>
+          <Nota nota={estado.nota} />
+          {carga.fase === "abrindo" && (
+            <p className="precos-carregando" role="status">
+              Abrindo os dados do aparelho…
+            </p>
+          )}
+          {carga.fase === "falhou" && (
+            <p className="alerta" role="alert">
+              Os preços desta nota não podem ser guardados agora. {mensagemDoBanco(carga.motivo)}
+            </p>
+          )}
+          {carga.fase === "pronta" && (
+            <ImportacaoDaNota
+              key={estado.vez}
+              nota={estado.nota}
+              resumo={estado.resumo}
+              aparelho={carga.aparelho}
+              onImportar={({ observacoes, associacoes }) =>
+                setCarga({
+                  fase: "pronta",
+                  aparelho: { ...carga.aparelho, observacoes, associacoes },
+                })
+              }
+            />
+          )}
+        </>
+      )}
     </section>
   );
 }
@@ -116,10 +191,14 @@ function Falha({ falha }: { falha: FalhaDaConsulta }) {
       <h2>{mensagem.titulo}</h2>
       <p>{mensagem.texto}</p>
       {mensagem.ofereceDigitar && (
-        <p>
-          Enquanto isso, guarde o cupom: os preços desta compra poderão ser digitados quando essa
-          parte do app chegar.
-        </p>
+        <>
+          <p>Com o cupom em mãos, os preços desta compra podem ser digitados.</p>
+          <p>
+            <a className="botao botao-secundario" href="/precos#digitar">
+              Digitar os preços desta compra
+            </a>
+          </p>
+        </>
       )}
       <p className="consulta-codigo">
         Código do erro: <code>{falha.code}</code>

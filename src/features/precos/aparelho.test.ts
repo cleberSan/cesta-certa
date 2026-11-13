@@ -31,6 +31,24 @@ describe("abrirPrecos", () => {
     expect(aberto.ok && aberto.valor.ajustes.ponto).toBeNull();
     expect(aberto.ok && aberto.valor.lista).toEqual({ listas: [], itens: [] });
     expect(aberto.ok && aberto.valor.proprios).toEqual([]);
+    expect(aberto.ok && aberto.valor.associacoes).toEqual([]);
+  });
+
+  // spec 0001 CA-14
+  it("lê as escolhas das notas, deixando de fora a fora do formato", async () => {
+    const escolha = {
+      id: "mercado 11222333000181",
+      tipo: "mercado",
+      cnpj: "11222333000181",
+      mercadoId: "n1",
+      mercadoNome: "Mercado",
+      atualizadaEm: "2026-11-10T12:00:00.000Z",
+    };
+    const banco = criarBancoEmMemoria({ associacoes: [escolha, { id: "mercado x" }] });
+
+    const aberto = await abrirPrecos(undefined, async () => sucesso(banco));
+
+    expect(aberto.ok && aberto.valor.associacoes).toEqual([escolha]);
   });
 
   it("sem IndexedDB, abre em memória", async () => {

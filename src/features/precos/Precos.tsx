@@ -18,6 +18,7 @@ import {
   descreverEmbalagem,
   descreverFonte,
 } from "./textos";
+import { descreverPrecoPorUnidade } from "./unidades";
 import "./precos.css";
 
 type Carga =
@@ -187,6 +188,8 @@ function ItemDePreco({
   const [confirmando, setConfirmando] = useState(false);
   const { observacao, antigo } = preco;
   const embalagem = descreverEmbalagem(observacao);
+  // CA-17: com o tamanho reconhecido, o preço por kg, litro ou unidade aparece junto.
+  const porUnidade = descreverPrecoPorUnidade(observacao);
   const resumo = `${formatarCentavos(observacao.precoCentavos)} em ${observacao.mercadoNome}`;
 
   return (
@@ -195,6 +198,7 @@ function ItemDePreco({
         <strong>{formatarCentavos(observacao.precoCentavos)}</strong>
         {embalagem !== null && <span> · {embalagem}</span>}
       </p>
+      {porUnidade !== null && <p className="precos-unidade">{porUnidade}</p>}
       <p>{observacao.mercadoNome}</p>
       <p className="precos-fonte">
         {descreverFonte(observacao)}

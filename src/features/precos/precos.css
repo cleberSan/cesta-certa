@@ -80,3 +80,7 @@
   background: var(--cor-aviso-fundo);
   color: var(--cor-texto);
 }
+
+.precos-unidade {
+  font-variant-numeric: tabular-nums;
+}

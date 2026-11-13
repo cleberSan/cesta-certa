@@ -10,6 +10,7 @@ export const armazensDaCopia = [
   "itens",
   "mercadosProprios",
   "observacoesDePreco",
+  "associacoes",
 ] as const;
 
 /**

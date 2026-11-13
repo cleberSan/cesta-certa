@@ -427,7 +427,7 @@ test.describe("mercado cadastrado pela pessoa", () => {
     const texto = await readFile(await download.path(), "utf8");
 
     const copia = JSON.parse(texto) as { versao: number; dados: { mercadosProprios: unknown[] } };
-    expect(copia.versao).toBe(3);
+    expect(copia.versao).toBe(4);
     expect(copia.dados.mercadosProprios).toEqual([
       expect.objectContaining({ nome: "Mercado da Esquina", tipo: "bairro" }),
     ]);
