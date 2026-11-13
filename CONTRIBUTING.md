@@ -76,6 +76,7 @@ O site é publicado na Cloudflare como um Worker com arquivos estáticos, pela i
 - Endereço: <https://cesta-certa.clebersan.workers.dev>.
 - Merge no `main` publica em produção. PRs de outras branches ganham um link de prévia no check da Cloudflare.
 - Para voltar uma versão, use **Deployments** no painel do Worker, ou reverta o PR.
+- Depois de um deploy, rode a conferência em **Actions → Site no ar → Run workflow**. Ela roda sozinha todo dia e abre uma issue quando falha ([ADR-0008](docs/adr/0008-conferencia-do-site-no-ar.md)). Para rodar daqui: `E2E_BASE_URL=https://cesta-certa.clebersan.workers.dev npm run test:e2e`, sem build e sem servidor local. Contra a produção, a API roda só no projeto desktop e espera o limite por cliente quando recebe 429.
 - Os cabeçalhos HTTP das páginas vêm de `dist/_headers`, gerado no build a partir de `src/config/security.ts`; as respostas de `/api` levam os de `worker/http/respostas.ts`.
 
 Configuração inicial, feita uma vez pelo dono do repositório:

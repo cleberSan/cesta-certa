@@ -53,10 +53,11 @@ O que vai para cada serviço, e o que não vai, está na página [Privacidade](h
 | [0005](docs/adr/0005-mercados-localizacao-e-mapa.md)     | Mercados do OpenStreetMap em células, localização pedida com explicação e mapa sob demanda |
 | [0006](docs/adr/0006-comparacao-da-lista.md)             | Como o app compara a lista entre os mercados                                               |
 | [0007](docs/adr/0007-demonstracao-e-uso-sem-internet.md) | Demonstração com dados fictícios e uso sem internet                                        |
+| [0008](docs/adr/0008-conferencia-do-site-no-ar.md)       | Conferência agendada do site no ar                                                         |
 
 ## Qualidade
 
-O código entra por PR, com cada critério de aceite ligado a um teste (`spec 0001 CA-NN`), cobertura mínima de 80%, testes de ponta a ponta com Playwright no celular e no computador, acessibilidade WCAG 2.2 AA conferida com axe nos dois temas de cor, CSP sem `unsafe-inline`, CodeQL e revisão de dependências.
+O código entra por PR, com cada critério de aceite ligado a um teste (`spec 0001 CA-NN`), cobertura mínima de 80%, testes de ponta a ponta com Playwright no celular e no computador, acessibilidade WCAG 2.2 AA conferida com axe nos dois temas de cor, CSP sem `unsafe-inline`, CodeQL e revisão de dependências. Todo dia, a mesma suíte de ponta a ponta roda contra o site publicado e abre uma issue quando falha ([ADR-0008](docs/adr/0008-conferencia-do-site-no-ar.md)).
 
 ## Licença e créditos
 

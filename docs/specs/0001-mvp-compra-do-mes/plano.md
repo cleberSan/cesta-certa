@@ -112,7 +112,7 @@ flowchart LR
 - Worker: log JSON por consulta com `correlationId`, `uf`, `resultado` (ok ou o código do erro), `itens`, `saltos`, `statusOrigem`, `bytes`, `duracaoMs` e os 12 primeiros caracteres do SHA-256 da chave de acesso; nada de URL, HTML, CNPJ, CPF ou texto da nota. Correlation id volta no cabeçalho da resposta e aparece na tela de erro.
 - Assistente: log por chamada com `correlationId`, `resultado` (ok, nao-autorizado, limite, grande-demais, indisponivel, recusa), `tokensEntrada`, `tokensSaida`, custo estimado em dólar e `duracaoMs`, sem pergunta nem resposta. A versão do prompt vai junto para comparar mudanças.
 - App: tela "Diagnóstico" com os últimos 20 erros (sem dado pessoal), para o dono mandar print.
-- Produção: conferência diária com a suíte E2E contra o site publicado (pipeline do ecossistema), abrindo issue quando falha.
+- Produção: conferência diária com a suíte E2E contra o site publicado (pipeline do ecossistema), abrindo issue quando falha. Ligada na T19 ([ADR-0008](../../adr/0008-conferencia-do-site-no-ar.md)).
 
 ## Testes por critério
 
