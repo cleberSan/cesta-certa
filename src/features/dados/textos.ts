@@ -7,10 +7,10 @@ import type { Copia, ErroDaExportacao, ErroDaImportacao, Resumo } from "./copia"
 export const limiteEmMb = limiteDoArquivo / (1024 * 1024);
 
 /**
- * "2 listas e 31 itens", "1 lista sem itens", "nenhuma lista", com os mercados cadastrados
- * quando houver: "1 lista e 3 itens, mais 2 mercados cadastrados".
+ * "2 listas e 31 itens", "1 lista sem itens", "nenhuma lista", com os mercados cadastrados e
+ * os preços quando houver: "1 lista e 3 itens, mais 2 mercados cadastrados e 15 preços".
  */
-export function descreverResumo({ listas, itens, mercados }: Resumo): string {
+export function descreverResumo({ listas, itens, mercados, precos }: Resumo): string {
   const quantas = listas === 1 ? "1 lista" : `${listas} listas`;
   const daLista =
     listas === 0
@@ -18,8 +18,15 @@ export function descreverResumo({ listas, itens, mercados }: Resumo): string {
       : itens === 0
         ? `${quantas} sem itens`
         : `${quantas} e ${contarItens(itens)}`;
-  if (mercados === 0) return daLista;
-  return `${daLista}, mais ${mercados === 1 ? "1 mercado cadastrado" : `${mercados} mercados cadastrados`}`;
+  const extras = [
+    mercados === 0
+      ? null
+      : mercados === 1
+        ? "1 mercado cadastrado"
+        : `${mercados} mercados cadastrados`,
+    precos === 0 ? null : precos === 1 ? "1 preço" : `${precos} preços`,
+  ].filter((extra) => extra !== null);
+  return extras.length === 0 ? daLista : `${daLista}, mais ${extras.join(" e ")}`;
 }
 
 /** "3 registros", "1 registro". */

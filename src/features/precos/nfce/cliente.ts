@@ -184,6 +184,12 @@ const mensagens: Readonly<Record<CodigoDaFalha, MensagemDaFalha>> = {
     texto: "Atualize a página e tente de novo.",
     ofereceDigitar: false,
   },
+  "requisicao.muitas-consultas": {
+    titulo: "Muitas consultas seguidas",
+    texto:
+      "Para proteger o serviço, o servidor espera um pouco entre rajadas. Espere um minuto e tente de novo.",
+    ofereceDigitar: false,
+  },
   "erro.interno": {
     titulo: "Algo deu errado no servidor",
     texto: tenteDeNovo,

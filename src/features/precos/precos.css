@@ -1,0 +1,86 @@
+.precos {
+  margin: 1.5rem 0;
+}
+
+.precos h2 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.2rem;
+}
+
+.precos-carregando,
+.precos-ajuda {
+  color: var(--cor-texto-suave);
+}
+
+.precos-ajuda {
+  margin: 0.3rem 0 0;
+  font-size: 0.95rem;
+}
+
+.precos-formulario {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.precos-formulario h2 {
+  margin: 0;
+}
+
+.precos-dupla {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 40rem) {
+  .precos-dupla {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.precos-produto h3 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.precos-lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.precos-lista > li {
+  margin: 0 0 0.75rem;
+  padding: 0.75rem var(--espaco);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+
+.precos-lista p {
+  margin: 0 0 0.35rem;
+  overflow-wrap: anywhere;
+}
+
+.precos-valor strong {
+  font-size: 1.15rem;
+}
+
+.precos-fonte {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+}
+
+.precos-antigo {
+  border: 1px solid var(--cor-destaque);
+  background: var(--cor-aviso-fundo);
+  color: var(--cor-texto);
+}
+
+.precos-unidade {
+  font-variant-numeric: tabular-nums;
+}

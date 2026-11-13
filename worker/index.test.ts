@@ -92,4 +92,34 @@ describe("Worker", () => {
       itens: 3,
     });
   });
+
+  it("passa o binding de limite à API quando ele existe", async () => {
+    vi.spyOn(console, "log").mockImplementation(() => undefined);
+    const chaves: string[] = [];
+    const env: Env = {
+      ...ambiente().env,
+      LIMITE_DA_NOTA: {
+        limit: async ({ key }) => {
+          chaves.push(key);
+          return { success: false };
+        },
+      },
+    };
+
+    const resposta = await worker.fetch(
+      new Request(`${origem}${rotaDaConsulta}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Origin: origem,
+          "CF-Connecting-IP": "198.51.100.4",
+        },
+        body: JSON.stringify({ url: linkSp() }),
+      }),
+      env,
+    );
+
+    expect(resposta.status).toBe(429);
+    expect(chaves).toEqual([`${rotaDaConsulta} 198.51.100.4`]);
+  });
 });

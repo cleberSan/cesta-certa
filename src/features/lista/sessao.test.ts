@@ -96,7 +96,14 @@ describe("abrirSessao", () => {
     ]);
     expect(await real.lerTudo()).toEqual({
       ok: true,
-      valor: { listas: sessao.estado().listas, itens: [], ajustes: [], mercadosProprios: [] },
+      valor: {
+        listas: sessao.estado().listas,
+        itens: [],
+        ajustes: [],
+        mercadosProprios: [],
+        observacoesDePreco: [],
+        associacoes: [],
+      },
     });
   });
 

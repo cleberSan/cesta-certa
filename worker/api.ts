@@ -1,4 +1,5 @@
 import { rotaDaConsulta } from "../src/shared/contratos/nfce";
+import { conferirLimite, periodoDoLimiteS, type LimiteDeTaxa } from "./http/limite";
 import { responderProblema } from "./http/respostas";
 import { consultarNota, type Dependencias } from "./nfce/consultar";
 
@@ -8,6 +9,8 @@ import { consultarNota, type Dependencias } from "./nfce/consultar";
  */
 export interface DependenciasDaApi extends Dependencias {
   gerarId: () => string;
+  /** Limite por cliente da consulta da nota; ausente nos testes que não tratam dele. */
+  limite?: LimiteDeTaxa;
 }
 
 /**
@@ -54,6 +57,25 @@ export async function tratarApi(request: Request, deps: DependenciasDaApi): Prom
           status: 403,
           code: "requisicao.origem-nao-permitida",
           detail: "A API só atende o próprio site.",
+        },
+        traceId,
+      );
+    }
+    // Depois das travas baratas: pedido de outra origem nem conta no limite.
+    const veredito = await conferirLimite(
+      deps.limite,
+      request,
+      url.pathname,
+      traceId,
+      deps.registrar,
+    );
+    if (veredito === "excedido") {
+      return responderProblema(
+        {
+          status: 429,
+          code: "requisicao.muitas-consultas",
+          detail: "Muitas consultas seguidas. Espere um minuto e tente de novo.",
+          cabecalhos: { "Retry-After": String(periodoDoLimiteS) },
         },
         traceId,
       );

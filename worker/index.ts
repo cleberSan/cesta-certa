@@ -1,4 +1,5 @@
 import { tratarApi } from "./api";
+import type { LimiteDeTaxa } from "./http/limite";
 import { registrarNoConsole } from "./observabilidade/registro";
 
 /**
@@ -8,6 +9,8 @@ import { registrarNoConsole } from "./observabilidade/registro";
  */
 export interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
+  /** Binding `ratelimits` do `wrangler.jsonc`: 10 consultas da nota por minuto por cliente. */
+  LIMITE_DA_NOTA?: LimiteDeTaxa;
 }
 
 export default {
@@ -19,6 +22,7 @@ export default {
         registrar: registrarNoConsole,
         agora: () => Date.now(),
         gerarId: () => crypto.randomUUID(),
+        ...(env.LIMITE_DA_NOTA === undefined ? {} : { limite: env.LIMITE_DA_NOTA }),
       });
     }
     return env.ASSETS.fetch(request);

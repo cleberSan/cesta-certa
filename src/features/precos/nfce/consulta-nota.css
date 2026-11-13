@@ -194,3 +194,108 @@
     min-width: 11rem;
   }
 }
+
+/* Leitor do QR Code pela câmera (T11). */
+.leitor-qr {
+  margin-bottom: 1rem;
+}
+
+.leitor-qr-camera {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+}
+
+.leitor-qr-video {
+  display: block;
+  width: 100%;
+  max-width: 32rem;
+  aspect-ratio: 1;
+  max-height: 60vh;
+  object-fit: cover;
+  border-radius: var(--raio);
+  border: 2px solid var(--cor-borda);
+  background: #000;
+}
+
+.leitor-qr-situacao {
+  margin: 0;
+}
+
+.leitor-qr .mensagem-erro {
+  margin-top: 0.75rem;
+}
+
+/* Guardar os preços da nota (T11). */
+.importacao {
+  margin-top: 1rem;
+  padding: var(--espaco);
+  border-radius: var(--raio);
+  border: 1px solid var(--cor-borda);
+  background: var(--cor-superficie);
+  display: grid;
+  gap: 1rem;
+}
+
+.importacao h2,
+.importacao p {
+  margin: 0;
+}
+
+.importacao-guardada:focus {
+  outline: 3px solid var(--cor-foco);
+  outline-offset: 2px;
+}
+
+.importacao-produtos {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.importacao-produtos legend {
+  padding: 0;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.importacao-itens {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.importacao-itens > li {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.75rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: 0.5rem;
+  background: var(--cor-fundo);
+}
+
+.importacao-itens label {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.importacao-conta {
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.importacao-itens select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: 2px solid var(--cor-borda);
+  border-radius: 0.5rem;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font: inherit;
+}
