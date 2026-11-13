@@ -14,13 +14,20 @@
   "ratelimits": [
     { "name": "LIMITE_DA_NOTA", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } },
   ],
+  // Contadores de uso do assistente (ADR-0004): sem `database_id` de propósito. No primeiro
+  // deploy, o wrangler acha o banco pelo nome ou cria (o token do build tem D1 Edit desde
+  // 2026-11-13) e liga ao Worker; depois o binding é herdado. Localmente, o `wrangler dev` cria
+  // um banco vazio em .wrangler/.
+  "d1_databases": [{ "binding": "USO_ASSISTENTE", "database_name": "cesta-certa-uso" }],
   // O build de prévia de cada PR roda `wrangler preview`, que exige este bloco. A prévia usa o
   // mesmo código; binding não passa de um bloco para o outro, então o limite se repete aqui,
-  // com contador próprio.
+  // com contador próprio. O banco do assistente é o mesmo: prévia e produção dividem a cota,
+  // que é o teto de custo.
   "previews": {
     "ratelimits": [
       { "name": "LIMITE_DA_NOTA", "namespace_id": "1002", "simple": { "limit": 10, "period": 60 } },
     ],
+    "d1_databases": [{ "binding": "USO_ASSISTENTE", "database_name": "cesta-certa-uso" }],
   },
   "assets": {
     "directory": "./dist",

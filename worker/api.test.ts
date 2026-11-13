@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { apiSecurityHeaders } from "../src/config/security";
 import { ehNotaConsultada, ehProblema, rotaDaConsulta } from "../src/shared/contratos/nfce";
+import { falha } from "../src/shared/resultado";
 import { tratarApi, type DependenciasDaApi } from "./api";
 import type { Buscar } from "./nfce/buscar";
 import { chaves, hashQr, hostSp, linkSp } from "./nfce/fixtures/chaves";
@@ -38,6 +39,7 @@ function cenario(responder: Buscar = async () => paginaHtml(paginaSp())): Cenari
       registrar: (evento) => eventos.push(evento),
       agora: () => (relogio += 25),
       gerarId: () => traceId,
+      assistente: () => falha("sem-banco"),
       limites: { tempoMs: 200, bytes: 512 * 1024, saltos: 2 },
     },
   };

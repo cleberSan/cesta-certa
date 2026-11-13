@@ -1,4 +1,8 @@
+import { rotaDoAssistente } from "../src/shared/contratos/assistente";
 import { rotaDaConsulta } from "../src/shared/contratos/nfce";
+import type { Resultado } from "../src/shared/resultado";
+import type { ConfiguracaoDoAssistente, MotivoDeDesligado } from "./assistente/config";
+import { atenderAssistente } from "./assistente/rota";
 import { conferirLimite, periodoDoLimiteS, type LimiteDeTaxa } from "./http/limite";
 import { responderProblema } from "./http/respostas";
 import { consultarNota, type Dependencias } from "./nfce/consultar";
@@ -9,9 +13,29 @@ import { consultarNota, type Dependencias } from "./nfce/consultar";
  */
 export interface DependenciasDaApi extends Dependencias {
   gerarId: () => string;
-  /** Limite por cliente da consulta da nota; ausente nos testes que não tratam dele. */
+  /** Limite por cliente de cada rota da API; ausente nos testes que não tratam dele. */
   limite?: LimiteDeTaxa;
+  /**
+   * Segredos, banco e provedor do assistente, lidos do ambiente do Worker (ADR-0004) só quando
+   * o pedido é para o assistente.
+   */
+  assistente: () => Resultado<ConfiguracaoDoAssistente, MotivoDeDesligado>;
 }
+
+type Rota = (request: Request, traceId: string, deps: DependenciasDaApi) => Promise<Response>;
+
+const rotas: ReadonlyMap<string, Rota> = new Map<string, Rota>([
+  [rotaDaConsulta, (request, traceId, deps) => consultarNota(request, traceId, deps)],
+  [
+    rotaDoAssistente,
+    (request, traceId, deps) =>
+      atenderAssistente(request, traceId, {
+        registrar: deps.registrar,
+        agora: deps.agora,
+        configuracao: deps.assistente(),
+      }),
+  ],
+]);
 
 /**
  * A API só atende o próprio site. Navegador de outra origem não consegue chamar: o corpo em
@@ -30,7 +54,8 @@ export async function tratarApi(request: Request, deps: DependenciasDaApi): Prom
   const traceId = deps.gerarId();
   try {
     const url = new URL(request.url);
-    if (url.pathname !== rotaDaConsulta) {
+    const rota = rotas.get(url.pathname);
+    if (rota === undefined) {
       return responderProblema(
         {
           status: 404,
@@ -61,7 +86,8 @@ export async function tratarApi(request: Request, deps: DependenciasDaApi): Prom
         traceId,
       );
     }
-    // Depois das travas baratas: pedido de outra origem nem conta no limite.
+    // Depois das travas baratas: pedido de outra origem nem conta no limite. A chave do
+    // limite leva a rota, então a nota e o assistente têm contadores separados.
     const veredito = await conferirLimite(
       deps.limite,
       request,
@@ -80,7 +106,7 @@ export async function tratarApi(request: Request, deps: DependenciasDaApi): Prom
         traceId,
       );
     }
-    return await consultarNota(request, traceId, deps);
+    return await rota(request, traceId, deps);
   } catch (erro) {
     // Só o tipo do erro: a mensagem pode trazer endereço ou conteúdo.
     deps.registrar({

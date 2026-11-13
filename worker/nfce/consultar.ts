@@ -1,6 +1,10 @@
-import type { CodigoDeErro } from "../../src/shared/contratos/nfce";
 import { declaraMaisQue, lerComLimite } from "../http/corpo";
-import { responderJson, responderProblema, type DadosDoProblema } from "../http/respostas";
+import {
+  responderJson,
+  responderProblema,
+  type CodigoDaApi,
+  type DadosDoProblema,
+} from "../http/respostas";
 import type { Evento, Registrar } from "../observabilidade/registro";
 import { buscarPagina, type Buscar, type LimitesDaBusca } from "./buscar";
 import { diagnosticar } from "./diagnostico";
@@ -85,7 +89,7 @@ export async function consultarNota(
   deps: Dependencias,
 ): Promise<Response> {
   const inicio = deps.agora();
-  const concluir = (resultado: "ok" | CodigoDeErro, dados: Evento = {}): void => {
+  const concluir = (resultado: "ok" | CodigoDaApi, dados: Evento = {}): void => {
     deps.registrar({
       evento: "nfce.consulta",
       traceId,

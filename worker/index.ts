@@ -1,4 +1,5 @@
 import { tratarApi } from "./api";
+import { configurarAssistente, type AmbienteDoAssistente } from "./assistente/config";
 import type { LimiteDeTaxa } from "./http/limite";
 import { registrarNoConsole } from "./observabilidade/registro";
 
@@ -7,9 +8,9 @@ import { registrarNoConsole } from "./observabilidade/registro";
  * plataforma, sem passar por aqui: o `wrangler.jsonc` só manda para o Worker o que começa com
  * /api/. O repasse ao ASSETS cobre o que mais chegar, como o 404 de um caminho que não existe.
  */
-export interface Env {
+export interface Env extends AmbienteDoAssistente {
   ASSETS: { fetch(request: Request): Promise<Response> };
-  /** Binding `ratelimits` do `wrangler.jsonc`: 10 consultas da nota por minuto por cliente. */
+  /** Binding `ratelimits` do `wrangler.jsonc`: 10 pedidos por minuto por cliente e por rota. */
   LIMITE_DA_NOTA?: LimiteDeTaxa;
 }
 
@@ -22,6 +23,7 @@ export default {
         registrar: registrarNoConsole,
         agora: () => Date.now(),
         gerarId: () => crypto.randomUUID(),
+        assistente: () => configurarAssistente(env),
         ...(env.LIMITE_DA_NOTA === undefined ? {} : { limite: env.LIMITE_DA_NOTA }),
       });
     }

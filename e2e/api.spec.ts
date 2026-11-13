@@ -170,3 +170,20 @@ test.describe("pedido fora do contrato", () => {
     }
   });
 });
+
+test.describe("assistente sem os segredos", () => {
+  // spec 0001 CA-34: os segredos só existem no painel da Cloudflare; o `wrangler dev` dos testes
+  // não tem nenhum, então o assistente fica desligado, sem derrubar o resto da API.
+  test("responde 503 indisponível, sem pedir código e sem expor configuração", async ({
+    request,
+  }) => {
+    const response = await request.post("/api/assistente", {
+      headers: { Authorization: "Bearer qualquer-coisa" },
+      data: { pergunta: "Qual a melhor opção?", contexto: {} },
+    });
+
+    await esperarProblema(response, 503, "assistente.indisponivel");
+    const texto = JSON.stringify(await response.json());
+    expect(texto).not.toMatch(/ANTHROPIC|ASSISTENTE_CODIGO|sem-codigo|sem-chave/);
+  });
+});
