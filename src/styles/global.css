@@ -115,8 +115,24 @@ body {
 
 /* No celular, a barra de navegação fica fixa no rodapé: nada fica atrás dela (spec 0002, CA-02). */
 @media (max-width: 47.999rem) {
+  /* O foco levado pelo teclado também para acima da barra (WCAG 2.4.11). */
+  html {
+    scroll-padding-bottom: calc(var(--altura-barra) + env(safe-area-inset-bottom) + 0.5rem);
+  }
+
   body {
     padding-bottom: calc(var(--altura-barra) + env(safe-area-inset-bottom));
+  }
+}
+
+/* Na lista, a barra de resumo fica acima da barra de navegação (spec 0002, CA-10). */
+html:has(.lista-barra) {
+  scroll-padding-bottom: 5rem;
+}
+
+@media (max-width: 47.999rem) {
+  html:has(.lista-barra) {
+    scroll-padding-bottom: calc(var(--altura-barra) + env(safe-area-inset-bottom) + 5rem);
   }
 }
 

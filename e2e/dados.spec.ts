@@ -205,9 +205,10 @@ test.describe("importar", () => {
     const atalho = page.getByRole("link", { name: "Abrir a lista" });
     await expect(atalho).toBeFocused();
     await atalho.click();
+    // O que falta vem antes do que já está no carrinho (spec 0002, CA-08).
     await expect(itens(page)).toHaveText([
-      /Arroz.*2 × 5 kg · Marca Exemplo · só esta marca · comprado/,
       /Feijão.*1 unidade/,
+      /Arroz.*2 × 5 kg · Marca Exemplo · só esta marca · comprado/,
     ]);
     await expect(page.getByRole("checkbox", { name: "Arroz" })).toBeChecked();
 

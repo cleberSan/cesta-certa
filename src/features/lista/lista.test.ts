@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { criarBancoEmMemoria } from "../../shared/armazenamento/memoria";
 import {
   adicionarItem,
+  ajustarQuantidade,
   chaveDoItem,
   conferirEstado,
   criarLista,
@@ -523,6 +524,47 @@ describe("editarItem", () => {
   it("trata como inexistente o item cuja lista sumiu", () => {
     const orfao = congelar({ listas: [lista(1)], itens: [item(10, { listaId: id(2) })] });
     expect(tipoDoErro(editarItem(orfao, id(10), entrada(), contexto()))).toBe("item.inexistente");
+  });
+});
+
+// spec 0002 CA-09
+describe("ajustarQuantidade", () => {
+  it("soma e tira 1 e grava o item, sem mudar se está comprado", async () => {
+    const antes = congelar({
+      listas: [lista(1)],
+      itens: [item(10, { quantidade: 2, comprado: true })],
+    });
+
+    const mais = valor(ajustarQuantidade(antes, id(10), 1, contexto()));
+    expect(mais.item).toMatchObject({ quantidade: 3, comprado: true });
+    await esperarGravacaoIgualAoEstado(antes, mais);
+
+    const menos = valor(ajustarQuantidade(mais.estado, id(10), -1, contexto()));
+    expect(menos.item.quantidade).toBe(2);
+  });
+
+  it("não desce de 1 nem passa de 999", () => {
+    const umSo = congelar({ listas: [lista(1)], itens: [item(10, { quantidade: 1 })] });
+    expect(tipoDoErro(ajustarQuantidade(umSo, id(10), -1, contexto()))).toBe(
+      "item.quantidade-invalida",
+    );
+
+    const noMaximo = congelar({
+      listas: [lista(1)],
+      itens: [item(10, { quantidade: limites.quantidade })],
+    });
+    expect(tipoDoErro(ajustarQuantidade(noMaximo, id(10), 1, contexto()))).toBe(
+      "item.quantidade-acima",
+    );
+    expect(valor(ajustarQuantidade(noMaximo, id(10), -1, contexto())).item.quantidade).toBe(
+      limites.quantidade - 1,
+    );
+  });
+
+  it("recusa item que não existe", () => {
+    expect(tipoDoErro(ajustarQuantidade(umaLista(), id(10), 1, contexto()))).toBe(
+      "item.inexistente",
+    );
   });
 });
 

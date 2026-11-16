@@ -316,6 +316,26 @@ export function somarQuantidade(
   return sucesso({ ...gravarItem(estado, achado.lista, item, contexto), item });
 }
 
+/**
+ * O "+" e o "−" do item (spec 0002, CA-09): muda a quantidade em 1, dentro dos limites que o
+ * formulário já aceita (de 1 a 999). O item continua comprado ou não, como estava.
+ */
+export function ajustarQuantidade(
+  estado: Estado,
+  itemId: string,
+  passo: 1 | -1,
+  contexto: Contexto,
+): Resultado<MudancaComItem, ErroDaLista> {
+  const achado = acharItem(estado, itemId);
+  if (achado === undefined) return erro("item.inexistente");
+  const quantidade = achado.item.quantidade + passo;
+  if (quantidade < 1) return erro("item.quantidade-invalida");
+  if (quantidade > limites.quantidade) return erro("item.quantidade-acima");
+
+  const item: Item = { ...achado.item, quantidade };
+  return sucesso({ ...gravarItem(estado, achado.lista, item, contexto), item });
+}
+
 export function editarItem(
   estado: Estado,
   itemId: string,

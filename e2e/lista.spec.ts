@@ -1,4 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
+import type { Page } from "@playwright/test";
 import { guardado, nomeDoBanco } from "./aparelho";
 import { expect, test } from "./fixtures";
 import {
@@ -8,6 +9,7 @@ import {
   adicionarEEsperar,
   aviso,
   formulario,
+  grupo,
   itens,
   preencher,
   seletor,
@@ -18,6 +20,12 @@ import {
  * começa com o armazenamento vazio (contexto novo do Playwright).
  */
 const wcag = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
+
+async function rolarAteOFim(page: Page) {
+  await page.evaluate(() =>
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }),
+  );
+}
 
 test.describe("lista do mês", () => {
   test("no primeiro uso abre uma lista vazia com o nome do mês atual", async ({
@@ -522,6 +530,10 @@ test.describe("acessibilidade e celular", () => {
       await adicionar(page, "arroz");
       await expect(page.getByRole("group", { name: /Arroz já está na lista/ })).toBeVisible();
 
+      // A barra de resumo fica presa ao pé da tela e, no meio da rolagem, passa por cima dos
+      // botões que estão atrás dela; o axe conta isso como alvo pequeno. A medida é feita com a
+      // página no fim, onde as barras não cobrem nada (CA-02 e CA-10).
+      await rolarAteOFim(page);
       const comPergunta = await new AxeBuilder({ page }).withTags(wcag).analyze();
       expect(comPergunta.violations).toEqual([]);
 
@@ -529,6 +541,7 @@ test.describe("acessibilidade e celular", () => {
       await adicionar(page, "", { quantidade: "0" });
       await expect(page.getByRole("alert")).toBeVisible();
 
+      await rolarAteOFim(page);
       const comErro = await new AxeBuilder({ page }).withTags(wcag).analyze();
       expect(comErro.violations).toEqual([]);
     });
@@ -706,5 +719,123 @@ test.describe("armazenamento do aparelho", () => {
     );
     await expect(itens(page)).toHaveText([/Arroz/]);
     await expect(formulario(page).getByLabel("Nome do item")).toHaveValue("Feijão");
+  });
+});
+
+test.describe("grupos, quantidade e barra de resumo", () => {
+  // spec 0002 CA-08
+  test("marcar pelo teclado leva o item para No carrinho e de volta, com o foco nele", async ({
+    page,
+  }) => {
+    await abrir(page);
+    await adicionarEEsperar(page, "Arroz");
+    await adicionarEEsperar(page, "Sal");
+    await expect(page.getByRole("heading", { name: "Faltam 2" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^No carrinho/ })).toHaveCount(0);
+
+    const arroz = page.getByRole("checkbox", { name: "Arroz" });
+    await arroz.focus();
+    await page.keyboard.press("Space");
+    await expect(aviso(page)).toHaveText("Arroz: comprado.");
+    await expect(grupo(page, "Faltam")).toHaveText([/Sal/]);
+    await expect(grupo(page, "No carrinho")).toHaveText([/Arroz.* · comprado/]);
+    await expect(page.getByRole("heading", { name: "Faltam 1" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "No carrinho 1" })).toBeVisible();
+    await expect(arroz).toBeFocused();
+    await expect(arroz).toBeChecked();
+
+    await page.keyboard.press("Space");
+    await expect(aviso(page)).toHaveText("Arroz: falta comprar.");
+    await expect(grupo(page, "Faltam")).toHaveText([/Arroz/, /Sal/]);
+    await expect(page.getByRole("heading", { name: /^No carrinho/ })).toHaveCount(0);
+    await expect(arroz).toBeFocused();
+
+    await page.getByRole("checkbox", { name: "Arroz" }).check();
+    await page.getByRole("checkbox", { name: "Sal" }).check();
+    await expect(page.getByRole("heading", { name: "Faltam 0" })).toBeVisible();
+    await expect(page.getByText("Nada falta: está tudo no carrinho.")).toBeVisible();
+    await expect(grupo(page, "No carrinho")).toHaveCount(2);
+  });
+
+  // spec 0002 CA-09
+  test("+ e − mudam a quantidade em 1, guardam no aparelho e param em 1 e 999", async ({
+    page,
+  }) => {
+    await abrir(page);
+    await adicionarEEsperar(page, "Arroz");
+    const menos = page.getByRole("button", { name: "Menos 1 Arroz" });
+    const mais = page.getByRole("button", { name: "Mais 1 Arroz" });
+    await expect(menos).toBeDisabled();
+
+    await mais.click();
+    await expect(aviso(page)).toHaveText("Arroz: quantidade 2.");
+    await mais.click();
+    await expect(aviso(page)).toHaveText("Arroz: quantidade 3.");
+    await expect(page.getByRole("group", { name: "Quantidade de Arroz" })).toContainText("3");
+    await expect(itens(page)).toHaveText([/Arroz.*3 unidades/]);
+    await expect(menos).toBeEnabled();
+
+    await page.getByRole("checkbox", { name: "Arroz" }).check();
+    await menos.click();
+    await expect(aviso(page)).toHaveText("Arroz: quantidade 2.");
+    await expect(page.getByRole("checkbox", { name: "Arroz" })).toBeChecked();
+
+    await page.reload();
+    await expect(itens(page)).toHaveText([/Arroz.*2 unidades · comprado/]);
+
+    // No limite o botão fica desativado, mas segura o foco: Enter não muda nada.
+    await adicionarEEsperar(page, "Sal", { quantidade: "999" });
+    const maisSal = page.getByRole("button", { name: "Mais 1 Sal" });
+    await expect(maisSal).toBeDisabled();
+    await maisSal.focus();
+    await page.keyboard.press("Enter");
+    await expect(maisSal).toBeFocused();
+    await expect(aviso(page)).toHaveText("Sal entrou na lista.");
+    await expect(grupo(page, "Faltam")).toHaveText([/Sal.*999 unidades/]);
+
+    await page.getByRole("button", { name: "Menos 1 Sal" }).click();
+    await expect(aviso(page)).toHaveText("Sal: quantidade 998.");
+    await expect(maisSal).toBeEnabled();
+  });
+
+  // spec 0002 CA-10
+  test("a barra de resumo conta o que falta, leva a Mercados e não cobre o último item", async ({
+    page,
+  }) => {
+    await abrir(page);
+    const barra = page.locator(".lista-barra");
+    await expect(barra).toHaveCount(0);
+
+    const nomes = ["Arroz", "Feijão", "Café", "Óleo", "Açúcar", "Leite", "Sal", "Farinha"];
+    for (const nome of nomes) await adicionarEEsperar(page, nome);
+    await expect(barra).toContainText("8 itens a comprar");
+    await expect(barra.getByRole("link", { name: "Comparar" })).toHaveAttribute(
+      "href",
+      "/mercados",
+    );
+    await page.getByRole("checkbox", { name: "Arroz" }).check();
+    await expect(barra).toContainText("7 itens a comprar");
+
+    // Presa ao pé da tela, a barra fica acima do menu do celular.
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    const caixaDaBarra = (await barra.boundingBox())!;
+    const menu = page.getByRole("navigation", { name: "Principal" });
+    const caixaDoMenu = (await menu.boundingBox())!;
+    if (caixaDoMenu.y > caixaDaBarra.y) {
+      expect(caixaDaBarra.y + caixaDaBarra.height).toBeLessThanOrEqual(caixaDoMenu.y);
+    }
+
+    // No fim da página, o último item aparece inteiro acima dela.
+    const sobra = await page.evaluate(() => {
+      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" });
+      const todos = document.querySelectorAll(".lista-item");
+      const ultimo = todos[todos.length - 1]!.getBoundingClientRect();
+      const barraNaTela = document.querySelector(".lista-barra")!.getBoundingClientRect();
+      return barraNaTela.top - ultimo.bottom;
+    });
+    expect(sobra).toBeGreaterThanOrEqual(0);
+
+    for (const nome of nomes.slice(1)) await page.getByRole("checkbox", { name: nome }).check();
+    await expect(barra).toHaveCount(0);
   });
 });
