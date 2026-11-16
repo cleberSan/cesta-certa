@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { formatarCentavos } from "../../shared/dinheiro";
 import type { ObservacaoDePreco } from "../precos/precos";
+import { avisoDeAntigo } from "../precos/textos";
 import { objetivoPadrao } from "./objetivo";
 import type { ItemDaComparacao, Linha, MercadoDaComparacao, Opcao } from "./otimizador";
 import {
@@ -11,14 +13,17 @@ import {
   descreverLinha,
   descreverSugestao,
   descreverTotalDoMercado,
+  diferencaParaAMelhor,
   fechamentoDoAjuste,
   juntar,
+  larguraDaBarra,
   nomeDaOpcao,
   resumoDaComparacao,
   resumoDoObjetivo,
   rotuloDaEconomia,
   rotuloDoPino,
   rotuloDosMercados,
+  selosDaLinha,
 } from "./textos";
 
 const mercado = (nome: string): MercadoDaComparacao => ({
@@ -234,5 +239,45 @@ describe("total de cada mercado", () => {
   ])("%o vira %j no pino e %j na lista", (total, pino, lista) => {
     expect(rotuloDoPino(total)).toBe(pino);
     expect(descreverTotalDoMercado(total)).toBe(lista);
+  });
+});
+
+// spec 0002 CA-12
+describe("ranking das outras opções", () => {
+  it("escreve a diferença para a mais barata", () => {
+    expect(diferencaParaAMelhor(17906, 17506)).toBe(`+${formatarCentavos(400)}`);
+    expect(diferencaParaAMelhor(17506, 17506)).toBe(`+${formatarCentavos(0)}`);
+  });
+
+  it("não escreve diferença quando a opção custa menos por faltar preço de algum item", () => {
+    expect(diferencaParaAMelhor(6868, 8115)).toBeNull();
+  });
+
+  it("dá à barra a largura proporcional ao maior total, com um mínimo visível", () => {
+    expect(larguraDaBarra(21596, 21596)).toBe(100);
+    expect(larguraDaBarra(17506, 21596)).toBe(81);
+    expect(larguraDaBarra(1, 21596)).toBe(4);
+    expect(larguraDaBarra(30000, 21596)).toBe(100);
+    expect(larguraDaBarra(100, 0)).toBe(0);
+  });
+});
+
+// spec 0002 CA-13
+describe("selosDaLinha", () => {
+  it("não põe selo num preço recente, da marca pedida e sem atacado", () => {
+    expect(selosDaLinha(linha({ vistoEm: "2026-11-10" }), "2026-11-16")).toEqual([]);
+  });
+
+  it("marca preço antigo, outra marca e atacado, cada um com texto", () => {
+    const comTudo: Linha = {
+      ...linha({ vistoEm: "2026-09-01", minimoAtacado: 12 }, 12),
+      outraMarca: true,
+    };
+
+    expect(selosDaLinha(comTudo, "2026-11-16")).toEqual([
+      { tipo: "antigo", texto: avisoDeAntigo },
+      { tipo: "outra-marca", texto: "Outra marca: a escolhida não tem preço aqui" },
+      { tipo: "atacado", texto: "Preço de atacado: a partir de 12 unidades" },
+    ]);
   });
 });

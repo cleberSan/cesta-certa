@@ -413,7 +413,7 @@ code {
 .selo {
   display: inline-block;
   padding: 0.15rem 0.6rem;
-  border-radius: var(--raio-pilula);
+  border-radius: 0.75rem;
   font-size: 0.8125rem;
   font-weight: 700;
   line-height: 1.4;

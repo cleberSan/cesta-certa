@@ -2,8 +2,8 @@ import { useId, useMemo, useRef, useState, type SubmitEvent } from "react";
 import { formatarCentavos } from "../../shared/dinheiro";
 import { Assistente, type DadosDoAssistente } from "../assistente/Assistente";
 import type { Item, Lista } from "../lista/lista";
-import { ehAntigo, type ObservacaoDePreco } from "../precos/precos";
-import { avisoDeAntigo, descreverFonte } from "../precos/textos";
+import type { ObservacaoDePreco } from "../precos/precos";
+import { descreverFonte } from "../precos/textos";
 import { modosDeViagem } from "../rota/links";
 import { OpcoesDeRota } from "../rota/OpcoesDeRota";
 import { descreverModo } from "../rota/textos";
@@ -26,7 +26,9 @@ import {
   descreverFrente,
   descreverLinha,
   descreverSugestao,
+  diferencaParaAMelhor,
   fechamentoDoAjuste,
+  larguraDaBarra,
   mensagemDoTeto,
   nomeDaOpcao,
   ordemDasMarcas,
@@ -36,8 +38,10 @@ import {
   rotuloDaEconomia,
   rotuloDosMercados,
   rotulosDasMarcas,
+  selosDaLinha,
   semItens as textoSemItens,
   semPrecos as textoSemPrecos,
+  type TipoDeSelo,
   semRotaNaDemonstracao,
 } from "./textos";
 import "./comparar.css";
@@ -204,6 +208,8 @@ export function Comparacao({
                   key={opcao.id}
                   opcao={opcao}
                   posicao={posicao + 1}
+                  melhorCentavos={comparacao.opcoes[0]!.totalCentavos}
+                  maiorCentavos={Math.max(...comparacao.opcoes.map((cada) => cada.totalCentavos))}
                   objetivo={objetivo}
                   hoje={dados.hoje}
                   comRota={!dados.demonstracao}
@@ -404,15 +410,31 @@ function AjusteAoTeto({ ajuste, tetoCentavos }: { ajuste: Ajuste; tetoCentavos: 
   );
 }
 
+/** Classe de cada selo de preço (global.css): a cor ajuda, o texto diz tudo (CA-13). */
+const classeDoSelo: Record<TipoDeSelo, string> = {
+  antigo: "selo selo-antigo",
+  "outra-marca": "selo selo-marca",
+  atacado: "selo selo-atacado",
+};
+
+/**
+ * Uma opção de compra (spec 0002, CA-11 e CA-12): a primeira, a mais barata, ganha um cartão
+ * próprio com o total na etiqueta amarela; as outras dizem quanto custam a mais e têm uma barra
+ * proporcional ao total. A barra é SVG, com a largura em atributo: a CSP não aceita style inline.
+ */
 function OpcaoDeCompra({
   opcao,
   posicao,
+  melhorCentavos,
+  maiorCentavos,
   objetivo,
   hoje,
   comRota,
 }: {
   opcao: Opcao;
   posicao: number;
+  melhorCentavos: number;
+  maiorCentavos: number;
   objetivo: Objetivo;
   hoje: string;
   comRota: boolean;
@@ -422,20 +444,59 @@ function OpcaoDeCompra({
   const [rota, setRota] = useState(false);
   const nome = nomeDaOpcao(opcao);
   const faltando = descreverFaltando(opcao);
+  const vencedora = posicao === 1;
+  const diferenca = vencedora ? null : diferencaParaAMelhor(opcao.totalCentavos, melhorCentavos);
+  const total = formatarCentavos(opcao.totalCentavos);
 
   return (
-    <li className="comparar-opcao">
-      <h4>
-        <span className="somente-leitor">Opção {posicao}: </span>
-        {nome}
-      </h4>
-      <p className="comparar-total">{formatarCentavos(opcao.totalCentavos)}</p>
+    <li className={vencedora ? "comparar-opcao comparar-vencedora" : "comparar-opcao"}>
+      <div className="comparar-opcao-topo">
+        {vencedora && <p className="comparar-rotulo">A mais barata</p>}
+        <h4>
+          <span className="somente-leitor">Opção {posicao}: </span>
+          {nome}
+        </h4>
+        {vencedora ? (
+          <p className="comparar-total">
+            <span className="etiqueta-preco">{total}</span>
+          </p>
+        ) : (
+          <>
+            <p className="comparar-total">
+              {total}
+              {diferenca !== null && (
+                <span className="comparar-diferenca">
+                  {diferenca}
+                  <span className="somente-leitor"> a mais que a opção 1</span>
+                </span>
+              )}
+            </p>
+            <svg
+              className="comparar-barra"
+              aria-hidden="true"
+              focusable="false"
+              width="100%"
+              height="8"
+            >
+              <rect className="comparar-barra-fundo" width="100%" height="8" rx="4" />
+              <rect
+                className="comparar-barra-valor"
+                width={`${larguraDaBarra(opcao.totalCentavos, maiorCentavos)}%`}
+                height="8"
+                rx="4"
+              />
+            </svg>
+          </>
+        )}
+        {opcao.frente !== null && (
+          <p className="comparar-frente">{descreverFrente(opcao.frente)}</p>
+        )}
+        <p className="comparar-caminho">{descreverCaminho(opcao)}</p>
+      </div>
       {opcao.acimaDoTetoCentavos > 0 && (
         <p className="comparar-alerta">{descreverAcimaDoTeto(opcao.acimaDoTetoCentavos)}</p>
       )}
       {faltando !== null && <p className="comparar-alerta">{faltando}</p>}
-      {opcao.frente !== null && <p>{descreverFrente(opcao.frente)}</p>}
-      <p className="comparar-caminho">{descreverCaminho(opcao)}</p>
       <div className="comparar-acoes">
         <button
           type="button"
@@ -471,11 +532,12 @@ function OpcaoDeCompra({
                 {parada.linhas.map((linha) => (
                   <li key={linha.item.id}>
                     {descreverLinha(linha)}
-                    <small>
-                      {descreverFonte(linha.observacao)}
-                      {ehAntigo(linha.observacao.vistoEm, hoje) && ` · ${avisoDeAntigo}`}
-                      {linha.outraMarca && " · Outra marca: a escolhida não tem preço aqui"}
-                    </small>
+                    <small>{descreverFonte(linha.observacao)}</small>
+                    {selosDaLinha(linha, hoje).map((selo) => (
+                      <span key={selo.tipo} className={classeDoSelo[selo.tipo]}>
+                        {selo.texto}
+                      </span>
+                    ))}
                   </li>
                 ))}
               </ul>

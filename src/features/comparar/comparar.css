@@ -4,8 +4,9 @@
   margin: 1rem 0 1.5rem;
   padding: var(--espaco);
   border: 1px solid var(--cor-borda);
-  border-radius: var(--raio);
+  border-radius: var(--raio-grande);
   background: var(--cor-superficie);
+  box-shadow: var(--sombra-cartao);
 }
 
 .comparar h3 {
@@ -86,7 +87,9 @@
 
 .comparar-ajuste {
   margin: 1rem 0;
-  padding: 0.75rem;
+  padding: 0.85rem var(--espaco);
+  border: 1px solid var(--cor-destaque);
+  border-left-width: 0.375rem;
   border-radius: var(--raio);
   background: var(--cor-aviso-fundo);
 }
@@ -101,20 +104,64 @@
   list-style: none;
 }
 
+/* Cada opção (spec 0002, CA-11 e CA-12). */
 .comparar-opcao {
-  margin: 0 0 1rem;
-  padding: 0.75rem 0 0;
-  border-top: 1px solid var(--cor-borda);
+  margin: 0 0 0.75rem;
+  padding: 0.85rem var(--espaco) 1rem;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-grande);
+  background: var(--cor-superficie);
 }
 
 .comparar-opcao h4 {
   margin: 0;
+  font-size: 1.0625rem;
+  overflow-wrap: anywhere;
+}
+
+.comparar-opcao-topo > :last-child {
+  margin-bottom: 0.75rem;
 }
 
 .comparar-total {
-  margin: 0.2rem 0;
-  font-size: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+  margin: 0.2rem 0 0.4rem;
+  font-family: var(--titulo);
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.comparar-diferenca {
+  font-family: var(--fonte);
+  font-size: 0.9375rem;
   font-weight: 700;
+  color: var(--cor-texto-suave);
+}
+
+.comparar-barra {
+  display: block;
+  margin: 0 0 0.6rem;
+}
+
+.comparar-barra-fundo {
+  fill: var(--cor-linha);
+}
+
+.comparar-barra-valor {
+  fill: var(--cor-borda-forte);
+}
+
+.comparar-frente {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+}
+
+.comparar-caminho {
+  color: var(--cor-texto-suave);
 }
 
 .comparar-alerta {
@@ -122,8 +169,64 @@
   font-weight: 600;
 }
 
-.comparar-caminho {
-  color: var(--cor-texto-suave);
+/* A mais barata: topo verde com o total na etiqueta amarela, ações no fundo claro. */
+.comparar-vencedora {
+  padding: 0 0 1rem;
+  border-color: var(--cor-marca);
+  box-shadow: var(--sombra-cartao);
+}
+
+.comparar-vencedora .comparar-opcao-topo {
+  margin: 0 0 0.85rem;
+  padding: 1rem var(--espaco) 1.1rem;
+  border-radius: calc(var(--raio-grande) - 1px) calc(var(--raio-grande) - 1px) 0 0;
+  background: var(--cor-marca);
+  color: var(--cor-sobre-marca);
+}
+
+.comparar-vencedora .comparar-opcao-topo > :last-child {
+  margin-bottom: 0;
+}
+
+.comparar-vencedora > :not(.comparar-opcao-topo) {
+  margin-right: var(--espaco);
+  margin-left: var(--espaco);
+}
+
+.comparar-rotulo {
+  display: inline-block;
+  margin: 0 0 0.5rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--raio-pilula);
+  background: var(--cor-sobre-marca-suave);
+  color: var(--cor-marca-forte);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.comparar-vencedora h4 {
+  font-family: var(--titulo);
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.comparar-vencedora .comparar-total {
+  margin: 0.6rem 0 0.6rem;
+}
+
+.comparar-vencedora .comparar-caminho {
+  color: var(--cor-sobre-marca-suave);
+}
+
+.comparar-compras li {
+  margin: 0.5rem 0 0;
+}
+
+.comparar-compras .selo {
+  margin: 0.25rem 0.35rem 0 0;
 }
 
 .comparar-compras h5 {
