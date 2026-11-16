@@ -1,4 +1,5 @@
 ---
+import { Font } from "astro:assets";
 import "../styles/global.css";
 import AvisoSemConexao from "../components/AvisoSemConexao.astro";
 import SiteFooter from "../components/SiteFooter.astro";
@@ -38,8 +39,10 @@ const shareImageUrl = site ? new URL(shareImage.path, site).href : undefined;
     <meta name="description" content={description} />
     {!indexable && <meta name="robots" content="noindex" />}
     {canonical && <link rel="canonical" href={canonical} />}
-    <meta name="theme-color" content="#0f6b4f" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0e1511" media="(prefers-color-scheme: dark)" />
+    <Font cssVariable="--fonte-titulo" preload />
+    <Font cssVariable="--fonte-texto" preload />
+    <meta name="theme-color" content="#0b6e4f" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1512" media="(prefers-color-scheme: dark)" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="/icone.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />

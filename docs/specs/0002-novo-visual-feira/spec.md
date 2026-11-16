@@ -1,9 +1,9 @@
 # Spec 0002: Novo visual, direção "Feira"
 
-- Status: rascunho
+- Status: aprovada (OK do Cleber em 2026-11-16)
 - Data: 2026-11-16
 - Nível: completo (fontes novas com licença OFL; muda a navegação e a cara de todas as páginas)
-- PRs: o mesmo PR leva esta spec (portão do OK) e, depois do OK, as tarefas de [tarefas.md](tarefas.md)
+- PRs: cesta-certa#16 (spec e plano, portão do OK); o código segue a ordem de [tarefas.md](tarefas.md) no PR seguinte
 - Relacionados: [spec 0001](../0001-mvp-compra-do-mes/spec.md), [ADR-0001](../../adr/0001-pilha-e-hospedagem.md), [ADR-0009](../../adr/0009-identidade-visual-e-fontes.md); direções comparadas no artefato de design de 2026-11-16 (privado do Cleber)
 
 ## Problema

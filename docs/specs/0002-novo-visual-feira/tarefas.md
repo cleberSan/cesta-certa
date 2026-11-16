@@ -2,15 +2,15 @@
 
 Spec: [spec.md](spec.md) · Plano: [plano.md](plano.md)
 
-Um PR só. O primeiro commit é esta documentação (portão do OK); as tarefas de código vêm depois do OK, cada uma num commit com build verde e teste junto. Marcar `[x]` no commit que conclui.
+A documentação entrou no PR #16 (portão, mesclado em 2026-11-16). O código vem num PR seguinte, uma tarefa por commit, com build verde e teste junto. Marcar `[x]` no commit que conclui.
 
 ## Portão: spec e plano
 
-- [ ] **T00** Spec, plano, tarefas e ADR-0009 em rascunho — prova: revisão do PR — cobre: nenhum
+- [x] **T00** Spec, plano, tarefas e ADR-0009 em rascunho — prova: revisão do PR #16 — cobre: nenhum
 
 ## Código
 
-- [ ] **T01** Fontes e tokens: woff2 e licenças em `src/assets/fonts/`, `fonts` no `astro.config.mjs`, `<Font />` no `BaseLayout`, tokens claro e escuro e tipografia em `global.css`, `theme-color` novo, fontes na lista do service worker; ADR-0009 aceito — arquivos: `src/assets/fonts/`, `astro.config.mjs`, `src/layouts/`, `src/styles/`, `src/config/offline.ts` — prova: `e2e/fontes.spec.ts`, unidade do service worker e do CSS do build, axe — cobre: CA-14, CA-15, CA-16
+- [x] **T01** Fontes e tokens: woff2 e licenças em `src/assets/fonts/`, `fonts` no `astro.config.mjs`, `<Font />` no `BaseLayout`, tokens claro e escuro e tipografia em `global.css`, `theme-color` novo, fontes na lista do service worker; ADR-0009 aceito — arquivos: `src/assets/fonts/`, `astro.config.mjs`, `src/layouts/`, `src/styles/`, `src/config/offline.ts` — prova: `e2e/fontes.spec.ts`, unidade do service worker, axe — cobre: CA-14, CA-15, CA-16
 - [ ] **T02** Navegação: cabeçalho, barra inferior no celular, menu no topo no computador e rodapé — arquivos: `src/components/SiteHeader.astro`, `src/components/SiteFooter.astro`, `src/layouts/BaseLayout.astro` — prova: `e2e/navegacao.spec.ts` e o teste do menu em `e2e/pages.spec.ts` — cobre: CA-01, CA-02, CA-03, CA-04
 - [ ] **T03** Início: herói, prévia da demonstração calculada no build, atalhos, dados no aparelho e como funciona — arquivos: `src/pages/index.astro`, `src/features/demo/previa.ts` — prova: unidade da prévia e E2E do início — cobre: CA-05, CA-06, CA-07
 - [ ] **T04** Peças comuns e demais telas: botões, cartões, campos, alertas, selos e chips; Nota, Preços, Mercados, Seus dados, Sobre, Privacidade e 404 — arquivos: `src/styles/global.css`, `src/features/*/*.css`, `src/pages/` — prova: axe nos dois temas e 320 px em todas as páginas — cobre: CA-17

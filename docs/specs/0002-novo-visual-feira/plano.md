@@ -64,7 +64,7 @@ Conferidos em 2026-11-16.
 ## Contratos e dados
 
 - Nenhuma rota, evento, schema ou formato de dado muda. A quantidade ajustada usa o mesmo campo `quantidade` do item.
-- O `theme-color` do `BaseLayout` passa a `#0B6E4F` e `#0F1512`; o manifest segue igual.
+- O `theme-color` do `BaseLayout` passa a `#0B6E4F` e `#0F1512`; no manifest, `theme_color` e `background_color` acompanham as cores novas.
 
 ## Segurança
 
@@ -93,7 +93,7 @@ Conferidos em 2026-11-16.
 | CA-12    | Unidade de `diferencaParaAMelhor` e `larguraDaBarra`; E2E: ordem por total e diferença escrita                                            |
 | CA-13    | Unidade de `selosDaLinha`; E2E na demonstração: selos "Preço antigo", "Outra marca" e de atacado com texto                                |
 | CA-14    | E2E: nenhuma requisição de fonte a outro domínio; `document.fonts.check` confirma as duas famílias carregadas                             |
-| CA-15    | Unidade sobre o CSS do build: `font-display: swap` e a família reserva ajustada presentes                                                 |
+| CA-15    | E2E: o HTML de cada página traz `font-display: swap` e a família reserva com `size-adjust`                                                |
 | CA-16    | Unidade de `montarListaDoServiceWorker` com os woff2; E2E sem internet: a página abre com as fontes do cache                              |
 | CA-17    | E2E existentes de axe nos dois temas, mais a largura de 320 px sem rolagem horizontal                                                     |
 | CA-18    | E2E com `reducedMotion: "reduce"`: `transition-duration` e `animation-name` neutros nos blocos, barras e itens                            |

@@ -1,50 +1,77 @@
 /*
- * Identidade própria do Cesta Certa: verde de feira e laranja de etiqueta de preço. Fontes
- * do sistema (nenhum arquivo de fonte para baixar). Cores por variável, com tema escuro pelo
- * `prefers-color-scheme`; contraste conferido pelo axe nos testes E2E.
+ * Identidade "Feira" (spec 0002, ADR-0009): verde de feira, amarelo de etiqueta de preço e
+ * cartões claros. Títulos em Bricolage Grotesque e texto em Inter, servidas pelo próprio site
+ * (o <Font /> do BaseLayout define --fonte-titulo e --fonte-texto). Cores por variável, com
+ * tema escuro pelo `prefers-color-scheme`; contraste conferido pelo axe nos testes E2E.
  */
 :root {
   color-scheme: light dark;
 
-  --cor-fundo: #f6f8f4;
+  --cor-fundo: #f3f6f1;
   --cor-superficie: #ffffff;
-  --cor-texto: #16211b;
-  --cor-texto-suave: #45564c;
-  --cor-marca: #0f6b4f;
-  --cor-marca-forte: #0a5139;
+  --cor-texto: #12201a;
+  --cor-texto-suave: #46564c;
+  --cor-marca: #0b6e4f;
+  --cor-marca-forte: #084f39;
   --cor-sobre-marca: #ffffff;
-  --cor-destaque: #a8410b;
-  --cor-borda: #c5d1c9;
+  --cor-sobre-marca-suave: #d3eee2;
+  --cor-etiqueta: #ffd43b;
+  --cor-sobre-etiqueta: #12201a;
+  --cor-menta: #e3f4ec;
+  --cor-sobre-menta: #084f39;
+  --cor-tinta: #12201a;
+  --cor-sobre-tinta: #ffffff;
+  --cor-sobre-tinta-suave: #c9d6ce;
+  --cor-destaque: #8a4b00;
+  --cor-borda: #dce4dd;
+  --cor-borda-forte: #7a8b80;
+  --cor-linha: #edf1ee;
   --cor-erro: #a12622;
   --cor-erro-fundo: #fdf0ef;
-  --cor-aviso-fundo: #fff6e6;
+  --cor-aviso-fundo: #fff6d6;
   --cor-foco: #1b4fd6;
 
-  --raio: 0.75rem;
+  --sombra-cartao: 0 1px 0 var(--cor-borda), 0 8px 24px rgb(18 32 26 / 6%);
+  --sombra-flutuante: 0 10px 24px rgb(18 32 26 / 22%);
+
+  --raio: 1rem;
+  --raio-grande: 1.5rem;
   --raio-pilula: 999px;
   --largura-conteudo: 46rem;
+  --largura-larga: 72rem;
   --espaco: clamp(1rem, 4vw, 1.5rem);
 
-  --fonte:
-    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif;
+  --titulo: var(--fonte-titulo, system-ui, sans-serif);
+  --fonte: var(--fonte-texto, system-ui, sans-serif);
   --fonte-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --cor-fundo: #0e1511;
-    --cor-superficie: #17211b;
-    --cor-texto: #e9f0eb;
-    --cor-texto-suave: #afbfb5;
-    --cor-marca: #63d6a9;
-    --cor-marca-forte: #8be3c0;
-    --cor-sobre-marca: #062a1d;
-    --cor-destaque: #ffb072;
-    --cor-borda: #34443b;
+    --cor-fundo: #0f1512;
+    --cor-superficie: #18211c;
+    --cor-texto: #eaf1ec;
+    --cor-texto-suave: #aebdb4;
+    --cor-marca: #5fd3a4;
+    --cor-marca-forte: #9be7c6;
+    --cor-sobre-marca: #052a1c;
+    --cor-sobre-marca-suave: #0b3d2a;
+    --cor-menta: #173b2d;
+    --cor-sobre-menta: #9be7c6;
+    --cor-tinta: #eaf1ec;
+    --cor-sobre-tinta: #0f1512;
+    --cor-sobre-tinta-suave: #2e3c34;
+    --cor-destaque: #ffc46b;
+    --cor-borda: #2a362f;
+    --cor-borda-forte: #6c7f74;
+    --cor-linha: #232e28;
     --cor-erro: #ff9d96;
     --cor-erro-fundo: #2c1513;
-    --cor-aviso-fundo: #2b2210;
+    --cor-aviso-fundo: #2b2410;
     --cor-foco: #9db8ff;
+
+    --sombra-cartao: 0 1px 0 var(--cor-borda), 0 8px 24px rgb(0 0 0 / 30%);
+    --sombra-flutuante: 0 10px 24px rgb(0 0 0 / 45%);
   }
 }
 
@@ -69,7 +96,7 @@ body {
   color: var(--cor-texto);
   font-family: var(--fonte);
   font-size: 1.0625rem;
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
 main {
@@ -87,15 +114,28 @@ h3 {
   text-wrap: balance;
 }
 
+h1,
+h2 {
+  font-family: var(--titulo);
+  font-weight: 800;
+}
+
 h1 {
-  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  font-size: clamp(1.875rem, 7vw, 2.75rem);
+  line-height: 1.05;
   margin: 0.5rem 0 1rem;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
 }
 
 h2 {
-  font-size: 1.35rem;
+  font-size: clamp(1.3rem, 4.5vw, 1.5rem);
   margin: 2rem 0 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
 }
 
 p,

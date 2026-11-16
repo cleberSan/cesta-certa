@@ -91,6 +91,25 @@ test.describe("sem internet", () => {
     await expect(aviso(page)).toBeEmpty();
   });
 
+  // spec 0002 CA-16
+  test("sem internet, as páginas abrem com as fontes guardadas pelo service worker", async ({
+    page,
+    context,
+  }) => {
+    await primeiraVisita(page);
+    await context.setOffline(true);
+
+    await page.goto("/sobre");
+    const familias = await page.evaluate(async () => {
+      await document.fonts.ready;
+      return [...document.fonts]
+        .filter((fonte) => fonte.status === "loaded")
+        .map((fonte) => fonte.family.replaceAll('"', ""));
+    });
+    expect(familias.some((familia) => familia.startsWith("Bricolage Grotesque"))).toBe(true);
+    expect(familias.some((familia) => familia.startsWith("Inter"))).toBe(true);
+  });
+
   // spec 0001 CA-36
   test("página que o service worker não guarda mostra o erro de conexão do navegador", async ({
     page,

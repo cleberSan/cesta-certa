@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import react from "@astrojs/react";
-import { defineConfig } from "astro/config";
+import { defineConfig, fontProviders } from "astro/config";
 import { montarListaDoServiceWorker, montarServiceWorker } from "./src/config/offline.ts";
 import { metaCspDirectives, renderHeadersFile } from "./src/config/security.ts";
 import { isIndexable, publicPath, siteUrlFromEnv } from "./src/config/site.ts";
@@ -82,6 +82,39 @@ export default defineConfig({
       directives: [...metaCspDirectives],
     },
   },
+  // Fontes próprias, servidas pelo site (spec 0002, ADR-0009): o build publica os arquivos com
+  // hash em /_astro/fonts/ e gera o @font-face com uma fonte reserva de métricas ajustadas. O
+  // estilo que o <Font /> põe na página entra na CSP por hash, como os demais.
+  fonts: [
+    {
+      provider: fontProviders.local(),
+      name: "Bricolage Grotesque",
+      cssVariable: "--fonte-titulo",
+      fallbacks: ["system-ui", "sans-serif"],
+      display: "swap",
+      options: {
+        variants: [
+          {
+            src: ["./src/assets/fonts/bricolage-grotesque-800-latin.woff2"],
+            weight: 800,
+            style: "normal",
+          },
+        ],
+      },
+    },
+    {
+      provider: fontProviders.local(),
+      name: "Inter",
+      cssVariable: "--fonte-texto",
+      fallbacks: ["system-ui", "sans-serif"],
+      display: "swap",
+      options: {
+        variants: [
+          { src: ["./src/assets/fonts/inter-latin.woff2"], weight: "400 700", style: "normal" },
+        ],
+      },
+    },
+  ],
   // React só nas ilhas (ADR-0001); as demais páginas saem sem JavaScript.
   integrations: [react(), cloudflareHeaders(), searchEngineFiles(), serviceWorker()],
   devToolbar: { enabled: false },
