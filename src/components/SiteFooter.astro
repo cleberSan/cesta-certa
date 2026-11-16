@@ -1,6 +1,8 @@
 ---
 import { repositoryUrl, siteName } from "../config/site";
 import ExternalLink from "./ExternalLink.astro";
+
+/** Rodapé com Seus dados, Privacidade e Sobre em toda página (spec 0002, CA-04). */
 ---
 
 <footer class="rodape">
@@ -25,6 +27,7 @@ import ExternalLink from "./ExternalLink.astro";
 
 <style>
   .rodape {
+    margin-top: 2rem;
     border-top: 1px solid var(--cor-borda);
     background: var(--cor-superficie);
     color: var(--cor-texto-suave);
@@ -32,9 +35,9 @@ import ExternalLink from "./ExternalLink.astro";
   }
 
   .rodape-conteudo {
-    max-width: var(--largura-conteudo);
+    max-width: var(--largura-larga);
     margin: 0 auto;
-    padding: var(--espaco);
+    padding: 1rem var(--espaco);
   }
 
   p {
@@ -44,7 +47,7 @@ import ExternalLink from "./ExternalLink.astro";
   ul {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 1.25rem;
+    gap: 0 1.25rem;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -58,5 +61,19 @@ import ExternalLink from "./ExternalLink.astro";
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
+    font-weight: 600;
+  }
+
+  @media (min-width: 48rem) {
+    .rodape-conteudo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    p {
+      margin: 0;
+    }
   }
 </style>

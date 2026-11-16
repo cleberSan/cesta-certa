@@ -90,9 +90,9 @@ test("o link de pular navegação leva ao conteúdo", async ({ page, isMobile })
 });
 
 test("o menu marca a página atual", async ({ page }) => {
-  await page.goto("/sobre");
-  const menu = page.getByRole("navigation").first();
-  await expect(menu.getByRole("link", { name: "Sobre" })).toHaveAttribute("aria-current", "page");
+  await page.goto("/lista");
+  const menu = page.getByRole("navigation", { name: "Principal" });
+  await expect(menu.getByRole("link", { name: "Lista" })).toHaveAttribute("aria-current", "page");
   await expect(menu.getByRole("link", { name: "Início" })).not.toHaveAttribute("aria-current");
 });
 

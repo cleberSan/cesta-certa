@@ -40,6 +40,8 @@
   --largura-conteudo: 46rem;
   --largura-larga: 72rem;
   --espaco: clamp(1rem, 4vw, 1.5rem);
+  /* Altura da barra de navegação do celular, sem a área segura (SiteHeader.astro). */
+  --altura-barra: 4.25rem;
 
   --titulo: var(--fonte-titulo, system-ui, sans-serif);
   --fonte: var(--fonte-texto, system-ui, sans-serif);
@@ -97,6 +99,15 @@ body {
   font-family: var(--fonte);
   font-size: 1.0625rem;
   line-height: 1.55;
+  padding-right: env(safe-area-inset-right);
+  padding-left: env(safe-area-inset-left);
+}
+
+/* No celular, a barra de navegação fica fixa no rodapé: nada fica atrás dela (spec 0002, CA-02). */
+@media (max-width: 47.999rem) {
+  body {
+    padding-bottom: calc(var(--altura-barra) + env(safe-area-inset-bottom));
+  }
 }
 
 main {
