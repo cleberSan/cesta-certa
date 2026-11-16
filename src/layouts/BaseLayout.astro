@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import AvisoSemConexao from "../components/AvisoSemConexao.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import { isIndexable, publicPath, siteName, siteTagline } from "../config/site";
@@ -8,9 +9,14 @@ interface Props {
   /** Título da página; o nome do site é acrescentado, exceto na página inicial. */
   title?: string;
   description: string;
+  /**
+   * Página com o aplicativo (as ilhas que leem o aparelho e a demonstração): registra o service
+   * worker e avisa quando falta internet (CA-36).
+   */
+  aplicativo?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, aplicativo = false } = Astro.props;
 const fullTitle = title ? `${title} | ${siteName}` : `${siteName}: ${siteTagline}`;
 
 // URLs absolutas a partir do endereço do build (src/config/site.ts).
@@ -60,6 +66,7 @@ const shareImageUrl = site ? new URL(shareImage.path, site).href : undefined;
     </a>
     <SiteHeader />
     <main id="conteudo" tabindex="-1">
+      {aplicativo && <AvisoSemConexao />}
       <slot />
     </main>
     <SiteFooter />

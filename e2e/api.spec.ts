@@ -1,14 +1,24 @@
-import { test as base, expect, type APIResponse } from "@playwright/test";
+import { test as base, expect, type APIRequestContext, type APIResponse } from "@playwright/test";
 import { chaveSintetica, consultaRoute } from "./routes";
+
+/** Com E2E_BASE_URL, a suíte confere o site publicado (spec 0001, T19). */
+const remoto = Boolean(process.env.E2E_BASE_URL);
+
+/** Período do limite por cliente, em segundos (`ratelimits` do wrangler.jsonc). */
+const periodoDoLimiteS = 60;
 
 /**
  * A API conta as consultas de cada IP (10 por minuto, ADR-0001). Aqui cada teste se apresenta
  * como um cliente próprio: o workerd local aceita o `CF-Connecting-IP` que vem no pedido, e
  * assim os testes em paralelo não somam no mesmo contador. Na Cloudflare esse cabeçalho é
- * escrito pela plataforma e não dá para forjar.
+ * escrito pela plataforma e não dá para forjar, então contra a produção ele nem vai.
  */
 const test = base.extend({
   extraHTTPHeaders: async ({}, use, testInfo) => {
+    if (remoto) {
+      await use({});
+      return;
+    }
     let hash = 0;
     for (const letra of `${testInfo.testId} ${testInfo.retry}`) {
       hash = (hash * 31 + letra.charCodeAt(0)) >>> 0;
@@ -26,6 +36,39 @@ const test = base.extend({
  * em worker/api.test.ts.
  */
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+/**
+ * Contra a produção, todos os pedidos saem do IP do runner e contam no mesmo limite. Lá a API
+ * roda só no projeto desktop (ela não muda com o aparelho), um teste por vez, e cada teste tem
+ * tempo para esperar um período do limite.
+ */
+if (remoto) test.describe.configure({ mode: "default" });
+
+test.beforeEach(({}, testInfo) => {
+  test.skip(
+    remoto && testInfo.project.name !== "desktop",
+    "A API não muda com o aparelho: contra a produção, roda só no projeto desktop.",
+  );
+  if (remoto) testInfo.setTimeout(testInfo.timeout + (periodoDoLimiteS + 30) * 1000);
+});
+
+/**
+ * POST que respeita o limite contra a produção: com 429, espera o Retry-After (no máximo um
+ * período) e repete o pedido uma vez. No workerd local cada teste é um cliente próprio, e o 429
+ * só aparece no teste do limite, que confere a resposta como ela veio.
+ */
+async function postar(
+  request: APIRequestContext,
+  caminho: string,
+  opcoes: Parameters<APIRequestContext["post"]>[1],
+): Promise<APIResponse> {
+  const response = await request.post(caminho, opcoes);
+  if (!remoto || response.status() !== 429) return response;
+  const pedido = Number(response.headers()["retry-after"]);
+  const segundos = Number.isFinite(pedido) && pedido > 0 ? pedido : periodoDoLimiteS;
+  await new Promise((resolve) => setTimeout(resolve, Math.min(segundos, periodoDoLimiteS) * 1000));
+  return request.post(caminho, opcoes);
+}
 
 async function esperarProblema(response: APIResponse, status: number, code: string) {
   expect(response.status()).toBe(status);
@@ -76,7 +119,7 @@ test.describe("link fora da lista de endereços oficiais", () => {
     ["protocolo javascript", "javascript:alert(1)", "nfce.link-invalido"],
   ] as const) {
     test(`recusa ${caso} com 422`, async ({ request }) => {
-      const response = await request.post(consultaRoute, { data: { url } });
+      const response = await postar(request, consultaRoute, { data: { url } });
       const body = await esperarProblema(response, 422, code);
       // A frase de erro não repete o que foi enviado.
       expect(JSON.stringify(body)).not.toMatch(/evil|169\.254|127\.0\.0\.1|admin|alert/);
@@ -87,13 +130,17 @@ test.describe("link fora da lista de endereços oficiais", () => {
 // Plano da spec 0001, risco "abuso da consulta como proxy".
 test.describe("limite de consultas por cliente", () => {
   test("a 11ª consulta do mesmo IP no minuto responde 429 com Retry-After", async ({ request }) => {
+    test.skip(
+      remoto,
+      "Na Cloudflare o limite é contado em cada local da rede, de forma aproximada: a conta exata vale no workerd local.",
+    );
     const url = "https://exemplo.com/nfce?p=1";
     const statuses: number[] = [];
     for (let i = 0; i < 10; i++) {
-      statuses.push((await request.post(consultaRoute, { data: { url } })).status());
+      statuses.push((await postar(request, consultaRoute, { data: { url } })).status());
     }
 
-    const response = await request.post(consultaRoute, { data: { url } });
+    const response = await postar(request, consultaRoute, { data: { url } });
 
     expect(statuses).toEqual(Array.from({ length: 10 }, () => 422));
     await esperarProblema(response, 429, "requisicao.muitas-consultas");
@@ -121,7 +168,7 @@ test.describe("pedido fora do contrato", () => {
   });
 
   test("POST de outra origem responde 403", async ({ request }) => {
-    const response = await request.post(consultaRoute, {
+    const response = await postar(request, consultaRoute, {
       data: { url: "https://evil.example" },
       headers: { Origin: "https://evil.example" },
     });
@@ -129,7 +176,7 @@ test.describe("pedido fora do contrato", () => {
   });
 
   test("POST marcado pelo navegador como vindo de outro site responde 403", async ({ request }) => {
-    const response = await request.post(consultaRoute, {
+    const response = await postar(request, consultaRoute, {
       data: { url: "https://evil.example" },
       headers: { "Sec-Fetch-Site": "cross-site" },
     });
@@ -137,7 +184,7 @@ test.describe("pedido fora do contrato", () => {
   });
 
   test("corpo que não é JSON declarado responde 415", async ({ request }) => {
-    const response = await request.post(consultaRoute, {
+    const response = await postar(request, consultaRoute, {
       data: "url=https://evil.example",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
     });
@@ -146,7 +193,7 @@ test.describe("pedido fora do contrato", () => {
 
   test("JSON quebrado ou sem o campo url responde 400", async ({ request }) => {
     for (const data of ['{"url":', "[]", '{"link":"x"}', '{"url":42}']) {
-      const response = await request.post(consultaRoute, {
+      const response = await postar(request, consultaRoute, {
         data,
         headers: { "Content-Type": "application/json" },
       });
@@ -155,7 +202,7 @@ test.describe("pedido fora do contrato", () => {
   });
 
   test("corpo maior que 4 KB responde 413", async ({ request }) => {
-    const response = await request.post(consultaRoute, {
+    const response = await postar(request, consultaRoute, {
       data: { url: `https://evil.example/?x=${"a".repeat(5000)}` },
     });
     await esperarProblema(response, 413, "requisicao.grande-demais");
@@ -165,7 +212,7 @@ test.describe("pedido fora do contrato", () => {
     request,
   }) => {
     for (const path of ["/api", "/api/", "/api/outra", "/api/nfce/consultar/extra"]) {
-      const response = await request.post(path, { data: {} });
+      const response = await postar(request, path, { data: {} });
       await esperarProblema(response, 404, "requisicao.rota-desconhecida");
     }
   });
@@ -178,13 +225,12 @@ test.describe("pedido fora do contrato", () => {
  * que dá 401 com os segredos criados e 503 antes disso.
  */
 test.describe("assistente", () => {
-  const remoto = Boolean(process.env.E2E_BASE_URL);
   const codigoDoE2E = process.env.E2E_ASSISTENTE_CODIGO ?? "";
   const pedido = { pergunta: "Vale a pena ir a dois mercados?", contexto: { opcoes: [] } };
 
   // spec 0001 CA-29
   test("sem o código de acesso responde 401 e pede o código", async ({ request }) => {
-    const response = await request.post("/api/assistente", { data: pedido });
+    const response = await postar(request, "/api/assistente", { data: pedido });
 
     const esperados: Record<number, string> = remoto
       ? { 401: "assistente.nao-autorizado", 503: "assistente.indisponivel" }
@@ -198,7 +244,7 @@ test.describe("assistente", () => {
   // spec 0001 CA-29
   test("com o código errado responde 401", async ({ request }) => {
     test.skip(remoto, "O código de acesso da produção não existe no E2E.");
-    const response = await request.post("/api/assistente", {
+    const response = await postar(request, "/api/assistente", {
       headers: { Authorization: `Bearer ${"x".repeat(codigoDoE2E.length)}` },
       data: pedido,
     });
@@ -212,7 +258,7 @@ test.describe("assistente", () => {
     request,
   }) => {
     test.skip(remoto, "O código de acesso da produção não existe no E2E.");
-    const response = await request.post("/api/assistente", {
+    const response = await postar(request, "/api/assistente", {
       headers: { Authorization: `Bearer ${codigoDoE2E}` },
       data: pedido,
     });

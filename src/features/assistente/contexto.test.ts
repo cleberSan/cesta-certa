@@ -175,6 +175,25 @@ describe("contexto do assistente", () => {
     expect(compras.some((compra) => compra.fonte === "digitado" && !compra.antigo)).toBe(true);
   });
 
+  // spec 0001 CA-35, CA-38
+  it("na demonstração, diz que o preço é fictício", () => {
+    const daDemonstracao = precos.map((observacao) => ({
+      ...observacao,
+      fonte: "demonstracao" as const,
+    }));
+    const resultado = montarContexto({
+      ...entrada(),
+      comparacao: comparar(itens, daDemonstracao, [a, b, c], objetivo),
+    });
+    if (!resultado.ok) throw new Error("O contexto deveria caber.");
+
+    const fontes = resultado.valor.opcoes.flatMap((opcao) =>
+      (opcao.paradas ?? []).flatMap((parada) => parada.compras.map((compra) => compra.fonte)),
+    );
+    expect(fontes.length).toBeGreaterThan(0);
+    expect(new Set(fontes)).toEqual(new Set(["demonstração"]));
+  });
+
   // spec 0001 CA-26
   it("mostra a frente da combinação e o ajuste para caber no teto", () => {
     const contexto = montado();

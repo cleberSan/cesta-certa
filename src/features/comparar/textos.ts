@@ -168,4 +168,8 @@ export const semItens =
   "A lista ainda não tem itens para comparar. Ponha os itens do mês na lista e volte aqui.";
 
 export const semPrecos =
-  "Você ainda não registrou nenhum preço. Leia a nota fiscal de uma compra ou digite os preços que viu, e os mercados aparecem aqui com o total da sua lista.";
+  "Você ainda não registrou nenhum preço. Leia a nota fiscal de uma compra ou digite os preços que viu, e os mercados aparecem aqui com o total da sua lista. Para ver como fica, abra a demonstração, com mercados e preços fictícios.";
+
+/** Na demonstração não há "Ir": a rota levaria a um lugar de verdade (CA-38). */
+export const semRotaNaDemonstracao =
+  "Na demonstração não há rota: os mercados são fictícios. Com os seus preços, cada opção ganha o botão Ir, que abre o caminho no Waze ou no Google Maps.";

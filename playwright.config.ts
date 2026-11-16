@@ -8,7 +8,7 @@ const port = Number(process.env.E2E_PORT ?? 8787);
 const isCI = Boolean(process.env.CI);
 
 // Com E2E_BASE_URL, a mesma suíte roda contra o endereço publicado, sem subir o servidor
-// local (a conferência agendada da produção entra na tarefa T19 da spec 0001).
+// local: é a conferência diária do site no ar (.github/workflows/producao.yml, ADR-0008).
 const remoteURL = process.env.E2E_BASE_URL ? new URL(process.env.E2E_BASE_URL) : undefined;
 if (remoteURL && remoteURL.protocol !== "https:") {
   throw new Error(`E2E_BASE_URL precisa usar https: ${remoteURL.href}`);
@@ -48,6 +48,10 @@ export default defineConfig({
     trace: remoteURL ? "off" : "retain-on-failure",
     screenshot: remoteURL ? "only-on-failure" : "off",
     launchOptions: executablePath ? { executablePath } : {},
+    // O service worker (ADR-0007) atende os pedidos fora da página, onde o `page.route` dos
+    // testes não chega: fica bloqueado, menos em e2e/offline.spec.ts, que prova o uso sem
+    // internet.
+    serviceWorkers: "block",
   },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },

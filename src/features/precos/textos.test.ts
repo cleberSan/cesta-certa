@@ -16,6 +16,11 @@ describe("descreverFonte", () => {
   it.each([
     [{ fonte: "nota", vistoEm: "2026-11-07" }, "Nota fiscal de 07/11/2026"],
     [{ fonte: "digitado", vistoEm: "2026-01-31" }, "Digitado em 31/01/2026"],
+    // spec 0001 CA-38
+    [
+      { fonte: "demonstracao", vistoEm: "2026-11-10" },
+      "Demonstração: preço fictício de 10/11/2026",
+    ],
   ] as const)("descreve %j como %j", (observacao, esperado) => {
     expect(descreverFonte(observacao)).toBe(esperado);
   });

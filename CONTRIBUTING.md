@@ -28,14 +28,15 @@ Antes do primeiro `test:e2e`, instale o navegador com `npx playwright install ch
 
 ## Onde fica cada coisa
 
-| Pasta                                        | O quê                                                                                                                                     |
-| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/pages`, `src/layouts`, `src/components` | Páginas Astro, sem JavaScript por padrão                                                                                                  |
-| `src/features/<fatia>`                       | Uma fatia por assunto (lista, mercados, preços, comparar, rota, assistente): ilha React em `.tsx` e as regras em `.ts`, com teste ao lado |
-| `src/shared`                                 | O que mais de uma fatia usa, inclusive os contratos da API                                                                                |
-| `src/config`                                 | Endereço do site e cabeçalhos de segurança (fonte única do `_headers` e da CSP)                                                           |
-| `worker`                                     | Worker da Cloudflare que atende `/api/*`; o resto do site são arquivos estáticos                                                          |
-| `e2e`                                        | Testes Playwright sobre o build                                                                                                           |
+| Pasta                                        | O quê                                                                                                                                           |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/pages`, `src/layouts`, `src/components` | Páginas Astro, sem JavaScript por padrão                                                                                                        |
+| `src/features/<fatia>`                       | Uma fatia por assunto (lista, mercados, preços, comparar, rota, assistente, demo): ilha React em `.tsx` e as regras em `.ts`, com teste ao lado |
+| `src/shared`                                 | O que mais de uma fatia usa, inclusive os contratos da API e o registro do service worker (`src/shared/offline`)                                |
+| `src/config`                                 | Endereço do site, cabeçalhos de segurança (fonte única do `_headers` e da CSP) e a lista de arquivos do service worker                          |
+| `public/sw.js`                               | Service worker escrito à mão; o build escreve nele a versão e a lista de arquivos                                                               |
+| `worker`                                     | Worker da Cloudflare que atende `/api/*`; o resto do site são arquivos estáticos                                                                |
+| `e2e`                                        | Testes Playwright sobre o build                                                                                                                 |
 
 ## Regras que os testes cobram
 
@@ -58,6 +59,16 @@ Os mercados vêm do OpenStreetMap (ODbL) e ficam em `public/data`, gerados uma v
 - O ponto e o raio ficam no armazém `ajustes` do IndexedDB, fora da cópia exportada. Teste novo que mexa com localização confere em `e2e/privacidade.spec.ts` que nenhum pedido leva a coordenada.
 - O mapa (`src/features/mapa/`) usa o MapLibre com o estilo do OpenFreeMap, liberado na CSP só de `/mercados` (`cspDoMapa` em `src/config/security.ts`). O CI não alcança o OpenFreeMap: `e2e/mapa.spec.ts` serve um estilo mínimo pelo Playwright e libera essa origem com `test.use({ outrasOrigens: [...] })`. Confira o mapa de verdade na prévia do PR.
 
+## Demonstração e uso sem internet
+
+Decisões no [ADR-0007](docs/adr/0007-demonstracao-e-uso-sem-internet.md):
+
+- A demonstração (`/demonstracao`) lê `src/features/demo/demo.json` e não abre o banco do aparelho. Todo nome de mercado, bairro e cidade diz no próprio nome que é fictício ("Exemplo", "Fictício", "Imaginário", "Faz de Conta"), e as marcas são "Marca A", "Marca B": `src/features/demo/demo.test.ts` confere isso e compara com redes reais. Os preços ficam recentes sozinhos, porque o arquivo guarda há quantos dias foram "vistos".
+- O service worker só é registrado pelas páginas com `aplicativo` no `BaseLayout`. Página nova com ilha precisa da propriedade para abrir sem internet; página sem ilha continua sem script.
+- No build, `src/config/offline.ts` monta a lista a partir do HTML gerado e das importações fixas dos módulos e escreve a versão (um resumo do conteúdo) no `dist/sw.js`. Arquivo pedido pelo HTML que falte no build quebra o build.
+- Nos testes de ponta a ponta o service worker fica bloqueado (`serviceWorkers: "block"` no `playwright.config.ts`), porque ele atenderia pedidos fora do alcance do `page.route`; só `e2e/offline.spec.ts` o libera.
+- Para desligar o service worker em produção, publique um `sw.js` que apague os caches com prefixo `cesta-certa-` e chame `self.registration.unregister()`.
+
 ## Publicação
 
 O site é publicado na Cloudflare como um Worker com arquivos estáticos, pela integração da própria Cloudflare com o GitHub ([ADR-0001](docs/adr/0001-pilha-e-hospedagem.md)):
@@ -65,6 +76,7 @@ O site é publicado na Cloudflare como um Worker com arquivos estáticos, pela i
 - Endereço: <https://cesta-certa.clebersan.workers.dev>.
 - Merge no `main` publica em produção. PRs de outras branches ganham um link de prévia no check da Cloudflare.
 - Para voltar uma versão, use **Deployments** no painel do Worker, ou reverta o PR.
+- Depois de um deploy, rode a conferência em **Actions → Site no ar → Run workflow**. Ela roda sozinha todo dia e abre uma issue quando falha ([ADR-0008](docs/adr/0008-conferencia-do-site-no-ar.md)). Para rodar daqui: `E2E_BASE_URL=https://cesta-certa.clebersan.workers.dev npm run test:e2e`, sem build e sem servidor local. Contra a produção, a API roda só no projeto desktop e espera o limite por cliente quando recebe 429.
 - Os cabeçalhos HTTP das páginas vêm de `dist/_headers`, gerado no build a partir de `src/config/security.ts`; as respostas de `/api` levam os de `worker/http/respostas.ts`.
 
 Configuração inicial, feita uma vez pelo dono do repositório:
@@ -74,6 +86,6 @@ Configuração inicial, feita uma vez pelo dono do repositório:
 3. No painel da Cloudflare, **Create app** → importar repositório do GitHub. No app da Cloudflare no GitHub, escolha **Only select repositories** e acrescente só `cesta-certa`.
 4. Use o nome `cesta-certa` (o mesmo de `wrangler.jsonc`), build command `npm run build` e os comandos de deploy e prévia padrão. Deixe **Protect with Cloudflare Access** desligado: o site é público.
 5. O build da Cloudflare não precisa de variável: o endereço fica em `productionSiteUrl` (`src/config/site.ts`), também para as prévias dos PRs. Uma `SITE_URL` no painel com valor diferente do código quebra o build de propósito.
-6. Os segredos do assistente (tarefa T16 da spec 0001) são criados no painel do Worker, em **Settings → Variables and secrets**, como **Secret**. Nunca em arquivo, em chat ou em secret do GitHub.
+6. Os segredos do assistente (`ANTHROPIC_API_KEY` e `ASSISTENTE_CODIGO`, [ADR-0004](docs/adr/0004-assistente-pelo-servidor.md)) são criados no painel do Worker, em **Settings → Variables and secrets**, como **Secret**. Nunca em arquivo, em chat ou em secret do GitHub. Sem eles, o assistente responde "indisponível" e o resto do site funciona igual.
 
 Nenhum token da Cloudflare deve ser guardado no repositório nem nos secrets do GitHub.

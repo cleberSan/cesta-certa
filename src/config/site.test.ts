@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import {
   isIndexable,
@@ -44,6 +45,15 @@ describe("productionSiteUrl", () => {
   it("é uma origem válida em https", () => {
     expect(parseSiteUrl(productionSiteUrl)?.origin).toBe(productionSiteUrl);
     expect(productionSiteUrl).toMatch(/^https:\/\//);
+  });
+
+  it("é o mesmo endereço que o workflow Site no ar confere (ADR-0008)", async () => {
+    const workflow = await readFile(
+      new URL("../../.github/workflows/producao.yml", import.meta.url),
+      "utf8",
+    );
+    const configurado = /^\s*E2E_BASE_URL:\s*(\S+)\s*$/m.exec(workflow)?.[1];
+    expect(configurado, "E2E_BASE_URL em .github/workflows/producao.yml").toBe(productionSiteUrl);
   });
 });
 

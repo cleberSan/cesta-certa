@@ -1,0 +1,85 @@
+name: Site no ar
+
+# Roda a mesma suíte E2E do CI contra o site publicado (ADR-0008; spec 0001, T19): cabeçalhos,
+# CSP, páginas, travas da API, demonstração, uso sem internet e acessibilidade no endereço de
+# produção.
+on:
+  schedule:
+    # Todo dia às 09:43 UTC (06:43 em Brasília). Fora da hora cheia, quando o GitHub mais
+    # atrasa os agendamentos.
+    - cron: "43 9 * * *"
+  # Também à mão, depois de um deploy. Sem gatilho de PR: a suíte de um PR já conhece telas
+  # que a produção só recebe no merge, e falharia sem haver defeito no ar.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: producao
+  cancel-in-progress: false
+
+env:
+  # Mesmo endereço de productionSiteUrl em src/config/site.ts; um teste unitário confere.
+  E2E_BASE_URL: https://cesta-certa.clebersan.workers.dev
+
+jobs:
+  smoke:
+    name: Conferência do site no ar
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Testes E2E contra a produção
+        run: npm run test:e2e
+
+      - name: Publicar relatório
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report-producao
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+          if-no-files-found: ignore
+
+  alert:
+    name: Avisar falha no site no ar
+    needs: smoke
+    # Só nas execuções agendadas: no disparo manual, quem disparou já vê o resultado.
+    if: failure() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Abrir issue ou comentar na que já está aberta
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Site no ar falhou na conferência agendada"
+          open_issue=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$open_issue" ]; then
+            gh issue comment "$open_issue" --body "Falhou de novo: $RUN_URL"
+          else
+            gh issue create --title "$title" --body "A conferência agendada de $E2E_BASE_URL falhou: $RUN_URL
+
+          O relatório do Playwright está nos artefatos da execução. Se o problema for do site, o rollback fica em **Deployments**, no painel do Worker (CONTRIBUTING, Publicação). Feche esta issue quando a conferência voltar a passar."
+          fi

@@ -16,7 +16,7 @@ import {
 import { formatarCentavos } from "../../shared/dinheiro";
 import { falha, sucesso, type Resultado } from "../../shared/resultado";
 import type { Preferencia } from "../lista/lista";
-import { ehAntigo } from "../precos/precos";
+import { ehAntigo, type ObservacaoDePreco } from "../precos/precos";
 import { descreverEmbalagem } from "../precos/textos";
 import { descreverModo } from "../rota/textos";
 import type { Objetivo } from "../comparar/objetivo";
@@ -45,7 +45,7 @@ export interface CompraDoContexto {
   readonly total: string;
   /** Marca e tamanho do preço registrado ("Marca, 5 kg"); nulo quando não há. */
   readonly embalagem: string | null;
-  readonly fonte: "nota fiscal" | "digitado";
+  readonly fonte: "nota fiscal" | "digitado" | "demonstração";
   readonly vistoEm: string;
   readonly antigo: boolean;
   readonly outraMarca: boolean;
@@ -130,6 +130,12 @@ function reais(centavos: number): string {
 
 const km = (distancia: number) => Math.round(distancia);
 
+const fonteNoContexto: Readonly<Record<ObservacaoDePreco["fonte"], CompraDoContexto["fonte"]>> = {
+  nota: "nota fiscal",
+  digitado: "digitado",
+  demonstracao: "demonstração",
+};
+
 function compraDoContexto(linha: Linha, hoje: string): CompraDoContexto {
   const { observacao } = linha;
   return {
@@ -138,7 +144,7 @@ function compraDoContexto(linha: Linha, hoje: string): CompraDoContexto {
     precoDaEmbalagem: reais(observacao.precoCentavos),
     total: reais(linha.centavos),
     embalagem: descreverEmbalagem(observacao),
-    fonte: observacao.fonte === "nota" ? "nota fiscal" : "digitado",
+    fonte: fonteNoContexto[observacao.fonte],
     vistoEm: observacao.vistoEm,
     antigo: ehAntigo(observacao.vistoEm, hoje),
     outraMarca: linha.outraMarca,

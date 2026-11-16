@@ -88,6 +88,11 @@ describe("renderHeadersFile", () => {
     expect(file).toContain("/_astro/*\n  Cache-Control: public, max-age=31536000, immutable");
   });
 
+  // spec 0001 CA-36
+  it("faz o navegador conferir o service worker a cada visita", () => {
+    expect(file).toContain("/sw.js\n  Cache-Control: no-cache");
+  });
+
   it("termina com quebra de linha", () => {
     expect(file.endsWith("\n")).toBe(true);
   });
