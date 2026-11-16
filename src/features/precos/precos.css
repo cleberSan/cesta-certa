@@ -12,6 +12,18 @@
   color: var(--cor-texto-suave);
 }
 
+/* Enquanto os preços abrem, o espaço deles fica reservado: o texto abaixo não pula (CLS). */
+.precos-abrindo {
+  min-height: 14.5rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 40rem) {
+  .precos-abrindo {
+    min-height: 9.75rem;
+  }
+}
+
 .precos-ajuda {
   margin: 0.3rem 0 0;
   font-size: 0.95rem;

@@ -7,7 +7,9 @@
   font-size: 1.2rem;
 }
 
+/* Enquanto a lista abre, o espaço dela fica reservado: o texto abaixo não pula (CLS). */
 .lista-abrindo {
+  min-height: 39rem;
   margin: 1.5rem 0;
   color: var(--cor-texto-suave);
 }
@@ -333,5 +335,28 @@
 @media (min-width: 48rem) {
   .lista-barra {
     bottom: 1rem;
+  }
+}
+
+/* O item que entra ou muda de grupo aparece de leve, e o "−" e o "+" afundam ao toque, só sem
+   pedido de movimento reduzido (CA-18). */
+@media (prefers-reduced-motion: no-preference) {
+  .lista-item {
+    animation: lista-entrar 180ms ease-out;
+  }
+
+  .lista-quantidade button {
+    transition: transform 120ms ease-out;
+  }
+
+  .lista-quantidade button:active:not([aria-disabled="true"]) {
+    transform: scale(0.9);
+  }
+
+  @keyframes lista-entrar {
+    from {
+      opacity: 0;
+      transform: translateY(0.25rem);
+    }
   }
 }

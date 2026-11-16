@@ -247,3 +247,18 @@
 .mercados-total {
   font-weight: 700;
 }
+
+/* As barras do ranking crescem ao aparecer, só sem pedido de movimento reduzido (CA-18). */
+@media (prefers-reduced-motion: no-preference) {
+  .comparar-barra-valor {
+    transform-box: fill-box;
+    transform-origin: left center;
+    animation: comparar-crescer 450ms ease-out;
+  }
+
+  @keyframes comparar-crescer {
+    from {
+      transform: scaleX(0);
+    }
+  }
+}

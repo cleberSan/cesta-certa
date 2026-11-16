@@ -53,7 +53,7 @@ export default function Precos() {
 
   if (carga.fase === "abrindo") {
     return (
-      <p className="precos-carregando" role="status">
+      <p className="precos-carregando precos-abrindo" role="status">
         Abrindo…
       </p>
     );

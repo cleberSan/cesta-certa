@@ -2,7 +2,7 @@
 
 Spec: [spec.md](spec.md) · Plano: [plano.md](plano.md)
 
-A documentação entrou no PR #16 (portão, mesclado em 2026-11-16). O código vem num PR seguinte, uma tarefa por commit, com build verde e teste junto. Marcar `[x]` no commit que conclui.
+A documentação entrou no PR #16 (portão, mesclado em 2026-11-16). O código entrou no PR #17, uma tarefa por commit, com build verde e teste junto. Marcar `[x]` no commit que conclui.
 
 ## Portão: spec e plano
 
@@ -16,4 +16,4 @@ A documentação entrou no PR #16 (portão, mesclado em 2026-11-16). O código v
 - [x] **T04** Peças comuns e demais telas: botões, cartões, campos, alertas, selos e chips; Nota, Preços, Mercados, Seus dados, Sobre, Privacidade e 404 — arquivos: `src/styles/global.css`, `src/features/*/*.css`, `src/pages/` — prova: axe nos dois temas e 320 px em todas as páginas — cobre: CA-17
 - [x] **T05** Lista: grupos "Faltam" e "No carrinho", cartão do item, quantidade com "+" e "−" e barra de resumo — arquivos: `src/features/lista/` — prova: unidade de `ajustarQuantidade`, `e2e/lista.spec.ts` — cobre: CA-08, CA-09, CA-10
 - [x] **T06** Comparação: cartão da opção mais barata, diferença e barra das demais, selos dos avisos — arquivos: `src/features/comparar/`, `src/features/demo/` — prova: unidade de `textos.ts`, `e2e/comparar.spec.ts` e `e2e/demo.spec.ts` — cobre: CA-11, CA-12, CA-13
-- [ ] **T07** Movimento e acabamento: transições só sem pedido de movimento reduzido, conferência de LCP e CLS, prints do celular e do computador para o PR, README e status `implementada` — arquivos: CSS, `README.md`, esta pasta — prova: E2E de movimento reduzido, Lighthouse anotado no PR — cobre: CA-18
+- [x] **T07** Movimento e acabamento: transições só sem pedido de movimento reduzido, conferência de LCP e CLS, prints do celular e do computador para o PR, README e status `implementada` — arquivos: CSS, `README.md`, esta pasta — prova: E2E de movimento reduzido, Lighthouse anotado no PR — cobre: CA-18

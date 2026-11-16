@@ -16,17 +16,19 @@ Comparador da compra do mês: você monta a lista, o app mostra em quais mercado
 - **Rota** no Waze ou no Google Maps com um toque, com as paradas na ordem.
 - **Assistente com Claude** para conversar sobre o resultado, de uso restrito (código de acesso e limite de perguntas). Na demonstração, ele responde com respostas gravadas.
 - **Sem internet**, depois da primeira visita, a lista e os preços guardados continuam abrindo.
+- **Feito para uma mão só**: no celular, o menu fica numa barra no rodapé, com "Ler nota" no centro; a lista separa o que falta do que já está no carrinho e muda a quantidade com "+" e "−"; a opção mais barata vem num cartão próprio, com o total em destaque ([spec 0002](docs/specs/0002-novo-visual-feira/spec.md)).
 
 ## Como funciona
 
-| Parte           | Como                                                                                                                                                                                                                                    |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Páginas         | Astro estático com ilhas React só onde há interação; as demais páginas saem sem JavaScript ([ADR-0001](docs/adr/0001-pilha-e-hospedagem.md))                                                                                            |
-| Dados da pessoa | IndexedDB no aparelho, com migração versionada e cópia em arquivo; nenhum servidor guarda lista, preço ou localização ([ADR-0002](docs/adr/0002-dados-da-pessoa-so-no-aparelho.md))                                                     |
-| API             | Um Worker da Cloudflare atende só `/api`: a consulta da nota fiscal e o assistente, com limite por cliente e logs sem conteúdo ([ADR-0001](docs/adr/0001-pilha-e-hospedagem.md), [ADR-0004](docs/adr/0004-assistente-pelo-servidor.md)) |
-| Mercados        | Base mensal do OpenStreetMap em células de 1 grau, servida com o site; o app baixa só a região do raio ([ADR-0005](docs/adr/0005-mercados-localizacao-e-mapa.md))                                                                       |
-| Comparação      | Otimizador puro no aparelho, de um a três mercados ([ADR-0006](docs/adr/0006-comparacao-da-lista.md))                                                                                                                                   |
-| Sem internet    | Service worker escrito à mão, com a lista de arquivos gerada no build ([ADR-0007](docs/adr/0007-demonstracao-e-uso-sem-internet.md))                                                                                                    |
+| Parte           | Como                                                                                                                                                                                                                                                      |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Páginas         | Astro estático com ilhas React só onde há interação; as demais páginas saem sem JavaScript ([ADR-0001](docs/adr/0001-pilha-e-hospedagem.md))                                                                                                              |
+| Dados da pessoa | IndexedDB no aparelho, com migração versionada e cópia em arquivo; nenhum servidor guarda lista, preço ou localização ([ADR-0002](docs/adr/0002-dados-da-pessoa-so-no-aparelho.md))                                                                       |
+| API             | Um Worker da Cloudflare atende só `/api`: a consulta da nota fiscal e o assistente, com limite por cliente e logs sem conteúdo ([ADR-0001](docs/adr/0001-pilha-e-hospedagem.md), [ADR-0004](docs/adr/0004-assistente-pelo-servidor.md))                   |
+| Mercados        | Base mensal do OpenStreetMap em células de 1 grau, servida com o site; o app baixa só a região do raio ([ADR-0005](docs/adr/0005-mercados-localizacao-e-mapa.md))                                                                                         |
+| Comparação      | Otimizador puro no aparelho, de um a três mercados ([ADR-0006](docs/adr/0006-comparacao-da-lista.md))                                                                                                                                                     |
+| Sem internet    | Service worker escrito à mão, com a lista de arquivos gerada no build ([ADR-0007](docs/adr/0007-demonstracao-e-uso-sem-internet.md))                                                                                                                      |
+| Visual          | Direção "Feira": verde, menta e etiqueta amarela de preço; fontes Bricolage Grotesque e Inter servidas pelo próprio site (OFL), com tema escuro e movimento só sem pedido de movimento reduzido ([ADR-0009](docs/adr/0009-identidade-visual-e-fontes.md)) |
 
 O que vai para cada serviço, e o que não vai, está na página [Privacidade](https://cesta-certa.clebersan.workers.dev/privacidade).
 
@@ -37,7 +39,7 @@ O que vai para cada serviço, e o que não vai, está na página [Privacidade](h
 | [spec.md](docs/specs/0001-mvp-compra-do-mes/spec.md)       | O quê e por quê: problema, fora de escopo e critérios de aceite                     |
 | [plano.md](docs/specs/0001-mvp-compra-do-mes/plano.md)     | Como: fatos verificados com fonte, desenho, segurança, testes por critério e riscos |
 | [tarefas.md](docs/specs/0001-mvp-compra-do-mes/tarefas.md) | Em que ordem: uma tarefa por commit, em cinco PRs                                   |
-| [spec 0002](docs/specs/0002-novo-visual-feira/spec.md)     | Novo visual, direção "Feira": critérios, plano e tarefas (aprovada)                 |
+| [spec 0002](docs/specs/0002-novo-visual-feira/spec.md)     | Novo visual, direção "Feira": critérios, plano e tarefas (implementada)             |
 | [docs/specs](docs/specs/README.md)                         | Como as specs funcionam aqui                                                        |
 | [CONTRIBUTING](CONTRIBUTING.md)                            | Como rodar, testar e publicar                                                       |
 | [SECURITY](SECURITY.md)                                    | Como reportar uma falha de segurança                                                |

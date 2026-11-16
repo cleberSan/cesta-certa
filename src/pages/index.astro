@@ -442,4 +442,15 @@ const atalhos = [
       max-width: var(--largura-conteudo);
     }
   }
+
+  /* O bloco afunda ao toque, só sem pedido de movimento reduzido (CA-18). */
+  @media (prefers-reduced-motion: no-preference) {
+    .atalho {
+      transition: transform 120ms ease-out;
+    }
+
+    .atalho:active {
+      transform: scale(0.97);
+    }
+  }
 </style>

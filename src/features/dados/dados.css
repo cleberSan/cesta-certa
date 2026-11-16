@@ -16,6 +16,12 @@
   color: var(--cor-texto-suave);
 }
 
+/* Enquanto os dados abrem, o espaço do cartão fica reservado: o texto abaixo não pula (CLS). */
+.dados-abrindo {
+  min-height: 26rem;
+  margin: 1.5rem 0;
+}
+
 .dados-ajuda {
   margin: 0.5rem 0 0;
   font-size: 0.95rem;

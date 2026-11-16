@@ -475,8 +475,21 @@ code {
   border: 0;
 }
 
+/* Movimento só quando o sistema não pede movimento reduzido (spec 0002, CA-18): o toque afunda o
+   botão e o item que muda de grupo na lista entra de leve. */
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
+  }
+
+  .botao {
+    transition:
+      transform 120ms ease-out,
+      background-color 120ms ease-out,
+      border-color 120ms ease-out;
+  }
+
+  .botao:active:not([aria-disabled="true"], :disabled) {
+    transform: scale(0.96);
   }
 }

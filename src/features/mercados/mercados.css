@@ -11,6 +11,18 @@
   color: var(--cor-texto-suave);
 }
 
+/* Enquanto o aparelho abre, o espaço da tela fica reservado: o texto abaixo não pula (CLS). */
+.mercados-abrindo {
+  min-height: 38rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 48rem) {
+  .mercados-abrindo {
+    min-height: 22.5rem;
+  }
+}
+
 .mercados-ponto {
   display: flex;
   flex-wrap: wrap;
