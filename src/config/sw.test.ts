@@ -8,7 +8,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { montarServiceWorker } from "./offline";
 
 const origem = "https://cesta.exemplo";
-const versao = "0123456789abcdef";
+// Rótulo legível no lugar dos 16 caracteres hexadecimais do build: o CodeQL trata texto hex
+// fixo que vira código como carga escondida (js/hardcoded-data-interpreted-as-code), e para o
+// service worker a versão é só um nome.
+const versao = "versao-de-teste";
 const enderecos = ["/", "/lista", "/_astro/ilha.js", "/icone.svg"];
 const codigo = montarServiceWorker(
   readFileSync(new URL("../../public/sw.js", import.meta.url), "utf8"),
