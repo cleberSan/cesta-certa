@@ -1,98 +1,359 @@
 ---
 import { publicPath, siteName } from "../config/site";
 
+/**
+ * Cabeçalho e navegação principal (spec 0002, CA-01 a CA-04). Um só <nav>: abaixo de 48 rem
+ * ele vira a barra fixa no rodapé, com o "Ler nota" no centro; a partir de 48 rem fica no topo,
+ * numa linha, com o "Ler nota" como botão no fim. A ordem do DOM é a ordem visual nos dois
+ * tamanhos: o que muda de lugar existe duas vezes, e a cópia que não serve fica com
+ * `display: none`, fora da árvore de acessibilidade. Sem JavaScript.
+ */
 const current = publicPath(Astro.url.pathname);
-const links = [
-  { href: "/", label: "Início" },
-  { href: "/lista", label: "Lista" },
-  { href: "/mercados", label: "Mercados" },
-  { href: "/precos", label: "Preços" },
-  { href: "/sobre", label: "Sobre" },
+const atual = (href: string) => (current === href ? "page" : undefined);
+
+const icones = {
+  inicio: "M3 11 12 4l9 7v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8Z",
+  lista: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01",
+  nota: "M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10",
+  mercados:
+    "M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11ZM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
+  precos: "M3 12V4h8l10 10-8 8-10-10ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z",
+} as const;
+
+const antesDaNota = [
+  { href: "/", label: "Início", icone: icones.inicio },
+  { href: "/lista", label: "Lista", icone: icones.lista },
+];
+const depoisDaNota = [
+  { href: "/mercados", label: "Mercados", icone: icones.mercados },
+  { href: "/precos", label: "Preços", icone: icones.precos },
 ];
 ---
 
 <header class="topo">
   <div class="topo-conteudo">
     <a class="marca" href="/">
-      <img src="/icone.svg" alt="" width="32" height="32" />
+      <img src="/icone.svg" alt="" width="36" height="36" />
       <span>{siteName}</span>
     </a>
-    <nav aria-label="Principal">
+    <a
+      class="topo-sobre"
+      href="/sobre"
+      aria-label="Sobre o Cesta Certa"
+      aria-current={atual("/sobre")}
+    >
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="9"></circle>
+        <path d="M12 11v5M12 8h.01"></path>
+      </svg>
+    </a>
+    <nav class="menu" aria-label="Principal">
       <ul>
-        {links.map((link) => (
+        {antesDaNota.map((link) => (
           <li>
-            <a href={link.href} aria-current={current === link.href ? "page" : undefined}>
-              {link.label}
+            <a href={link.href} aria-current={atual(link.href)}>
+              <span class="menu-icone">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d={link.icone} />
+                </svg>
+              </span>
+              <span>{link.label}</span>
             </a>
           </li>
         ))}
+        <li class="menu-central">
+          <a href="/nota" aria-current={atual("/nota")}>
+            <span class="menu-icone">
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d={icones.nota}></path>
+              </svg>
+            </span>
+            <span>Ler nota</span>
+          </a>
+        </li>
+        {depoisDaNota.map((link) => (
+          <li>
+            <a href={link.href} aria-current={atual(link.href)}>
+              <span class="menu-icone">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d={link.icone} />
+                </svg>
+              </span>
+              <span>{link.label}</span>
+            </a>
+          </li>
+        ))}
+        <li class="menu-so-largo">
+          <a href="/sobre" aria-current={atual("/sobre")}>
+            Sobre
+          </a>
+        </li>
+        <li class="menu-so-largo menu-nota-larga">
+          <a href="/nota" aria-current={atual("/nota")}>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d={icones.nota}></path>
+            </svg>
+            <span>Ler nota</span>
+          </a>
+        </li>
       </ul>
     </nav>
   </div>
 </header>
 
 <style>
-  .topo {
-    background: var(--cor-superficie);
-    border-bottom: 1px solid var(--cor-borda);
-  }
-
   .topo-conteudo {
-    max-width: var(--largura-conteudo);
+    max-width: var(--largura-larga);
     margin: 0 auto;
-    padding: 0.5rem var(--espaco);
+    padding: 0.75rem var(--espaco) 0;
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.25rem 1rem;
+    gap: 1rem;
   }
 
   .marca {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
     min-height: 2.75rem;
     color: var(--cor-texto);
+    font-family: var(--titulo);
     font-weight: 800;
-    font-size: 1.15rem;
+    font-size: 1.3rem;
+    letter-spacing: -0.02em;
     text-decoration: none;
+    white-space: nowrap;
   }
 
   .marca img {
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
   }
 
-  ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
+  .topo-sobre {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-pilula);
+    background: var(--cor-superficie);
+    color: var(--cor-texto);
+  }
+
+  .topo-sobre[aria-current="page"] {
+    border-color: var(--cor-marca);
+    background: var(--cor-menta);
+    color: var(--cor-sobre-menta);
+  }
+
+  .menu ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
-  li + li {
+  .menu li + li {
     margin-top: 0;
   }
 
-  nav a {
-    display: inline-flex;
+  .menu a {
+    display: flex;
     align-items: center;
-    min-height: 2.75rem;
-    padding: 0 0.75rem;
-    border-radius: var(--raio-pilula);
-    color: var(--cor-texto);
-    font-weight: 600;
+    justify-content: center;
     text-decoration: none;
   }
 
-  nav a:hover {
-    text-decoration: underline;
+  /* Celular: barra fixa no rodapé (CA-01). O body reserva o espaço dela (CA-02). */
+  @media (max-width: 47.999rem) {
+    .menu {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 20;
+      padding: 0.4rem max(0.25rem, env(safe-area-inset-right))
+        calc(0.4rem + env(safe-area-inset-bottom)) max(0.25rem, env(safe-area-inset-left));
+      border-top: 1px solid var(--cor-borda);
+      background: var(--cor-superficie);
+    }
+
+    .menu ul {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      align-items: end;
+    }
+
+    .menu-so-largo {
+      display: none;
+    }
+
+    .menu a {
+      flex-direction: column;
+      gap: 0.15rem;
+      min-height: 3.25rem;
+      color: var(--cor-texto-suave);
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .menu-icone {
+      display: grid;
+      place-items: center;
+      width: 3.5rem;
+      height: 1.875rem;
+      border-radius: var(--raio-pilula);
+    }
+
+    .menu a[aria-current="page"] {
+      color: var(--cor-sobre-menta);
+      font-weight: 700;
+    }
+
+    .menu a[aria-current="page"] .menu-icone {
+      background: var(--cor-menta);
+    }
+
+    .menu-central a {
+      color: var(--cor-texto);
+      font-weight: 700;
+    }
+
+    .menu-central .menu-icone,
+    .menu-central a[aria-current="page"] .menu-icone {
+      width: 3.75rem;
+      height: 3.75rem;
+      margin-top: -1.9rem;
+      border: 4px solid var(--cor-fundo);
+      background: var(--cor-marca);
+      color: var(--cor-sobre-marca);
+      box-shadow: var(--sombra-flutuante);
+    }
   }
 
-  nav a[aria-current="page"] {
-    background: var(--cor-marca);
-    color: var(--cor-sobre-marca);
+  /* Computador: menu no topo, numa linha, com o "Ler nota" como botão (CA-03). */
+  @media (min-width: 48rem) {
+    .topo {
+      border-bottom: 1px solid var(--cor-borda);
+      background: var(--cor-superficie);
+    }
+
+    .topo-conteudo {
+      padding-bottom: 0.75rem;
+    }
+
+    .topo-sobre,
+    .menu-central,
+    .menu-icone {
+      display: none;
+    }
+
+    .menu ul {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .menu a {
+      min-height: 2.75rem;
+      padding: 0 0.8rem;
+      border-radius: var(--raio-pilula);
+      color: var(--cor-texto);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .menu a:hover {
+      background: var(--cor-fundo);
+    }
+
+    .menu a[aria-current="page"] {
+      background: var(--cor-menta);
+      color: var(--cor-sobre-menta);
+    }
+
+    .menu-nota-larga {
+      margin-left: 0.5rem;
+    }
+
+    .menu-nota-larga a,
+    .menu-nota-larga a:hover,
+    .menu-nota-larga a[aria-current="page"] {
+      gap: 0.4rem;
+      padding: 0 1.1rem;
+      background: var(--cor-marca);
+      color: var(--cor-sobre-marca);
+      font-weight: 700;
+    }
+
+    .menu-nota-larga a:hover {
+      background: var(--cor-marca-forte);
+    }
+  }
+
+  /* Tablet: o mesmo menu, mais justo, para caber numa linha a partir de 48 rem. */
+  @media (min-width: 48rem) and (max-width: 59.999rem) {
+    .menu ul {
+      gap: 0;
+    }
+
+    .menu a {
+      padding: 0 0.6rem;
+      font-size: 0.95rem;
+    }
+
+    .menu-nota-larga {
+      margin-left: 0.25rem;
+    }
   }
 </style>

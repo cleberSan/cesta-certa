@@ -7,6 +7,7 @@ import { CamposDoItem, Erro } from "./CamposDoItem";
 import { ItemDaLista } from "./ItemDaLista";
 import {
   adicionarItem,
+  ajustarQuantidade,
   criarLista,
   duplicarLista,
   editarItem,
@@ -239,16 +240,37 @@ function Painel({ sessao }: { sessao: Sessao }) {
     }
   }
 
+  /**
+   * Marcar muda o item de grupo (spec 0002, CA-08): o React monta a caixa de novo no outro
+   * grupo, então o foco vai atrás dela. Se a gravação falhar, o item volta e o foco também.
+   */
   async function marcar(item: Item, comprado: boolean) {
     setMarcando((atual) => ({ ...atual, [item.id]: comprado }));
+    focar(`marcar-${item.id}`);
     const resultado = await sessao.executar((atual, contexto) =>
       marcarComprado(atual, item.id, comprado, contexto),
     );
     setMarcando((atual) =>
       Object.fromEntries(Object.entries(atual).filter(([itemId]) => itemId !== item.id)),
     );
-    if (resultado.ok) concluir(`${item.nome}: ${comprado ? "comprado" : "falta comprar"}.`);
-    else falhar("geral", resultado.erro);
+    if (resultado.ok) {
+      concluir(`${item.nome}: ${comprado ? "comprado" : "falta comprar"}.`);
+    } else {
+      falhar("geral", resultado.erro);
+      focar(`marcar-${item.id}`);
+    }
+  }
+
+  async function ajustar(item: Item, passo: 1 | -1) {
+    const resultado = await sessao.executar((atual, contexto) =>
+      ajustarQuantidade(atual, item.id, passo, contexto),
+    );
+    if (resultado.ok) {
+      const { nome, quantidade } = resultado.valor.item;
+      concluir(`${nome}: quantidade ${quantidade}.`);
+    } else {
+      falhar("geral", resultado.erro);
+    }
   }
 
   async function remover(item: Item) {
@@ -304,6 +326,65 @@ function Painel({ sessao }: { sessao: Sessao }) {
     focar("lista");
     return true;
   }
+
+  const estaComprado = (item: Item) => marcando[item.id] ?? item.comprado;
+  const faltam = itens.filter((item) => !estaComprado(item));
+  const noCarrinho = itens.filter(estaComprado);
+
+  const linha = (item: Item) => {
+    const comprado = estaComprado(item);
+    return (
+      <li key={item.id} className="lista-item" data-comprado={comprado}>
+        {edicao?.itemId === item.id ? (
+          <form
+            noValidate
+            aria-label={`Alterar ${item.nome}`}
+            onSubmit={(evento: SubmitEvent<HTMLFormElement>) => {
+              evento.preventDefault();
+              void salvarEdicao();
+            }}
+          >
+            <CamposDoItem
+              prefixo={id("edicao")}
+              entrada={edicao.entrada}
+              erro={falhaEm("edicao")}
+              detalhesAbertos={detalhesDaEdicao}
+              aoAbrirDetalhes={setDetalhesDaEdicao}
+              aoMudar={(entrada) => setEdicao({ itemId: item.id, entrada })}
+            />
+            <div className="acoes">
+              <button type="submit" className="botao">
+                Salvar
+              </button>
+              <button
+                type="button"
+                className="botao botao-secundario"
+                onClick={() => {
+                  setEdicao(null);
+                  setFalha(null);
+                  focar(`editar-${item.id}`);
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        ) : (
+          <ItemDaLista
+            item={item}
+            comprado={comprado}
+            idDaCaixa={id(`marcar-${item.id}`)}
+            idDosDetalhes={id(`detalhes-${item.id}`)}
+            idDoBotaoEditar={id(`editar-${item.id}`)}
+            aoMarcar={(novo) => marcar(item, novo)}
+            aoAjustar={(passo) => ajustar(item, passo)}
+            aoEditar={() => abrirEdicao(item)}
+            aoRemover={() => remover(item)}
+          />
+        )}
+      </li>
+    );
+  };
 
   return (
     <section className="lista" aria-label="Lista de compras">
@@ -433,65 +514,50 @@ function Painel({ sessao }: { sessao: Sessao }) {
       </div>
       <Erro id={id("erro-geral")} erro={falhaEm("geral")} />
 
-      <h2 id={id("titulo-itens")}>Itens</h2>
-      <p className="lista-resumo">{resumoDosItens(itens)}</p>
-      {itens.length === 0 ? (
-        <p className="lista-vazia">A lista está vazia. Adicione o primeiro item acima.</p>
-      ) : (
-        <ul className="lista-itens" aria-labelledby={id("titulo-itens")}>
-          {itens.map((item) => {
-            const comprado = marcando[item.id] ?? item.comprado;
-            return (
-              <li key={item.id} className="lista-item" data-comprado={comprado}>
-                {edicao?.itemId === item.id ? (
-                  <form
-                    noValidate
-                    aria-label={`Alterar ${item.nome}`}
-                    onSubmit={(evento: SubmitEvent<HTMLFormElement>) => {
-                      evento.preventDefault();
-                      void salvarEdicao();
-                    }}
-                  >
-                    <CamposDoItem
-                      prefixo={id("edicao")}
-                      entrada={edicao.entrada}
-                      erro={falhaEm("edicao")}
-                      detalhesAbertos={detalhesDaEdicao}
-                      aoAbrirDetalhes={setDetalhesDaEdicao}
-                      aoMudar={(entrada) => setEdicao({ itemId: item.id, entrada })}
-                    />
-                    <div className="acoes">
-                      <button type="submit" className="botao">
-                        Salvar
-                      </button>
-                      <button
-                        type="button"
-                        className="botao botao-secundario"
-                        onClick={() => {
-                          setEdicao(null);
-                          setFalha(null);
-                          focar(`editar-${item.id}`);
-                        }}
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <ItemDaLista
-                    item={item}
-                    comprado={comprado}
-                    idDosDetalhes={id(`detalhes-${item.id}`)}
-                    idDoBotaoEditar={id(`editar-${item.id}`)}
-                    aoMarcar={(novo) => marcar(item, novo)}
-                    aoEditar={() => abrirEdicao(item)}
-                    aoRemover={() => remover(item)}
-                  />
-                )}
-              </li>
-            );
-          })}
-        </ul>
+      <section className="lista-grupos" aria-labelledby={id("titulo-itens")}>
+        <h2 id={id("titulo-itens")}>Itens</h2>
+        <p className="lista-resumo">{resumoDosItens(itens)}</p>
+        {itens.length === 0 ? (
+          <p className="lista-vazia">A lista está vazia. Adicione o primeiro item acima.</p>
+        ) : (
+          <>
+            <h3 className="lista-grupo" id={id("titulo-faltam")}>
+              Faltam <span className="lista-contagem">{faltam.length}</span>
+            </h3>
+            {faltam.length === 0 ? (
+              <p className="lista-vazia">Nada falta: está tudo no carrinho.</p>
+            ) : (
+              <ul className="lista-itens" aria-labelledby={id("titulo-faltam")}>
+                {faltam.map(linha)}
+              </ul>
+            )}
+            {noCarrinho.length > 0 && (
+              <>
+                <h3 className="lista-grupo" id={id("titulo-carrinho")}>
+                  No carrinho <span className="lista-contagem">{noCarrinho.length}</span>
+                </h3>
+                <ul
+                  className="lista-itens lista-itens-carrinho"
+                  aria-labelledby={id("titulo-carrinho")}
+                >
+                  {noCarrinho.map(linha)}
+                </ul>
+              </>
+            )}
+          </>
+        )}
+      </section>
+
+      {/* Barra de resumo (spec 0002, CA-10): presa ao pé da tela enquanto falta comprar algo. */}
+      {faltam.length > 0 && (
+        <div className="lista-barra">
+          <p>
+            <strong>{contarItens(faltam.length)}</strong> a comprar
+          </p>
+          <a className="botao" href="/mercados">
+            Comparar
+          </a>
+        </div>
       )}
     </section>
   );

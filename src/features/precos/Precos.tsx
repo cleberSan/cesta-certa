@@ -53,7 +53,7 @@ export default function Precos() {
 
   if (carga.fase === "abrindo") {
     return (
-      <p className="precos-carregando" role="status">
+      <p className="precos-carregando precos-abrindo" role="status">
         Abrindo…
       </p>
     );
@@ -202,7 +202,7 @@ function ItemDePreco({
       <p>{observacao.mercadoNome}</p>
       <p className="precos-fonte">
         {descreverFonte(observacao)}
-        {antigo && <span className="etiqueta precos-antigo">{avisoDeAntigo}</span>}
+        {antigo && <span className="selo selo-antigo">{avisoDeAntigo}</span>}
       </p>
       {observacao.minimoAtacado !== null && <p>{descreverAtacado(observacao.minimoAtacado)}</p>}
       {observacao.descricao !== null && (

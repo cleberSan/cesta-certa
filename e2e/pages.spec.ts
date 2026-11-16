@@ -19,6 +19,7 @@ for (const route of routes) {
       expect(consoleErrors).toEqual([]);
     });
 
+    // spec 0002 CA-17
     for (const colorScheme of ["light", "dark"] as const) {
       test(`não tem violações de acessibilidade no tema ${colorScheme} (axe, WCAG 2.2 AA)`, async ({
         page,
@@ -42,6 +43,16 @@ for (const route of routes) {
     });
 
     test("não tem rolagem horizontal", async ({ page }) => {
+      await page.goto(route);
+      const sobra = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      expect(sobra).toBeLessThanOrEqual(0);
+    });
+
+    // spec 0002 CA-17
+    test("não tem rolagem horizontal na tela de 320 px", async ({ page }) => {
+      await page.setViewportSize({ width: 320, height: 640 });
       await page.goto(route);
       const sobra = await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -90,9 +101,9 @@ test("o link de pular navegação leva ao conteúdo", async ({ page, isMobile })
 });
 
 test("o menu marca a página atual", async ({ page }) => {
-  await page.goto("/sobre");
-  const menu = page.getByRole("navigation").first();
-  await expect(menu.getByRole("link", { name: "Sobre" })).toHaveAttribute("aria-current", "page");
+  await page.goto("/lista");
+  const menu = page.getByRole("navigation", { name: "Principal" });
+  await expect(menu.getByRole("link", { name: "Lista" })).toHaveAttribute("aria-current", "page");
   await expect(menu.getByRole("link", { name: "Início" })).not.toHaveAttribute("aria-current");
 });
 

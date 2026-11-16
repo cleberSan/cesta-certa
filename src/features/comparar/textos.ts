@@ -2,7 +2,8 @@
 import { formatarCentavos } from "../../shared/dinheiro";
 import type { Preferencia } from "../lista/lista";
 import { formatarDistancia } from "../mercados/geo";
-import { descreverEmbalagem } from "../precos/textos";
+import { ehAntigo } from "../precos/precos";
+import { avisoDeAntigo, descreverEmbalagem } from "../precos/textos";
 import { descreverModo } from "../rota/textos";
 import type { Objetivo } from "./objetivo";
 import type {
@@ -173,3 +174,44 @@ export const semPrecos =
 /** Na demonstração não há "Ir": a rota levaria a um lugar de verdade (CA-38). */
 export const semRotaNaDemonstracao =
   "Na demonstração não há rota: os mercados são fictícios. Com os seus preços, cada opção ganha o botão Ir, que abre o caminho no Waze ou no Google Maps.";
+
+/**
+ * "+R$ 4,00": quanto a opção custa a mais que a opção 1 (spec 0002, CA-12). Nulo quando custa
+ * menos, o que só acontece se faltar preço de algum item: aí o aviso de falta já explica.
+ */
+export function diferencaParaAMelhor(totalCentavos: number, melhorCentavos: number): string | null {
+  if (totalCentavos < melhorCentavos) return null;
+  return `+${formatarCentavos(totalCentavos - melhorCentavos)}`;
+}
+
+/**
+ * Largura da barra de uma opção, em porcentagem do maior total (CA-12): a barra é só um apoio
+ * visual, e o texto ao lado diz o total e a diferença. Nunca menor que 4%, para ser vista.
+ */
+export function larguraDaBarra(totalCentavos: number, maiorCentavos: number): number {
+  if (maiorCentavos <= 0) return 0;
+  return Math.max(4, Math.min(100, Math.round((totalCentavos / maiorCentavos) * 100)));
+}
+
+export type TipoDeSelo = "antigo" | "outra-marca" | "atacado";
+
+export interface Selo {
+  readonly tipo: TipoDeSelo;
+  readonly texto: string;
+}
+
+/** Os avisos de um preço da comparação, como selos com texto, nunca só cor (CA-13). */
+export function selosDaLinha(linha: Linha, hoje: string): readonly Selo[] {
+  const selos: Selo[] = [];
+  if (ehAntigo(linha.observacao.vistoEm, hoje)) {
+    selos.push({ tipo: "antigo", texto: avisoDeAntigo });
+  }
+  if (linha.outraMarca) {
+    selos.push({ tipo: "outra-marca", texto: "Outra marca: a escolhida não tem preço aqui" });
+  }
+  const minimo = linha.observacao.minimoAtacado;
+  if (minimo !== null) {
+    selos.push({ tipo: "atacado", texto: `Preço de atacado: a partir de ${minimo} unidades` });
+  }
+  return selos;
+}

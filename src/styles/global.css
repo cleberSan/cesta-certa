@@ -1,50 +1,89 @@
 /*
- * Identidade própria do Cesta Certa: verde de feira e laranja de etiqueta de preço. Fontes
- * do sistema (nenhum arquivo de fonte para baixar). Cores por variável, com tema escuro pelo
- * `prefers-color-scheme`; contraste conferido pelo axe nos testes E2E.
+ * Identidade "Feira" (spec 0002, ADR-0009): verde de feira, amarelo de etiqueta de preço e
+ * cartões claros. Títulos em Bricolage Grotesque e texto em Inter, servidas pelo próprio site
+ * (o <Font /> do BaseLayout define --fonte-titulo e --fonte-texto). Cores por variável, com
+ * tema escuro pelo `prefers-color-scheme`; contraste conferido pelo axe nos testes E2E.
  */
 :root {
   color-scheme: light dark;
 
-  --cor-fundo: #f6f8f4;
+  --cor-fundo: #f3f6f1;
   --cor-superficie: #ffffff;
-  --cor-texto: #16211b;
-  --cor-texto-suave: #45564c;
-  --cor-marca: #0f6b4f;
-  --cor-marca-forte: #0a5139;
+  --cor-texto: #12201a;
+  --cor-texto-suave: #46564c;
+  --cor-marca: #0b6e4f;
+  --cor-marca-forte: #084f39;
   --cor-sobre-marca: #ffffff;
-  --cor-destaque: #a8410b;
-  --cor-borda: #c5d1c9;
+  --cor-sobre-marca-suave: #d3eee2;
+  --cor-etiqueta: #ffd43b;
+  --cor-sobre-etiqueta: #12201a;
+  --cor-menta: #e3f4ec;
+  --cor-sobre-menta: #084f39;
+  --cor-tinta: #12201a;
+  --cor-sobre-tinta: #ffffff;
+  --cor-tinta-icone: #9be7c6;
+  --cor-tinta-icone-fundo: #1f3329;
+  --cor-destaque: #8a4b00;
+  --cor-borda: #dce4dd;
+  --cor-borda-forte: #7a8b80;
+  --cor-linha: #edf1ee;
   --cor-erro: #a12622;
   --cor-erro-fundo: #fdf0ef;
-  --cor-aviso-fundo: #fff6e6;
+  --cor-aviso-fundo: #fff6d6;
+  --cor-selo-antigo: #fff1c2;
+  --cor-sobre-selo-antigo: #5c4300;
+  --cor-selo-marca: #e8eef9;
+  --cor-sobre-selo-marca: #22406e;
   --cor-foco: #1b4fd6;
 
-  --raio: 0.75rem;
+  --sombra-cartao: 0 1px 0 var(--cor-borda), 0 8px 24px rgb(18 32 26 / 6%);
+  --sombra-flutuante: 0 10px 24px rgb(18 32 26 / 22%);
+
+  --raio: 1rem;
+  --raio-grande: 1.5rem;
   --raio-pilula: 999px;
   --largura-conteudo: 46rem;
+  --largura-larga: 72rem;
   --espaco: clamp(1rem, 4vw, 1.5rem);
+  /* Altura da barra de navegação do celular, sem a área segura (SiteHeader.astro). */
+  --altura-barra: 4.25rem;
 
-  --fonte:
-    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif;
+  --titulo: var(--fonte-titulo, system-ui, sans-serif);
+  --fonte: var(--fonte-texto, system-ui, sans-serif);
   --fonte-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --cor-fundo: #0e1511;
-    --cor-superficie: #17211b;
-    --cor-texto: #e9f0eb;
-    --cor-texto-suave: #afbfb5;
-    --cor-marca: #63d6a9;
-    --cor-marca-forte: #8be3c0;
-    --cor-sobre-marca: #062a1d;
-    --cor-destaque: #ffb072;
-    --cor-borda: #34443b;
+    --cor-fundo: #0f1512;
+    --cor-superficie: #18211c;
+    --cor-texto: #eaf1ec;
+    --cor-texto-suave: #aebdb4;
+    --cor-marca: #5fd3a4;
+    --cor-marca-forte: #9be7c6;
+    --cor-sobre-marca: #052a1c;
+    --cor-sobre-marca-suave: #0b3d2a;
+    --cor-menta: #173b2d;
+    --cor-sobre-menta: #9be7c6;
+    --cor-tinta: #eaf1ec;
+    --cor-sobre-tinta: #0f1512;
+    --cor-tinta-icone: #0b6e4f;
+    --cor-tinta-icone-fundo: #d3e2d9;
+    --cor-destaque: #ffc46b;
+    --cor-borda: #2a362f;
+    --cor-borda-forte: #6c7f74;
+    --cor-linha: #232e28;
     --cor-erro: #ff9d96;
     --cor-erro-fundo: #2c1513;
-    --cor-aviso-fundo: #2b2210;
+    --cor-aviso-fundo: #2b2410;
+    --cor-selo-antigo: #3a2f0c;
+    --cor-sobre-selo-antigo: #ffd98a;
+    --cor-selo-marca: #1c2a40;
+    --cor-sobre-selo-marca: #b9cdf3;
     --cor-foco: #9db8ff;
+
+    --sombra-cartao: 0 1px 0 var(--cor-borda), 0 8px 24px rgb(0 0 0 / 30%);
+    --sombra-flutuante: 0 10px 24px rgb(0 0 0 / 45%);
   }
 }
 
@@ -69,7 +108,32 @@ body {
   color: var(--cor-texto);
   font-family: var(--fonte);
   font-size: 1.0625rem;
-  line-height: 1.6;
+  line-height: 1.55;
+  padding-right: env(safe-area-inset-right);
+  padding-left: env(safe-area-inset-left);
+}
+
+/* No celular, a barra de navegação fica fixa no rodapé: nada fica atrás dela (spec 0002, CA-02). */
+@media (max-width: 47.999rem) {
+  /* O foco levado pelo teclado também para acima da barra (WCAG 2.4.11). */
+  html {
+    scroll-padding-bottom: calc(var(--altura-barra) + env(safe-area-inset-bottom) + 0.5rem);
+  }
+
+  body {
+    padding-bottom: calc(var(--altura-barra) + env(safe-area-inset-bottom));
+  }
+}
+
+/* Na lista, a barra de resumo fica acima da barra de navegação (spec 0002, CA-10). */
+html:has(.lista-barra) {
+  scroll-padding-bottom: 5rem;
+}
+
+@media (max-width: 47.999rem) {
+  html:has(.lista-barra) {
+    scroll-padding-bottom: calc(var(--altura-barra) + env(safe-area-inset-bottom) + 5rem);
+  }
 }
 
 main {
@@ -87,15 +151,28 @@ h3 {
   text-wrap: balance;
 }
 
+h1,
+h2 {
+  font-family: var(--titulo);
+  font-weight: 800;
+}
+
 h1 {
-  font-size: clamp(1.75rem, 6vw, 2.5rem);
+  font-size: clamp(1.875rem, 7vw, 2.75rem);
+  line-height: 1.05;
   margin: 0.5rem 0 1rem;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.03em;
 }
 
 h2 {
-  font-size: 1.35rem;
+  font-size: clamp(1.3rem, 4.5vw, 1.5rem);
   margin: 2rem 0 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
 }
 
 p,
@@ -138,10 +215,13 @@ code {
   color: var(--cor-texto-suave);
 }
 
+/* Peças comuns no visual "Feira" (spec 0002, T04): cartões arredondados com sombra leve, botões
+   em pílula, campos com borda de 3:1 e etiquetas em amarelo de preço de feira. */
 .cartao {
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
-  border-radius: var(--raio);
+  border-radius: var(--raio-grande);
+  box-shadow: var(--sombra-cartao);
   padding: var(--espaco);
   margin: 0 0 1rem;
 }
@@ -152,27 +232,55 @@ code {
 
 .etiqueta {
   display: inline-block;
-  padding: 0.15rem 0.65rem;
+  padding: 0.2rem 0.75rem;
   border-radius: var(--raio-pilula);
-  border: 1px solid currentColor;
-  color: var(--cor-destaque);
-  font-size: 0.85rem;
+  background: var(--cor-etiqueta);
+  color: var(--cor-sobre-etiqueta);
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+}
+
+/* Valor em destaque, como etiqueta de preço de feira (spec 0002). */
+.etiqueta-preco {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 1rem 0.3rem 0.65rem;
+  border-radius: 0.5rem var(--raio-pilula) var(--raio-pilula) 0.5rem;
+  background: var(--cor-etiqueta);
+  color: var(--cor-sobre-etiqueta);
+  font-family: var(--titulo);
+  font-weight: 800;
+  font-size: 1.625rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.etiqueta-preco::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--cor-fundo);
 }
 
 .botao {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.4rem;
   min-height: 2.75rem;
-  padding: 0.6rem 1.25rem;
-  border: 2px solid var(--cor-marca);
+  padding: 0.55rem 1.25rem;
+  border: 1px solid var(--cor-marca);
   border-radius: var(--raio-pilula);
   background: var(--cor-marca);
   color: var(--cor-sobre-marca);
   font: inherit;
   font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
   text-decoration: none;
   cursor: pointer;
 }
@@ -190,18 +298,21 @@ code {
 }
 
 .botao-secundario {
-  background: transparent;
-  color: var(--cor-marca);
+  border-color: var(--cor-borda);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-weight: 600;
 }
 
 .botao-secundario:hover {
-  background: transparent;
-  color: var(--cor-marca-forte);
+  border-color: var(--cor-marca);
+  background: var(--cor-menta);
+  color: var(--cor-sobre-menta);
 }
 
 .botao-pequeno {
-  padding: 0.35rem 0.9rem;
-  font-size: 0.95rem;
+  padding: 0.35rem 0.95rem;
+  font-size: 0.9375rem;
 }
 
 /* Ação que apaga ou substitui dados. */
@@ -230,24 +341,28 @@ code {
 }
 
 .campo input,
-.campo select {
+.campo select,
+.campo textarea {
   display: block;
   width: 100%;
-  min-height: 2.75rem;
-  padding: 0.5rem 0.75rem;
-  border: 2px solid var(--cor-borda);
-  border-radius: 0.5rem;
-  background: var(--cor-fundo);
+  min-height: 3rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
   color: var(--cor-texto);
   font: inherit;
 }
 
-.campo input::placeholder {
+.campo input::placeholder,
+.campo textarea::placeholder {
   color: var(--cor-texto-suave);
   opacity: 1;
 }
 
-.campo input[aria-invalid="true"] {
+.campo input[aria-invalid="true"],
+.campo textarea[aria-invalid="true"] {
+  border-width: 2px;
   border-color: var(--cor-erro);
 }
 
@@ -259,8 +374,9 @@ code {
 
 .alerta,
 .confirmacao {
-  padding: 0.75rem var(--espaco);
+  padding: 0.85rem var(--espaco);
   border: 1px solid var(--cor-destaque);
+  border-left-width: 0.375rem;
   border-radius: var(--raio);
   background: var(--cor-aviso-fundo);
 }
@@ -284,12 +400,38 @@ code {
 
 .mensagem-erro {
   margin: 0.75rem 0 0;
-  padding: 0.6rem 0.75rem;
+  padding: 0.6rem 0.85rem;
   border: 1px solid var(--cor-erro);
-  border-radius: 0.5rem;
+  border-left-width: 0.375rem;
+  border-radius: var(--raio);
   background: var(--cor-erro-fundo);
   color: var(--cor-erro);
   font-weight: 600;
+}
+
+/* Selos em texto ao lado de um preço (spec 0002, CA-13): a cor ajuda, mas o texto diz tudo. */
+.selo {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.selo-antigo {
+  background: var(--cor-selo-antigo);
+  color: var(--cor-sobre-selo-antigo);
+}
+
+.selo-marca {
+  background: var(--cor-selo-marca);
+  color: var(--cor-sobre-selo-marca);
+}
+
+.selo-atacado {
+  background: var(--cor-menta);
+  color: var(--cor-sobre-menta);
 }
 
 .passos {
@@ -301,7 +443,7 @@ code {
 .passos > li {
   counter-increment: passo;
   position: relative;
-  padding-left: 2.75rem;
+  padding-left: 3rem;
   margin: 0 0 1rem;
 }
 
@@ -309,15 +451,16 @@ code {
   content: counter(passo);
   position: absolute;
   left: 0;
-  top: 0.1rem;
-  width: 2rem;
-  height: 2rem;
+  top: 0;
+  width: 2.125rem;
+  height: 2.125rem;
   display: grid;
   place-items: center;
-  border-radius: 50%;
-  background: var(--cor-marca);
-  color: var(--cor-sobre-marca);
-  font-weight: 700;
+  border-radius: 0.75rem;
+  background: var(--cor-menta);
+  color: var(--cor-sobre-menta);
+  font-family: var(--titulo);
+  font-weight: 800;
 }
 
 .somente-leitor {
@@ -332,8 +475,21 @@ code {
   border: 0;
 }
 
+/* Movimento só quando o sistema não pede movimento reduzido (spec 0002, CA-18): o toque afunda o
+   botão e o item que muda de grupo na lista entra de leve. */
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
+  }
+
+  .botao {
+    transition:
+      transform 120ms ease-out,
+      background-color 120ms ease-out,
+      border-color 120ms ease-out;
+  }
+
+  .botao:active:not([aria-disabled="true"], :disabled) {
+    transform: scale(0.96);
   }
 }

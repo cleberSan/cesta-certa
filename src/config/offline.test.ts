@@ -115,6 +115,26 @@ describe("lista do service worker", () => {
 
     expect(() => montarListaDoServiceWorker(semIcone, ["index.html"])).toThrow(/icone-192\.png/);
   });
+
+  // spec 0002 CA-16
+  it("guarda as fontes que a página pré-carrega, para abrir sem internet com elas", () => {
+    const pagina = `<!doctype html><html><head>
+<style>@font-face{font-family:Inter-x;src:url("/_astro/fonts/abc123.woff2") format("woff2")}</style>
+<link rel="preload" href="/_astro/fonts/abc123.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/_astro/fonts/def456.woff2" as="font" type="font/woff2" crossorigin>
+</head><body></body></html>`;
+    const lista = montarListaDoServiceWorker(
+      build({
+        "index.html": pagina,
+        "_astro/fonts/abc123.woff2": "fonte",
+        "_astro/fonts/def456.woff2": "fonte",
+      }),
+      ["index.html"],
+    );
+
+    expect(lista.enderecos).toContain("/_astro/fonts/abc123.woff2");
+    expect(lista.enderecos).toContain("/_astro/fonts/def456.woff2");
+  });
 });
 
 describe("endereços e arquivos do build", () => {

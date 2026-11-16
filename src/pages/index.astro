@@ -1,83 +1,456 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { dadosDaDemonstracao } from "../features/demo/demo";
+import { previaDaDemonstracao } from "../features/demo/previa";
+
+// A prévia é calculada no build (spec 0002, CA-06): a página continua sem JavaScript (CA-05).
+const previa = previaDaDemonstracao(dadosDaDemonstracao, new Date().toISOString().slice(0, 10));
+
+const atalhos = [
+  {
+    href: "/lista",
+    titulo: "Montar a lista",
+    texto: "Itens, marcas e tamanhos",
+    icone: "M9 6h11M9 12h11M9 18h11M3.5 6l1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2",
+    tom: "marca",
+  },
+  {
+    href: "/nota",
+    titulo: "Ler a nota",
+    texto: "QR Code do cupom de SP",
+    icone:
+      "M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10",
+    tom: "etiqueta",
+  },
+  {
+    href: "/mercados",
+    titulo: "Mercados perto",
+    texto: "Ranking pelo seu objetivo",
+    icone:
+      "M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11ZM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
+    tom: "claro",
+  },
+  {
+    href: "/precos#digitar",
+    titulo: "Digitar um preço",
+    texto: "Visto na prateleira",
+    icone: "M3 12V4h8l10 10-8 8-10-10ZM7.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z",
+    tom: "claro",
+  },
+] as const;
 ---
 
-<BaseLayout description="Monte a lista da compra do mês e veja em quais mercados perto de você ela sai mais barata, com preços das suas próprias notas fiscais.">
-  <h1>A compra do mês no mercado certo</h1>
-  <p class="chamada">
-    Você monta a lista, o Cesta Certa mostra em quais mercados perto de você ela sai mais barata, de
-    acordo com o seu objetivo, e abre a rota com um toque.
-  </p>
+<BaseLayout
+  largura="larga"
+  description="Monte a lista da compra do mês e veja em quais mercados perto de você ela sai mais barata, com preços das suas próprias notas fiscais."
+>
+  <div class="inicio-topo">
+    <section class="heroi" aria-labelledby="heroi-titulo">
+      <p class="heroi-selo">Compra do mês</p>
+      <h1 id="heroi-titulo">Onde a sua lista sai mais barata.</h1>
+      <p class="heroi-chamada">
+        Monte a lista, guarde os preços das suas notas e veja o ranking dos mercados perto de você,
+        com a rota pronta no Waze ou no Google Maps.
+      </p>
+      <p class="heroi-acoes">
+        <a class="botao" href="/lista">
+          Montar a lista
+        </a>
+        <a class="botao botao-secundario" href="#como-titulo">
+          Como funciona
+        </a>
+      </p>
+    </section>
 
-  <h2>Como funciona</h2>
-  <ol class="passos">
-    <li>
-      <strong>Lista do mês.</strong> Itens, quantidade, marca preferida e tamanho, guardados no seu
-      aparelho.
-    </li>
-    <li>
-      <strong>Preços com fonte e data.</strong> Vêm das suas notas fiscais (QR Code do cupom) e do
-      que você digita no mercado. Nenhum preço é adivinhado.
-    </li>
-    <li>
-      <strong>Mercados próximos.</strong> O app pede a sua localização só para achar os mercados
-      perto de você, e as coordenadas não saem do aparelho.
-    </li>
-    <li>
-      <strong>Ranking pelo seu objetivo.</strong> Teto de gasto, marcas, quantos mercados você topa
-      visitar e a que distância.
-    </li>
-    <li>
-      <strong>Rota.</strong> Um toque abre o caminho no Waze ou no Google Maps.
-    </li>
-  </ol>
+    {previa && (
+      <article class="previa" aria-labelledby="previa-titulo">
+        <p class="previa-rotulo">Demonstração · preços fictícios</p>
+        <h2 id="previa-titulo" class="previa-nome">
+          {previa.nome}
+        </h2>
+        <p class="previa-valores">
+          <span class="etiqueta-preco previa-total">{previa.total}</span>
+          {previa.economia && (
+            <span class="previa-economia">
+              {previa.economia}
+              <span class="somente-leitor"> {previa.economiaFrente}</span>
+            </span>
+          )}
+        </p>
+        <p class="previa-caminho">
+          {previa.caminho} · {previa.lugar}
+        </p>
+        <a class="previa-link" href="/demonstracao">
+          Ver a demonstração
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </a>
+      </article>
+    )}
+  </div>
 
-  <h2>Comece por aqui</h2>
-  <div class="cartao">
+  <nav class="atalhos" aria-label="Atalhos">
+    <ul>
+      {atalhos.map((atalho) => (
+        <li>
+          <a class:list={["atalho", `atalho-${atalho.tom}`]} href={atalho.href}>
+            <span class="atalho-icone">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d={atalho.icone} />
+              </svg>
+            </span>
+            <span class="atalho-titulo">{atalho.titulo}</span>
+            <span class="atalho-texto">{atalho.texto}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+
+  <section class="aparelho" aria-labelledby="aparelho-titulo">
+    <span class="aparelho-icone">
+      <svg
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <rect x="6" y="2" width="12" height="20" rx="2.5"></rect>
+        <path d="M10 18h4M9.5 10l2 2 3.5-3.5"></path>
+      </svg>
+    </span>
+    <div>
+      <h2 id="aparelho-titulo">Seus dados ficam no aparelho</h2>
+      <p>
+        Lista, preços e o ponto escolhido moram no navegador. Sem conta, sem cadastro e sem servidor
+        guardando o que você compra. Dá para levar tudo para outro aparelho em{" "}
+        <a href="/dados">Seus dados</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="como" aria-labelledby="como-titulo">
+    <h2 id="como-titulo">Como funciona</h2>
+    <ol class="passos">
+      <li>
+        <strong>Lista do mês.</strong> Itens, quantidade, marca preferida e tamanho, guardados no
+        seu aparelho.
+      </li>
+      <li>
+        <strong>Preços com fonte e data.</strong> Vêm das suas notas fiscais (QR Code do cupom) e do
+        que você digita no mercado. Nenhum preço é adivinhado.
+      </li>
+      <li>
+        <strong>Mercados próximos.</strong> O app pede a sua localização só para achar os mercados
+        perto de você, e as coordenadas não saem do aparelho.
+      </li>
+      <li>
+        <strong>Ranking pelo seu objetivo.</strong> Teto de gasto, marcas, quantos mercados você
+        topa visitar e a que distância.
+      </li>
+      <li>
+        <strong>Rota.</strong> Um toque abre o caminho no Waze ou no Google Maps.
+      </li>
+    </ol>
     <p>
-      A lista do mês: itens com quantidade, marca preferida e tamanho, guardados só no seu aparelho.
-      Dá para marcar o que já comprou e duplicar a lista no mês seguinte.
+      O que o Cesta Certa já faz e de onde vêm os dados fica em <a href="/sobre">Sobre</a>.
     </p>
-    <p>
-      <a class="botao" href="/lista">
-        Montar a lista
-      </a>
-    </p>
-  </div>
-  <div class="cartao">
-    <p>
-      Os preços da sua compra: leia o QR Code da nota fiscal de São Paulo com a câmera, ou digite o
-      preço visto no mercado.
-    </p>
-    <p>
-      <a class="botao botao-secundario" href="/nota">
-        Ler a nota fiscal
-      </a>
-    </p>
-  </div>
-  <div class="cartao">
-    <p>
-      Onde a lista sai mais barata: com o ponto escolhido e os preços registrados, a tela de
-      mercados compara a lista pelo seu objetivo, diz o que comprar em cada mercado e abre a rota.
-    </p>
-    <p>
-      <a class="botao botao-secundario" href="/mercados">
-        Comparar os mercados
-      </a>
-    </p>
-  </div>
-  <div class="cartao">
-    <p>
-      Quer ver antes de registrar os seus preços? A demonstração faz a comparação com um bairro,
-      mercados e preços fictícios, e o assistente responde com respostas gravadas.
-    </p>
-    <p>
-      <a class="botao botao-secundario" href="/demonstracao">
-        Ver a demonstração
-      </a>
-    </p>
-  </div>
-  <p>
-    O que o Cesta Certa já faz e de onde vêm os dados fica em <a href="/sobre">Sobre</a>.
-  </p>
+  </section>
 </BaseLayout>
+
+<style>
+  .inicio-topo {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .heroi-selo {
+    display: inline-block;
+    margin: 0.5rem 0 0;
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--raio-pilula);
+    background: var(--cor-etiqueta);
+    color: var(--cor-sobre-etiqueta);
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  .heroi h1 {
+    margin: 0.75rem 0 0.75rem;
+    font-size: clamp(2.25rem, 9vw, 4rem);
+    line-height: 1;
+    letter-spacing: -0.035em;
+  }
+
+  .heroi-chamada {
+    max-width: 34rem;
+    color: var(--cor-texto-suave);
+    font-size: clamp(1.0625rem, 2.5vw, 1.2rem);
+  }
+
+  .heroi-acoes {
+    display: none;
+  }
+
+  .previa {
+    padding: 1rem 1.15rem 1.1rem;
+    border-radius: var(--raio-grande);
+    background: var(--cor-superficie);
+    box-shadow: var(--sombra-cartao);
+  }
+
+  .previa-rotulo {
+    margin: 0;
+    color: var(--cor-texto-suave);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .previa-nome {
+    margin: 0.35rem 0 0;
+    font-family: var(--fonte);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.3;
+  }
+
+  .previa-valores {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.7rem 0 0;
+  }
+
+  .previa-economia {
+    padding: 0.35rem 0.7rem;
+    border-radius: var(--raio-pilula);
+    background: var(--cor-menta);
+    color: var(--cor-sobre-menta);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .previa-caminho {
+    margin: 0.5rem 0 0;
+    color: var(--cor-texto-suave);
+    font-size: 0.9rem;
+  }
+
+  .previa-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.75rem;
+    font-weight: 700;
+  }
+
+  .atalhos ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .atalhos li + li {
+    margin-top: 0;
+  }
+
+  .atalho {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 7rem;
+    padding: 0.9rem;
+    border: 1px solid transparent;
+    border-radius: var(--raio-grande);
+    text-decoration: none;
+  }
+
+  .atalho-icone {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: auto;
+    border-radius: 0.8rem;
+  }
+
+  .atalho-titulo {
+    margin-top: 1rem;
+    font-weight: 700;
+    font-size: 1.0625rem;
+    line-height: 1.25;
+  }
+
+  .atalho-texto {
+    font-size: 0.85rem;
+    line-height: 1.35;
+  }
+
+  .atalho-marca {
+    background: var(--cor-marca);
+    color: var(--cor-sobre-marca);
+  }
+
+  .atalho-marca .atalho-icone {
+    background: var(--cor-sobre-marca-suave);
+    color: var(--cor-marca-forte);
+  }
+
+  .atalho-etiqueta {
+    background: var(--cor-etiqueta);
+    color: var(--cor-sobre-etiqueta);
+  }
+
+  .atalho-etiqueta .atalho-icone {
+    background: rgb(18 32 26 / 10%);
+  }
+
+  .atalho-claro {
+    border-color: var(--cor-borda);
+    background: var(--cor-superficie);
+    color: var(--cor-texto);
+  }
+
+  .atalho-claro .atalho-icone {
+    background: var(--cor-menta);
+    color: var(--cor-sobre-menta);
+  }
+
+  .atalho-claro .atalho-texto {
+    color: var(--cor-texto-suave);
+  }
+
+  .atalho:hover .atalho-titulo {
+    text-decoration: underline;
+  }
+
+  .aparelho {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    padding: 1.15rem;
+    border-radius: var(--raio-grande);
+    background: var(--cor-tinta);
+    color: var(--cor-sobre-tinta);
+  }
+
+  .aparelho h2 {
+    margin: 0 0 0.35rem;
+    font-size: 1.25rem;
+  }
+
+  .aparelho p {
+    margin: 0;
+    color: var(--cor-sobre-tinta);
+    font-size: 0.95rem;
+  }
+
+  .aparelho a {
+    color: inherit;
+    font-weight: 700;
+  }
+
+  .aparelho-icone {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 1rem;
+    background: var(--cor-tinta-icone-fundo);
+    color: var(--cor-tinta-icone);
+  }
+
+  .como {
+    margin-top: 1rem;
+  }
+
+  @media (min-width: 48rem) {
+    .inicio-topo {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      align-items: center;
+      gap: 3rem;
+      padding-top: 1.5rem;
+    }
+
+    .heroi-acoes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .previa {
+      padding: 1.5rem 1.6rem;
+    }
+
+    .previa-nome {
+      font-size: 1.25rem;
+    }
+
+    .atalhos ul {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+
+    .atalho {
+      min-height: 9rem;
+      padding: 1.2rem;
+    }
+
+    .aparelho {
+      margin-top: 1rem;
+      padding: 1.5rem;
+    }
+
+    .como {
+      max-width: var(--largura-conteudo);
+    }
+  }
+
+  /* O bloco afunda ao toque, só sem pedido de movimento reduzido (CA-18). */
+  @media (prefers-reduced-motion: no-preference) {
+    .atalho {
+      transition: transform 120ms ease-out;
+    }
+
+    .atalho:active {
+      transform: scale(0.97);
+    }
+  }
+</style>

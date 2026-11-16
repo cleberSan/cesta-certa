@@ -17,6 +17,9 @@ const opcoes = (page: Page) =>
     .getByRole("listitem")
     .filter({ has: page.getByRole("heading", { level: 4 }) });
 
+/** "R$ 81,15" em centavos. */
+const centavos = (texto: string) => Number(texto.replace(/\D/g, ""));
+
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(hoje);
 });
@@ -51,7 +54,7 @@ test.describe("onde comprar a lista", () => {
     const mercadinho = primeira.getByRole("region", { name: "Em Mercadinho da Praça" });
     await expect(mercadinho.getByRole("heading")).toHaveText("Em Mercadinho da Praça: R$ 17,80");
     await expect(mercadinho.getByRole("listitem")).toHaveText([
-      "Café (500 g): 2 × R$ 8,90 = R$ 17,80Digitado em 01/10/2026 · Antigo: visto há mais de 30 dias",
+      "Café (500 g): 2 × R$ 8,90 = R$ 17,80Digitado em 01/10/2026Antigo: visto há mais de 30 dias",
     ]);
     const atacarejo = primeira.getByRole("region", { name: "Em Atacarejo Modelo" });
     await expect(atacarejo.getByRole("listitem")).toHaveText([
@@ -72,6 +75,47 @@ test.describe("onde comprar a lista", () => {
         .getByRole("listitem")
         .filter({ has: page.getByRole("heading", { name: "Mercadinho da Praça", level: 3 }) }),
     ).toContainText("Sua lista aqui: R$ 68,68, sem preço de 1 item");
+  });
+
+  // spec 0002 CA-11 CA-12 CA-13
+  test("destaca a mais barata, diz quanto as outras custam a mais e mostra os avisos como selos", async ({
+    page,
+  }) => {
+    await abrirComparacao(page);
+    const primeira = opcoes(page).first();
+    await expect(primeira).toContainText("A mais barata");
+    await expect(primeira.getByText("R$ 81,15", { exact: true })).toBeVisible();
+    await expect(primeira).toContainText(
+      "Economiza R$ 28,00 em relação a comprar tudo em Atacarejo Modelo.",
+    );
+    await expect(primeira).toContainText("passando pelos 2 mercados");
+    await expect(primeira.getByRole("button", { name: /^O que comprar/ })).toBeVisible();
+    await expect(primeira.getByRole("button", { name: /^Ir para/ })).toBeVisible();
+    await expect(primeira).not.toContainText("a mais que a opção 1");
+
+    const melhor = centavos("R$ 81,15");
+    const larguras: number[] = [];
+    for (const posicao of [1, 2]) {
+      const opcao = opcoes(page).nth(posicao);
+      const total = (await opcao.locator(".comparar-total").textContent())!;
+      const [, valor, diferenca] = /^(R\$\s[\d.,]+)\+(R\$\s[\d.,]+)/.exec(total)!;
+      expect(centavos(diferenca!)).toBe(centavos(valor!) - melhor);
+      await expect(opcao).toContainText("a mais que a opção 1");
+
+      const barra = opcao.locator("svg.comparar-barra");
+      await expect(barra).toHaveAttribute("aria-hidden", "true");
+      const largura = await barra.locator(".comparar-barra-valor").getAttribute("width");
+      expect(largura).toMatch(/^\d+%$/);
+      larguras.push(Number.parseInt(largura!, 10));
+    }
+    expect(larguras[1]).toBeGreaterThanOrEqual(larguras[0]!);
+
+    await primeira.getByRole("button", { name: /^O que comprar/ }).click();
+    const cafe = primeira
+      .getByRole("region", { name: "Em Mercadinho da Praça" })
+      .getByRole("listitem")
+      .filter({ hasText: "Café" });
+    await expect(cafe.getByText("Antigo: visto há mais de 30 dias")).toBeVisible();
   });
 
   // spec 0001 CA-24 CA-25

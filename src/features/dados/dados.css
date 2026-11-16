@@ -1,5 +1,10 @@
 .dados {
   margin: 1.5rem 0;
+  padding: var(--espaco);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-grande);
+  background: var(--cor-superficie);
+  box-shadow: var(--sombra-cartao);
 }
 
 .dados h2:first-child {
@@ -9,6 +14,12 @@
 .dados-abrindo,
 .dados-ajuda {
   color: var(--cor-texto-suave);
+}
+
+/* Enquanto os dados abrem, o espaço do cartão fica reservado: o texto abaixo não pula (CLS). */
+.dados-abrindo {
+  min-height: 26rem;
+  margin: 1.5rem 0;
 }
 
 .dados-ajuda {
@@ -33,10 +44,10 @@
 .dados input[type="file"]::file-selector-button {
   margin-right: 0.75rem;
   padding: 0.35rem 0.9rem;
-  border: 2px solid var(--cor-marca);
+  border: 1px solid var(--cor-borda);
   border-radius: var(--raio-pilula);
-  background: transparent;
-  color: var(--cor-marca);
+  background: var(--cor-menta);
+  color: var(--cor-sobre-menta);
   font: inherit;
   font-weight: 700;
   cursor: pointer;

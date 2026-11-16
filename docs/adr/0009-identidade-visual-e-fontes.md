@@ -1,6 +1,6 @@
 # ADR-0009: Identidade visual "Feira" e fontes próprias
 
-- Status: proposto
+- Status: aceito
 - Data: 2026-11-16 ([spec 0002](../specs/0002-novo-visual-feira/spec.md))
 
 ## Contexto

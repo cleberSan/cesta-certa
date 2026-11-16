@@ -1,4 +1,5 @@
 ---
+import { Font } from "astro:assets";
 import "../styles/global.css";
 import AvisoSemConexao from "../components/AvisoSemConexao.astro";
 import SiteFooter from "../components/SiteFooter.astro";
@@ -14,9 +15,11 @@ interface Props {
    * worker e avisa quando falta internet (CA-36).
    */
   aplicativo?: boolean;
+  /** "larga" abre o conteúdo até 72 rem, para páginas em blocos como a inicial (spec 0002). */
+  largura?: "texto" | "larga";
 }
 
-const { title, description, aplicativo = false } = Astro.props;
+const { title, description, aplicativo = false, largura = "texto" } = Astro.props;
 const fullTitle = title ? `${title} | ${siteName}` : `${siteName}: ${siteTagline}`;
 
 // URLs absolutas a partir do endereço do build (src/config/site.ts).
@@ -33,13 +36,15 @@ const shareImageUrl = site ? new URL(shareImage.path, site).href : undefined;
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {!indexable && <meta name="robots" content="noindex" />}
     {canonical && <link rel="canonical" href={canonical} />}
-    <meta name="theme-color" content="#0f6b4f" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0e1511" media="(prefers-color-scheme: dark)" />
+    <Font cssVariable="--fonte-titulo" preload />
+    <Font cssVariable="--fonte-texto" preload />
+    <meta name="theme-color" content="#0b6e4f" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1512" media="(prefers-color-scheme: dark)" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="/icone.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
@@ -65,7 +70,7 @@ const shareImageUrl = site ? new URL(shareImage.path, site).href : undefined;
       Pular para o conteúdo
     </a>
     <SiteHeader />
-    <main id="conteudo" tabindex="-1">
+    <main id="conteudo" tabindex="-1" class:list={[{ "main-larga": largura === "larga" }]}>
       {aplicativo && <AvisoSemConexao />}
       <slot />
     </main>
@@ -92,5 +97,9 @@ const shareImageUrl = site ? new URL(shareImage.path, site).href : undefined;
 
   main:focus {
     outline: none;
+  }
+
+  .main-larga {
+    max-width: var(--largura-larga);
   }
 </style>

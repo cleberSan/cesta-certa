@@ -2,8 +2,11 @@ import { expect, type Locator, type Page } from "@playwright/test";
 
 /** Apoio dos testes que usam a tela da lista do mês (/lista). */
 export const formulario = (page: Page) => page.getByRole("form", { name: "Adicionar item" });
+/** Os itens dos dois grupos, "Faltam" e depois "No carrinho" (spec 0002, CA-08). */
 export const itens = (page: Page) =>
-  page.getByRole("list", { name: "Itens" }).getByRole("listitem");
+  page.getByRole("region", { name: "Itens" }).getByRole("listitem");
+export const grupo = (page: Page, nome: "Faltam" | "No carrinho") =>
+  page.getByRole("list", { name: new RegExp(`^${nome} \\d+$`) }).getByRole("listitem");
 export const aviso = (page: Page) => page.getByRole("status");
 export const seletor = (page: Page) => page.getByLabel("Lista", { exact: true });
 

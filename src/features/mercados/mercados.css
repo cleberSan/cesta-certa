@@ -11,6 +11,18 @@
   color: var(--cor-texto-suave);
 }
 
+/* Enquanto o aparelho abre, o espaço da tela fica reservado: o texto abaixo não pula (CLS). */
+.mercados-abrindo {
+  min-height: 38rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 48rem) {
+  .mercados-abrindo {
+    min-height: 22.5rem;
+  }
+}
+
 .mercados-ponto {
   display: flex;
   flex-wrap: wrap;
@@ -35,10 +47,11 @@
 
 .mercados-lista > li {
   margin: 0 0 0.75rem;
-  padding: 0.75rem var(--espaco);
+  padding: 0.85rem var(--espaco);
   border: 1px solid var(--cor-borda);
-  border-radius: var(--raio);
+  border-radius: var(--raio-grande);
   background: var(--cor-superficie);
+  box-shadow: var(--sombra-cartao);
 }
 
 .mercados-lista h3 {
@@ -172,8 +185,9 @@
   padding: 0.75rem var(--espaco) 1rem;
   border: 1px solid var(--cor-borda);
   border-top: 4px solid var(--cor-marca);
-  border-radius: var(--raio);
+  border-radius: var(--raio-grande);
   background: var(--cor-superficie);
+  box-shadow: var(--sombra-flutuante);
 }
 
 .mercados-folha-topo {

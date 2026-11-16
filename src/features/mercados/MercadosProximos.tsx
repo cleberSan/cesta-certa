@@ -57,7 +57,7 @@ export default function MercadosProximos() {
 
   if (carga.fase === "abrindo") {
     return (
-      <p className="mercados-carregando" role="status">
+      <p className="mercados-carregando mercados-abrindo" role="status">
         Abrindo…
       </p>
     );
