@@ -37,6 +37,7 @@ O que vai para cada serviço, e o que não vai, está na página [Privacidade](h
 | [spec.md](docs/specs/0001-mvp-compra-do-mes/spec.md)       | O quê e por quê: problema, fora de escopo e critérios de aceite                     |
 | [plano.md](docs/specs/0001-mvp-compra-do-mes/plano.md)     | Como: fatos verificados com fonte, desenho, segurança, testes por critério e riscos |
 | [tarefas.md](docs/specs/0001-mvp-compra-do-mes/tarefas.md) | Em que ordem: uma tarefa por commit, em cinco PRs                                   |
+| [spec 0002](docs/specs/0002-novo-visual-feira/spec.md)     | Novo visual, direção "Feira": critérios, plano e tarefas (em rascunho)              |
 | [docs/specs](docs/specs/README.md)                         | Como as specs funcionam aqui                                                        |
 | [CONTRIBUTING](CONTRIBUTING.md)                            | Como rodar, testar e publicar                                                       |
 | [SECURITY](SECURITY.md)                                    | Como reportar uma falha de segurança                                                |
@@ -54,6 +55,7 @@ O que vai para cada serviço, e o que não vai, está na página [Privacidade](h
 | [0006](docs/adr/0006-comparacao-da-lista.md)             | Como o app compara a lista entre os mercados                                               |
 | [0007](docs/adr/0007-demonstracao-e-uso-sem-internet.md) | Demonstração com dados fictícios e uso sem internet                                        |
 | [0008](docs/adr/0008-conferencia-do-site-no-ar.md)       | Conferência agendada do site no ar                                                         |
+| [0009](docs/adr/0009-identidade-visual-e-fontes.md)      | Identidade visual "Feira" e fontes próprias (proposto)                                     |
 
 ## Qualidade
 
