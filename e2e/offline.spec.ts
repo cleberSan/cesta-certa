@@ -73,7 +73,7 @@ test.describe("sem internet", () => {
 
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      "A compra do mês no mercado certo",
+      "Onde a sua lista sai mais barata.",
     );
   });
 

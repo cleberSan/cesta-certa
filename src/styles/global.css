@@ -21,7 +21,8 @@
   --cor-sobre-menta: #084f39;
   --cor-tinta: #12201a;
   --cor-sobre-tinta: #ffffff;
-  --cor-sobre-tinta-suave: #c9d6ce;
+  --cor-tinta-icone: #9be7c6;
+  --cor-tinta-icone-fundo: #1f3329;
   --cor-destaque: #8a4b00;
   --cor-borda: #dce4dd;
   --cor-borda-forte: #7a8b80;
@@ -62,7 +63,8 @@
     --cor-sobre-menta: #9be7c6;
     --cor-tinta: #eaf1ec;
     --cor-sobre-tinta: #0f1512;
-    --cor-sobre-tinta-suave: #2e3c34;
+    --cor-tinta-icone: #0b6e4f;
+    --cor-tinta-icone-fundo: #d3e2d9;
     --cor-destaque: #ffc46b;
     --cor-borda: #2a362f;
     --cor-borda-forte: #6c7f74;
@@ -210,6 +212,31 @@ code {
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+}
+
+/* Valor em destaque, como etiqueta de preço de feira (spec 0002). */
+.etiqueta-preco {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 1rem 0.3rem 0.65rem;
+  border-radius: 0.5rem var(--raio-pilula) var(--raio-pilula) 0.5rem;
+  background: var(--cor-etiqueta);
+  color: var(--cor-sobre-etiqueta);
+  font-family: var(--titulo);
+  font-weight: 800;
+  font-size: 1.625rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.etiqueta-preco::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--cor-fundo);
 }
 
 .botao {
