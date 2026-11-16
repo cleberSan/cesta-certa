@@ -1,0 +1,103 @@
+/* Assistente da compra (spec 0001, T16). */
+
+.assistente {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.assistente h4 {
+  margin: 0 0 0.3rem;
+}
+
+.assistente-painel {
+  margin-top: 1rem;
+}
+
+.assistente-aceite h5,
+.assistente-resposta h5 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.assistente-formulario {
+  margin: 0 0 1rem;
+}
+
+.assistente-formulario .campo {
+  margin-bottom: 0.75rem;
+}
+
+.assistente-formulario textarea {
+  display: block;
+  width: 100%;
+  min-height: 5.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--cor-borda);
+  border-radius: 0.5rem;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font: inherit;
+  resize: vertical;
+}
+
+.assistente-formulario textarea[aria-invalid="true"] {
+  border-color: var(--cor-erro);
+}
+
+.assistente-contagem {
+  margin-top: 0.3rem;
+  text-align: right;
+}
+
+.assistente-sugestoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.assistente-resposta {
+  padding: 0.75rem var(--espaco);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-fundo);
+}
+
+/* Texto simples, com as quebras de linha da resposta e sem link (plano.md, "Assistente"). */
+.assistente-texto {
+  margin: 0 0 0.5rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.assistente-nao-conferido {
+  padding: 0 0.15rem;
+  border-bottom: 2px solid var(--cor-destaque);
+  background: var(--cor-aviso-fundo);
+  color: inherit;
+}
+
+.assistente-nao-conferido span {
+  font-size: 0.85em;
+  font-weight: 700;
+}
+
+.assistente-rastro {
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.assistente-saida > .mensagem-erro p,
+.assistente-aviso p {
+  margin: 0;
+}
+
+.assistente-aviso {
+  margin: 0 0 1rem;
+}
+
+.assistente-esquecer {
+  margin: 1rem 0 0;
+}

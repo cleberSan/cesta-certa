@@ -1,5 +1,6 @@
 import { useId, useMemo, useRef, useState, type SubmitEvent } from "react";
 import { formatarCentavos } from "../../shared/dinheiro";
+import { Assistente, type DadosDoAssistente } from "../assistente/Assistente";
 import type { Item, Lista } from "../lista/lista";
 import { ehAntigo, type ObservacaoDePreco } from "../precos/precos";
 import { avisoDeAntigo, descreverFonte } from "../precos/textos";
@@ -52,6 +53,7 @@ export interface DadosDaComparacao {
   readonly hoje: string;
   readonly onLista: (id: string) => void;
   readonly onObjetivo: (objetivo: Objetivo) => void;
+  readonly assistente: DadosDoAssistente;
 }
 
 /** A conta da comparação para os mercados do raio; nula sem itens ou sem preços. */
@@ -206,6 +208,12 @@ export function Comparacao({
                 Mostrar mais {comparacao.opcoes.length - mostrar} opções
               </button>
             </p>
+          )}
+          {comparacao.opcoes.length > 0 && (
+            <Assistente
+              dados={dados.assistente}
+              entrada={{ comparacao, objetivo, raioKm, hoje: dados.hoje }}
+            />
           )}
         </>
       )}

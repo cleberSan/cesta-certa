@@ -1,7 +1,7 @@
 # ADR-0004: Assistente pelo servidor, com código de acesso e cota no D1
 
 - Status: aceito
-- Data: 2026-11-13 (T15)
+- Data: 2026-11-13 (T15; lado do app na T16)
 
 ## Contexto
 
@@ -26,6 +26,7 @@ O custo é a restrição que manda: a hospedagem é o plano gratuito da Cloudfla
 13. **Provedores atrás de uma interface:** `anthropic` em produção, `gravado` quando `ASSISTENTE_PROVEDOR=gravado` (E2E e prévia, sem custo e sem chave) e um falso nos testes. As respostas gravadas não citam valores em reais. A demonstração do app (T16 e T17) usa respostas gravadas no próprio aparelho e não chama o servidor.
 14. **Erros:** os do plano mais `assistente.tempo-esgotado` (504), para a tela dizer que demorou. Toda resposta depois da reserva leva `limite: { restantesHoje, restantesMes, voltaEm }`, até as de erro.
 15. **Log:** uma linha por pedido com `resultado`, `prompt`, `duracaoMs`, `provedor`, `modelo`, tokens de entrada e saída e custo estimado em dólar (US$ 0,10 e US$ 0,50 por milhão). Pergunta, contexto, resposta e código nunca entram.
+16. **Lado do app (T16):** o aceite (CA-28) e o código ficam no armazém `ajustes` do aparelho, fora da cópia exportada; "Esquecer o aceite e o código" apaga o registro, e um 401 apaga só o código e volta a pedir. O código aceito tem de 32 a 512 caracteres ASCII visíveis, porque vai num cabeçalho HTTP. O contexto leva objetivo, itens e as três melhores opções com preços, fontes, datas e diferenças, sem coordenadas, sem identificadores do aparelho e sem a descrição impressa na nota, que é texto de terceiro (CA-26, CA-27). Acima de 32 KB, sai primeiro o detalhe por item das opções 2 e 3, depois o da primeira; se nem os totais couberem, o app avisa sem enviar (CA-31). Os valores conhecidos para a conferência (CA-33) são os escritos no próprio contexto enviado, e a resposta aparece como texto, sem HTML nem link.
 
 ## Alternativas
 
@@ -44,5 +45,5 @@ O custo é a restrição que manda: a hospedagem é o plano gratuito da Cloudfla
 - Uma pergunta que falha gasta crédito da cota; com 30 por dia, é aceitável.
 - A prévia não tem o assistente até ganhar o banco pelo id.
 - As linhas de dias antigos ficam na tabela (uma por dia de uso, poucos bytes cada); limpar fica para quando fizer diferença.
-- Os segredos `ANTHROPIC_API_KEY` e `ASSISTENTE_CODIGO` são criados pelo Cleber no painel da Cloudflare antes da T16. **Rotação:** criar a chave nova na Anthropic, trocar o segredo, revogar a antiga; um código novo pede para digitar de novo em cada aparelho.
+- Os segredos `ANTHROPIC_API_KEY` e `ASSISTENTE_CODIGO` são criados pelo Cleber no painel da Cloudflare (variáveis e segredos do Worker de produção); o primeiro teste da tela com o Claude é em produção, porque a prévia não tem o banco. **Rotação:** criar a chave nova na Anthropic, trocar o segredo, revogar a antiga; um código novo pede para digitar de novo em cada aparelho.
 - **Rollback:** reverter o deploy tira a rota; o banco e a tabela ficam sem uso, sem conteúdo de ninguém, e podem ser apagados no painel.

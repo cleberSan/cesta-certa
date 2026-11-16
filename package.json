@@ -23,7 +23,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "1.6.0",
     "@astrojs/react": "^7.1.2",
-    "astro": "^7.4.4",
+    "astro": "^7.4.7",
     "jsqr": "1.4.0",
     "maplibre-gl": "6.16.0",
     "react": "^19.3.1",
