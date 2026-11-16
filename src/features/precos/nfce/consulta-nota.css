@@ -5,7 +5,8 @@
 .consulta-formulario {
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
-  border-radius: var(--raio);
+  border-radius: var(--raio-grande);
+  box-shadow: var(--sombra-cartao);
   padding: var(--espaco);
 }
 
@@ -19,9 +20,9 @@
   display: block;
   width: 100%;
   padding: 0.75rem;
-  border: 2px solid var(--cor-borda);
-  border-radius: 0.5rem;
-  background: var(--cor-fundo);
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
   color: var(--cor-texto);
   font-family: var(--fonte-mono);
   font-size: 1rem;
@@ -51,9 +52,10 @@
 .consulta-nota {
   margin-top: 1rem;
   padding: var(--espaco);
-  border-radius: var(--raio);
+  border-radius: var(--raio-grande);
   border: 1px solid var(--cor-borda);
   background: var(--cor-superficie);
+  box-shadow: var(--sombra-cartao);
 }
 
 .consulta-falha {
@@ -230,9 +232,10 @@
 .importacao {
   margin-top: 1rem;
   padding: var(--espaco);
-  border-radius: var(--raio);
+  border-radius: var(--raio-grande);
   border: 1px solid var(--cor-borda);
   background: var(--cor-superficie);
+  box-shadow: var(--sombra-cartao);
   display: grid;
   gap: 1rem;
 }
@@ -273,7 +276,7 @@
   gap: 0.35rem;
   padding: 0.75rem;
   border: 1px solid var(--cor-borda);
-  border-radius: 0.5rem;
+  border-radius: var(--raio);
   background: var(--cor-fundo);
 }
 
@@ -293,9 +296,9 @@
   width: 100%;
   min-height: 2.75rem;
   padding: 0.5rem;
-  border: 2px solid var(--cor-borda);
-  border-radius: 0.5rem;
-  background: var(--cor-fundo);
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
   color: var(--cor-texto);
   font: inherit;
 }

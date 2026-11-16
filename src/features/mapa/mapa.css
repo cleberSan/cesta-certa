@@ -8,7 +8,7 @@
   margin: 0.5rem 0;
   overflow: hidden;
   border: 1px solid var(--cor-borda);
-  border-radius: var(--raio);
+  border-radius: var(--raio-grande);
   background: #e8e4d8;
 }
 

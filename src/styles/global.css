@@ -30,6 +30,10 @@
   --cor-erro: #a12622;
   --cor-erro-fundo: #fdf0ef;
   --cor-aviso-fundo: #fff6d6;
+  --cor-selo-antigo: #fff1c2;
+  --cor-sobre-selo-antigo: #5c4300;
+  --cor-selo-marca: #e8eef9;
+  --cor-sobre-selo-marca: #22406e;
   --cor-foco: #1b4fd6;
 
   --sombra-cartao: 0 1px 0 var(--cor-borda), 0 8px 24px rgb(18 32 26 / 6%);
@@ -72,6 +76,10 @@
     --cor-erro: #ff9d96;
     --cor-erro-fundo: #2c1513;
     --cor-aviso-fundo: #2b2410;
+    --cor-selo-antigo: #3a2f0c;
+    --cor-sobre-selo-antigo: #ffd98a;
+    --cor-selo-marca: #1c2a40;
+    --cor-sobre-selo-marca: #b9cdf3;
     --cor-foco: #9db8ff;
 
     --sombra-cartao: 0 1px 0 var(--cor-borda), 0 8px 24px rgb(0 0 0 / 30%);
@@ -191,10 +199,13 @@ code {
   color: var(--cor-texto-suave);
 }
 
+/* Peças comuns no visual "Feira" (spec 0002, T04): cartões arredondados com sombra leve, botões
+   em pílula, campos com borda de 3:1 e etiquetas em amarelo de preço de feira. */
 .cartao {
   background: var(--cor-superficie);
   border: 1px solid var(--cor-borda);
-  border-radius: var(--raio);
+  border-radius: var(--raio-grande);
+  box-shadow: var(--sombra-cartao);
   padding: var(--espaco);
   margin: 0 0 1rem;
 }
@@ -205,11 +216,11 @@ code {
 
 .etiqueta {
   display: inline-block;
-  padding: 0.15rem 0.65rem;
+  padding: 0.2rem 0.75rem;
   border-radius: var(--raio-pilula);
-  border: 1px solid currentColor;
-  color: var(--cor-destaque);
-  font-size: 0.85rem;
+  background: var(--cor-etiqueta);
+  color: var(--cor-sobre-etiqueta);
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.02em;
 }
@@ -243,14 +254,17 @@ code {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.4rem;
   min-height: 2.75rem;
-  padding: 0.6rem 1.25rem;
-  border: 2px solid var(--cor-marca);
+  padding: 0.55rem 1.25rem;
+  border: 1px solid var(--cor-marca);
   border-radius: var(--raio-pilula);
   background: var(--cor-marca);
   color: var(--cor-sobre-marca);
   font: inherit;
   font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
   text-decoration: none;
   cursor: pointer;
 }
@@ -268,18 +282,21 @@ code {
 }
 
 .botao-secundario {
-  background: transparent;
-  color: var(--cor-marca);
+  border-color: var(--cor-borda);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-weight: 600;
 }
 
 .botao-secundario:hover {
-  background: transparent;
-  color: var(--cor-marca-forte);
+  border-color: var(--cor-marca);
+  background: var(--cor-menta);
+  color: var(--cor-sobre-menta);
 }
 
 .botao-pequeno {
-  padding: 0.35rem 0.9rem;
-  font-size: 0.95rem;
+  padding: 0.35rem 0.95rem;
+  font-size: 0.9375rem;
 }
 
 /* Ação que apaga ou substitui dados. */
@@ -308,24 +325,28 @@ code {
 }
 
 .campo input,
-.campo select {
+.campo select,
+.campo textarea {
   display: block;
   width: 100%;
-  min-height: 2.75rem;
-  padding: 0.5rem 0.75rem;
-  border: 2px solid var(--cor-borda);
-  border-radius: 0.5rem;
-  background: var(--cor-fundo);
+  min-height: 3rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
   color: var(--cor-texto);
   font: inherit;
 }
 
-.campo input::placeholder {
+.campo input::placeholder,
+.campo textarea::placeholder {
   color: var(--cor-texto-suave);
   opacity: 1;
 }
 
-.campo input[aria-invalid="true"] {
+.campo input[aria-invalid="true"],
+.campo textarea[aria-invalid="true"] {
+  border-width: 2px;
   border-color: var(--cor-erro);
 }
 
@@ -337,8 +358,9 @@ code {
 
 .alerta,
 .confirmacao {
-  padding: 0.75rem var(--espaco);
+  padding: 0.85rem var(--espaco);
   border: 1px solid var(--cor-destaque);
+  border-left-width: 0.375rem;
   border-radius: var(--raio);
   background: var(--cor-aviso-fundo);
 }
@@ -362,12 +384,38 @@ code {
 
 .mensagem-erro {
   margin: 0.75rem 0 0;
-  padding: 0.6rem 0.75rem;
+  padding: 0.6rem 0.85rem;
   border: 1px solid var(--cor-erro);
-  border-radius: 0.5rem;
+  border-left-width: 0.375rem;
+  border-radius: var(--raio);
   background: var(--cor-erro-fundo);
   color: var(--cor-erro);
   font-weight: 600;
+}
+
+/* Selos em texto ao lado de um preço (spec 0002, CA-13): a cor ajuda, mas o texto diz tudo. */
+.selo {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--raio-pilula);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.selo-antigo {
+  background: var(--cor-selo-antigo);
+  color: var(--cor-sobre-selo-antigo);
+}
+
+.selo-marca {
+  background: var(--cor-selo-marca);
+  color: var(--cor-sobre-selo-marca);
+}
+
+.selo-atacado {
+  background: var(--cor-menta);
+  color: var(--cor-sobre-menta);
 }
 
 .passos {
@@ -379,7 +427,7 @@ code {
 .passos > li {
   counter-increment: passo;
   position: relative;
-  padding-left: 2.75rem;
+  padding-left: 3rem;
   margin: 0 0 1rem;
 }
 
@@ -387,15 +435,16 @@ code {
   content: counter(passo);
   position: absolute;
   left: 0;
-  top: 0.1rem;
-  width: 2rem;
-  height: 2rem;
+  top: 0;
+  width: 2.125rem;
+  height: 2.125rem;
   display: grid;
   place-items: center;
-  border-radius: 50%;
-  background: var(--cor-marca);
-  color: var(--cor-sobre-marca);
-  font-weight: 700;
+  border-radius: 0.75rem;
+  background: var(--cor-menta);
+  color: var(--cor-sobre-menta);
+  font-family: var(--titulo);
+  font-weight: 800;
 }
 
 .somente-leitor {
